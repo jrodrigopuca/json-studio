@@ -1,15 +1,16 @@
 /**
- * TreeViewHeader styles (CSS Module)
+ * TreeViewHeader styles (CSS Module) - Apple HIG inspired
  */
 
 .header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 8px 12px;
-	border-bottom: 1px solid var(--border);
-	background: var(--surface);
-	font-family: var(--font-sans);
+	padding: 8px 16px;
+	border-bottom: 0.5px solid color-mix(in srgb, var(--border) 50%, transparent);
+	background: color-mix(in srgb, var(--surface) 60%, transparent);
+	backdrop-filter: blur(20px) saturate(180%);
+	-webkit-backdrop-filter: blur(20px) saturate(180%);
 	font-size: 12px;
 	gap: 12px;
 }
@@ -17,39 +18,36 @@
 .controls {
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: 6px;
 }
 
 .button {
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
-	padding: 4px 10px;
-	border: 1px solid var(--border);
-	border-radius: 4px;
-	background: var(--bg);
+	padding: 5px 10px;
+	border: none;
+	border-radius: var(--radius-md);
+	background: color-mix(in srgb, var(--text-primary) 8%, transparent);
 	color: var(--text-secondary);
 	font-size: 11px;
-	font-family: var(--font-sans);
 	cursor: pointer;
-	transition: all 0.15s;
+	transition: all var(--transition-fast);
 }
 
 .button:hover {
-	background: var(--surface-hover);
+	background: color-mix(in srgb, var(--text-primary) 15%, transparent);
 	color: var(--text-primary);
-	border-color: var(--text-secondary);
 }
 
 .button:active {
 	background: var(--accent);
-	color: white;
-	border-color: var(--accent);
+	color: #ffffff;
 }
 
 .icon {
 	font-size: 8px;
-	opacity: 0.7;
+	opacity: 0.8;
 }
 
 .levelControl {
@@ -58,7 +56,7 @@
 	gap: 6px;
 	margin-left: 8px;
 	padding-left: 8px;
-	border-left: 1px solid var(--border);
+	border-left: 0.5px solid color-mix(in srgb, var(--border) 50%, transparent);
 }
 
 .levelLabel {
@@ -67,15 +65,19 @@
 }
 
 .levelSelect {
-	padding: 3px 6px;
-	border: 1px solid var(--border);
-	border-radius: 4px;
-	background: var(--bg);
+	padding: 4px 8px;
+	border: none;
+	border-radius: var(--radius-md);
+	background: color-mix(in srgb, var(--text-primary) 8%, transparent);
 	color: var(--text-primary);
 	font-size: 11px;
-	font-family: var(--font-sans);
 	cursor: pointer;
 	min-width: 50px;
+	transition: background var(--transition-fast);
+}
+
+.levelSelect:hover {
+	background: color-mix(in srgb, var(--text-primary) 15%, transparent);
 }
 
 .levelSelect:hover {

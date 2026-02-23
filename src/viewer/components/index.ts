@@ -23,3 +23,4 @@ export { EditView } from "./EditView";
 export { TableView } from "./TableView";
 export { DiffView } from "./DiffView";
 export { SavedView } from "./SavedView";
+export { ConvertView } from "./ConvertView";

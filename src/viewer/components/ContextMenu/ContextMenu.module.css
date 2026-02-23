@@ -1,5 +1,5 @@
 /**
- * ContextMenu styles (CSS Module)
+ * ContextMenu styles (CSS Module) - Apple HIG Liquid Glass inspired
  */
 
 .overlay {
@@ -11,52 +11,69 @@
 .menu {
 	position: fixed;
 	z-index: 1001;
-	min-width: 160px;
-	background: var(--surface);
-	border: 1px solid var(--border);
-	border-radius: 6px;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-	padding: 4px 0;
-	font-family: var(--font-sans);
+	min-width: 200px;
+	background: color-mix(in srgb, var(--surface) 75%, transparent);
+	backdrop-filter: blur(40px) saturate(200%);
+	-webkit-backdrop-filter: blur(40px) saturate(200%);
+	border: 0.5px solid color-mix(in srgb, var(--border) 50%, transparent);
+	border-radius: var(--radius-lg);
+	box-shadow: 
+		0 0 0 0.5px rgba(255, 255, 255, 0.1) inset,
+		0 24px 48px -12px rgba(0, 0, 0, 0.5),
+		0 12px 24px -6px rgba(0, 0, 0, 0.3);
+	padding: 6px;
 	font-size: 13px;
 }
 
 .item {
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: 12px;
 	width: 100%;
 	padding: 8px 12px;
 	background: none;
 	border: none;
+	border-radius: var(--radius-sm);
 	color: var(--text-primary);
 	cursor: pointer;
 	text-align: left;
+	transition: background var(--transition-fast);
 }
 
 .item:hover {
-	background: var(--surface-hover);
+	background: var(--accent);
+	color: #ffffff;
+}
+
+.item:hover .icon {
+	opacity: 1;
+}
+
+.item:hover .shortcut {
+	opacity: 0.7;
+	color: #ffffff;
 }
 
 .item:active {
-	background: var(--accent);
-	color: white;
+	background: var(--accent-hover);
 }
 
 .icon {
 	width: 16px;
 	text-align: center;
 	opacity: 0.7;
+	font-size: 13px;
 }
 
 .separator {
-	height: 1px;
-	background: var(--border);
-	margin: 4px 0;
+	height: 0.5px;
+	background: color-mix(in srgb, var(--border) 50%, transparent);
+	margin: 6px 8px;
 }
 
 .shortcut {
 	margin-left: auto;
-	opacity: 0.5;
+	opacity: 0.4;
 	font-size: 11px;
+	font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 }

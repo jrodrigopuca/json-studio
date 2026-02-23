@@ -22,6 +22,7 @@ import {
   TableView,
   DiffView,
   SavedView,
+  ConvertView,
   UnsavedChangesModal,
   ShortcutsHelpModal,
 } from "./components";
@@ -110,6 +111,8 @@ function AppContent() {
         return <DiffView />;
       case "saved":
         return <SavedView />;
+      case "convert":
+        return <ConvertView />;
       default:
         return <TreeView />;
     }

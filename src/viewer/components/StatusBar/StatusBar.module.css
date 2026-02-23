@@ -1,17 +1,19 @@
 /**
- * StatusBar styles (CSS Module)
+ * StatusBar styles (CSS Module) - Apple HIG inspired
  */
 
 .statusBar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 12px;
-  height: 28px;
-  background: var(--status-bg);
-  border-top: 1px solid var(--status-border);
+  padding: 0 16px;
+  height: var(--status-bar-height, 22px);
+  background: color-mix(in srgb, var(--status-bg) 80%, transparent);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 0.5px solid color-mix(in srgb, var(--border) 50%, transparent);
   font-size: 11px;
-  color: var(--text-secondary);
+  color: var(--status-text, var(--text-secondary));
   flex-shrink: 0;
 }
 
@@ -25,24 +27,25 @@
 .item {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
 
 .unsaved {
   color: var(--warning);
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .themeButton {
-  padding: 2px 6px;
+  padding: 2px 8px;
   border: none;
   background: transparent;
   cursor: pointer;
-  font-size: 12px;
-  border-radius: 4px;
-  transition: background 0.15s;
+  font-size: 11px;
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast);
+  color: inherit;
 }
 
 .themeButton:hover {
-  background: var(--surface-hover);
+  background: color-mix(in srgb, var(--text-primary) 10%, transparent);
 }

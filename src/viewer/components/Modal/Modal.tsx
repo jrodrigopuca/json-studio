@@ -1,8 +1,11 @@
 /**
  * Modal component for confirmations and dialogs.
+ * Uses createPortal to render outside the component tree to avoid
+ * stacking context issues with backdrop-filter.
  */
 
 import { useEffect, useCallback, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { formatSize } from "../../core/formatter";
 import styles from "./Modal.module.css";
 
@@ -34,7 +37,8 @@ export function Modal({ isOpen, title, children, onClose, actions }: ModalProps)
 
   if (!isOpen) return null;
 
-  return (
+  // Use portal to render modal at document root to avoid stacking context issues
+  return createPortal(
     <div className={styles.overlay} onClick={onClose}>
       <div
         className={styles.modal}
@@ -51,7 +55,8 @@ export function Modal({ isOpen, title, children, onClose, actions }: ModalProps)
         <div className={styles.content}>{children}</div>
         {actions && <footer className={styles.actions}>{actions}</footer>}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

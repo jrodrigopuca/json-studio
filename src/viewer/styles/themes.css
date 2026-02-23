@@ -3,95 +3,107 @@
  * Theme is controlled by a data-theme attribute on <html>.
  */
 
-/* ===== Dark theme (default) ===== */
+/* ===== Dark theme (default) - Apple HIG System Colors ===== */
 :root,
 [data-theme='dark'] {
-  --bg: #1a1a2e;
-  --bg-gradient: linear-gradient(135deg, #1a1a2e, #16213e);
-  --surface: #1e293b;
-  --surface-hover: #263548;
-  --border: #334155;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
+  /* iOS System Gray Colors (Dark) */
+  --bg: #1c1c1e;                    /* systemGray6 */
+  --bg-gradient: none;
+  --surface: #2c2c2e;               /* systemGray5 */
+  --surface-hover: #3a3a3c;         /* systemGray4 */
+  --border: #48484a;                /* systemGray3 */
+  --text-primary: #ffffff;
+  --text-secondary: #8e8e93;        /* systemGray */
 
-  /* Syntax */
-  --syn-string: #a5d6a7;
-  --syn-number: #90caf9;
-  --syn-boolean: #ffcc80;
-  --syn-null: #ef9a9a;
-  --syn-key: #ce93d8;
-  --syn-bracket: #78909c;
+  /* Syntax - Apple System Colors (Dark) */
+  --syn-string: #ff9f0a;            /* systemOrange */
+  --syn-number: #bf5af2;            /* systemPurple */
+  --syn-boolean: #ff375f;           /* systemPink */
+  --syn-null: #8e8e93;              /* systemGray */
+  --syn-key: #64d2ff;               /* systemCyan */
+  --syn-bracket: #8e8e93;           /* systemGray */
 
-  /* Accent */
-  --accent: #fbbf24;
-  --accent-hover: #f59e0b;
+  /* Accent - Apple Blue */
+  --accent: #0a84ff;
+  --accent-hover: #409cff;
 
-  /* Semantic */
-  --error: #ef4444;
-  --error-bg: #451a1a;
-  --warning: #f59e0b;
-  --warning-bg: #451a00;
-  --success: #22c55e;
-  --info: #3b82f6;
+  /* Semantic - Apple System Colors (Dark) */
+  --error: #ff453a;                 /* systemRed */
+  --error-bg: #3a1d1b;
+  --warning: #ffd60a;               /* systemYellow */
+  --warning-bg: #3a351b;
+  --success: #30d158;               /* systemGreen */
+  --info: #64d2ff;                  /* systemCyan */
 
-  /* Toolbar */
-  --toolbar-bg: #0f172a;
-  --toolbar-border: #1e293b;
+  /* Toolbar - Elevated surface */
+  --toolbar-bg: #2c2c2e;
+  --toolbar-border: #3a3a3c;
 
   /* Status bar */
-  --status-bg: #0f172a;
-  --status-border: #1e293b;
+  --status-bg: #2c2c2e;
+  --status-border: #3a3a3c;
+  --status-text: #8e8e93;
 
   /* Search */
-  --search-bg: #1e293b;
-  --search-border: #475569;
-  --search-match: #fbbf2440;
-  --search-match-current: #fbbf2480;
+  --search-bg: #3a3a3c;
+  --search-border: #48484a;
+  --search-match: rgba(255, 214, 10, 0.3);
+  --search-match-current: rgba(255, 214, 10, 0.6);
+
+  /* Indent guides */
+  --indent-guide: #3a3a3c;
+  --indent-guide-active: #48484a;
 }
 
-/* ===== Light theme ===== */
+/* ===== Light theme - Apple HIG System Colors ===== */
 [data-theme='light'] {
+  /* iOS System Gray Colors (Light) */
   --bg: #ffffff;
   --bg-gradient: none;
-  --surface: #f8fafc;
-  --surface-hover: #f1f5f9;
-  --border: #e2e8f0;
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
+  --surface: #f2f2f7;               /* systemGray6 */
+  --surface-hover: #e5e5ea;         /* systemGray5 */
+  --border: #d1d1d6;                /* systemGray4 */
+  --text-primary: #1c1c1e;
+  --text-secondary: #8e8e93;        /* systemGray */
 
-  /* Syntax */
-  --syn-string: #2e7d32;
-  --syn-number: #1565c0;
-  --syn-boolean: #e65100;
-  --syn-null: #c62828;
-  --syn-key: #6a1b9a;
-  --syn-bracket: #546e7a;
+  /* Syntax - Apple System Colors (Light) */
+  --syn-string: #c93400;            /* darker orange for contrast */
+  --syn-number: #af52de;            /* systemPurple */
+  --syn-boolean: #ff2d55;           /* systemPink */
+  --syn-null: #8e8e93;              /* systemGray */
+  --syn-key: #007aff;               /* systemBlue */
+  --syn-bracket: #8e8e93;           /* systemGray */
 
-  /* Accent */
-  --accent: #f59e0b;
-  --accent-hover: #d97706;
+  /* Accent - Apple Blue */
+  --accent: #007aff;
+  --accent-hover: #0056b3;
 
-  /* Semantic */
-  --error: #dc2626;
-  --error-bg: #fef2f2;
-  --warning: #d97706;
-  --warning-bg: #fffbeb;
-  --success: #16a34a;
-  --info: #2563eb;
+  /* Semantic - Apple System Colors (Light) */
+  --error: #ff3b30;                 /* systemRed */
+  --error-bg: #ffefef;
+  --warning: #ff9500;               /* systemOrange */
+  --warning-bg: #fff8eb;
+  --success: #34c759;               /* systemGreen */
+  --info: #5ac8fa;                  /* systemCyan */
 
   /* Toolbar */
-  --toolbar-bg: #f8fafc;
-  --toolbar-border: #e2e8f0;
+  --toolbar-bg: #f2f2f7;
+  --toolbar-border: #d1d1d6;
 
   /* Status bar */
-  --status-bg: #f8fafc;
-  --status-border: #e2e8f0;
+  --status-bg: #f2f2f7;
+  --status-border: #d1d1d6;
+  --status-text: #8e8e93;
 
   /* Search */
   --search-bg: #ffffff;
-  --search-border: #cbd5e1;
-  --search-match: #fbbf2440;
-  --search-match-current: #fbbf2480;
+  --search-border: #d1d1d6;
+  --search-match: rgba(255, 149, 0, 0.25);
+  --search-match-current: rgba(255, 149, 0, 0.5);
+
+  /* Indent guides */
+  --indent-guide: #e5e5ea;
+  --indent-guide-active: #d1d1d6;
 }
 
 /* ===== Syntax highlighting classes ===== */

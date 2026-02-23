@@ -75,10 +75,10 @@ export function useKeyboardShortcuts() {
 
 			// === ⌥ (Option/Alt) shortcuts - use e.code for macOS compatibility ===
 
-			// ⌥1-6: View mode switching
+			// ⌥1-7: View mode switching
 			if (isAlt && code.startsWith("Digit")) {
 				const digit = parseInt(code.charAt(5));
-				if (digit >= 1 && digit <= 6) {
+				if (digit >= 1 && digit <= 7) {
 					e.preventDefault();
 					const modes: ViewMode[] = [
 						"tree",
@@ -87,6 +87,7 @@ export function useKeyboardShortcuts() {
 						"diff",
 						"edit",
 						"saved",
+						"convert",
 					];
 					setViewMode(modes[digit - 1]!);
 				}

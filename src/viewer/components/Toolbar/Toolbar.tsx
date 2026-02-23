@@ -16,6 +16,7 @@ const VIEW_TABS: { mode: ViewMode; label: string; shortcut: string }[] = [
   { mode: "diff", label: "Diff", shortcut: "⌥4" },
   { mode: "edit", label: "Edit", shortcut: "⌥5" },
   { mode: "saved", label: "Saved", shortcut: "⌥6" },
+  { mode: "convert", label: "Convert", shortcut: "⌥7" },
 ];
 
 export function Toolbar() {
