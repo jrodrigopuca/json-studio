@@ -786,4 +786,108 @@ Semana 11+:   Comunidad, plugins, cross-browser
 
 ---
 
+## 12. Progreso de Implementación
+
+> Última actualización: Julio 2025
+
+### Estado actual: Fase 1 — Scaffold completo ✅
+
+Todo el scaffold del MVP ha sido implementado. TypeScript compila sin errores, el servidor de demo (Vite) funciona en `localhost:5173`, y la estructura sigue al 100% la arquitectura definida en este plan.
+
+### Archivos implementados (57 archivos)
+
+| Área                  | Archivos                                                                                                                         | Estado      |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| **Configuración**     | `package.json`, `tsconfig.json`, `vite.demo.config.ts`, `vite.extension.config.ts`, `src/vite-env.d.ts`                          | ✅ Completo |
+| **Manifest & assets** | `public/manifest.json`, `public/icons/icon.svg`                                                                                  | ✅ Completo |
+| **Shared utilities**  | `types.ts`, `constants.ts`, `dom.ts`, `messaging.ts`                                                                             | ✅ Completo |
+| **Core modules**      | `store.ts`, `store.types.ts`, `parser.ts`, `parser.types.ts`, `formatter.ts`, `highlighter.ts`, `virtual-scroll.ts`, `worker.ts` | ✅ Completo |
+| **Base component**    | `base-component.ts`, `types.ts` (viewer)                                                                                         | ✅ Completo |
+| **Estilos globales**  | `base.css`, `themes.css`, `responsive.css`                                                                                       | ✅ Completo |
+| **Toolbar**           | `toolbar.ts`, `toolbar.css`, `toolbar.types.ts`, `index.ts`                                                                      | ✅ Completo |
+| **Tree View**         | `tree-view.ts`, `tree-view.css`, `tree-view.types.ts`, `index.ts`                                                                | ✅ Completo |
+| **Raw View**          | `raw-view.ts`, `raw-view.css`, `raw-view.types.ts`, `index.ts`                                                                   | ✅ Completo |
+| **Search Bar**        | `search-bar.ts`, `search-bar.css`, `search-bar.types.ts`, `index.ts`                                                             | ✅ Completo |
+| **Status Bar**        | `status-bar.ts`, `status-bar.css`, `status-bar.types.ts`, `index.ts`                                                             | ✅ Completo |
+| **Banner**            | `banner.ts`, `banner.css`, `banner.types.ts`, `index.ts`                                                                         | ✅ Completo |
+| **Viewer entry**      | `app.ts`                                                                                                                         | ✅ Completo |
+| **Content script**    | `detector.ts`                                                                                                                    | ✅ Completo |
+| **Background**        | `service-worker.ts`                                                                                                              | ✅ Completo |
+| **Popup**             | `popup.html`, `popup.ts`, `popup.css`                                                                                            | ✅ Completo |
+| **Options**           | `options.html`, `options.ts`, `options.css`                                                                                      | ✅ Completo |
+| **Demo**              | `index.html`, `demo.ts`, 6 fixtures JSON                                                                                         | ✅ Completo |
+
+### Checklist Fase 1 — MVP (v0.1)
+
+#### Infraestructura
+
+- [x] Inicialización del proyecto (npm, TypeScript, Vite)
+- [x] Configuración de build para extensión (multi-entry: background, content, viewer, popup, options)
+- [x] Configuración de demo (servidor dev en puerto 5173)
+- [x] Path aliases (`@viewer/*`, `@shared/*`)
+- [x] Manifest V3 con permisos mínimos (`activeTab`, `clipboardWrite`)
+- [x] Icono SVG base
+- [ ] Generar iconos PNG (16x16, 48x48, 128x128) desde SVG — `scripts/generate-icons.ts`
+- [ ] Script de build para producción — `scripts/build-extension.ts`
+
+#### Lógica core
+
+- [x] Store pub/sub con `getState`, `setState`, `subscribe`, `dispose`
+- [x] Parser JSON → flat tree (`FlatNode[]`) para virtualización
+- [x] Formatter (pretty print, minify, formatSize, formatNumber)
+- [x] Syntax highlighter (regex, clases CSS, detección de URLs)
+- [x] Virtual scroll (overscan, `scrollToItem`)
+- [x] Web Worker para parseo de archivos > 1MB
+
+#### Componentes UI
+
+- [x] BaseComponent con auto-cleanup (`on`, `watch`, `dispose`)
+- [x] Toolbar (brand, tabs Tree/Raw, botones de acción, menú hamburguesa)
+- [x] Tree View (virtualizado, expand/collapse, keyboard nav, context menu)
+- [x] Raw View (pretty-printed con syntax highlighting)
+- [x] Search Bar (Ctrl+F, debounce, prev/next, contador de matches)
+- [x] Status Bar (keys, profundidad, tamaño, indicador válido/inválido)
+- [x] Banner (info/warning/error, dismissible)
+
+#### Estilos
+
+- [x] Reset, variables CSS, scrollbar custom, focus visible
+- [x] Temas dark/light con CSS custom properties
+- [x] Responsive (breakpoints 600px, 400px, touch targets 44x44)
+
+#### Extensión Chrome
+
+- [x] Content script detector (JSON en `<pre>`, JSONP, validación)
+- [x] Service worker (mensajería, badge, detección content-type)
+- [x] Popup (brand, paste JSON, link a settings)
+- [x] Options (shortcuts reference, about)
+
+#### Testing
+
+- [ ] Unit tests: `parser.test.ts`
+- [ ] Unit tests: `formatter.test.ts`
+- [ ] Unit tests: `store.test.ts`
+- [ ] Unit tests: `highlighter.test.ts`
+- [ ] Fixtures grandes: `large.json` (~5MB), `huge.json` (~50MB) — `scripts/generate-fixtures.ts`
+- [ ] E2E tests con Playwright (detección, tree-view, búsqueda)
+
+#### Publicación
+
+- [ ] Probar como extensión sin empaquetar en Chrome (`chrome://extensions`)
+- [ ] Build de producción funcional
+- [ ] Screenshots para Chrome Web Store — `scripts/generate-screenshots.ts`
+- [ ] Publicación en Chrome Web Store
+
+### Próximos pasos inmediatos
+
+1. **Unit tests** — Escribir tests para los módulos core (`parser`, `formatter`, `store`, `highlighter`) con Vitest. Objetivo: 80%+ coverage en lógica core.
+2. **Build de producción** — Verificar que `vite build` con `vite.extension.config.ts` genera los bundles correctos para la extensión.
+3. **Prueba en Chrome** — Cargar la extensión como "unpacked" en `chrome://extensions` y verificar detección + rendering en URLs reales con JSON.
+4. **Generar iconos PNG** — Crear `scripts/generate-icons.ts` que convierta el SVG a 16/48/128px.
+5. **Fixtures grandes** — Crear `scripts/generate-fixtures.ts` para generar `large.json` y `huge.json` y validar virtualización + Web Worker.
+6. **Polish y bug fixes** — Iterar sobre UX después de testing real en Chrome.
+7. **Chrome Web Store submission** — Preparar screenshots, descripción, y publicar v0.1.
+
+---
+
 _"Make JSON beautiful again." ⚡_

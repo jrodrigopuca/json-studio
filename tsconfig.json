@@ -24,6 +24,6 @@
       "@shared/*": ["src/shared/*"]
     }
   },
-  "include": ["src/**/*.ts", "demo/**/*.ts", "vite.*.config.ts"],
+  "include": ["src/**/*.ts", "demo/**/*.ts", "tests/**/*.ts", "vite.*.config.ts", "vitest.config.ts"],
   "exclude": ["node_modules", "dist"]
 }
