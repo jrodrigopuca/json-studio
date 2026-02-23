@@ -210,7 +210,8 @@ export const en: Translations = {
 
 	// ─── LargeFileTreeView ────────────────────────────────────────────────────
 	"largeFile.tab": "Large File",
-	"largeFile.banner": "Large file mode — only the tree view is available for best performance.",
+	"largeFile.banner":
+		"Large file mode — only the tree view is available for best performance.",
 	"largeFile.nodes": "nodes",
 	"largeFile.visible": "visible",
 };
