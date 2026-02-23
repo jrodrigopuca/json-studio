@@ -7,6 +7,9 @@ import { createRoot, type Root } from "react-dom/client";
 import { StrictMode } from "react";
 import App from "./App";
 import type { ContentTypeClass } from "@shared/types";
+import { useStore } from "./store";
+import { parseJSON } from "./core/parser";
+import { prettyPrint } from "./core/formatter";
 import "./styles/index.css";
 
 /** Options for initializing the viewer. */
@@ -37,15 +40,33 @@ export function initViewer(options: ViewerOptions): () => void {
     url = "",
   } = options;
 
-  // Store data for useJsonLoader hook to pick up
-  sessionStorage.setItem(
-    "json-studio-data",
-    JSON.stringify({
-      content: rawJson,
+  // Cleanup any existing root first
+  if (root) {
+    root.unmount();
+    root = null;
+  }
+  
+  // Clear container to allow createRoot to work properly
+  container.innerHTML = "";
+
+  // Reset store and load JSON directly (bypasses sessionStorage issues with StrictMode)
+  const store = useStore.getState();
+  store.reset();
+  
+  // Parse and load the JSON into store
+  const result = parseJSON(rawJson);
+  if (result.ok) {
+    const formatted = prettyPrint(rawJson);
+    store.setJson(formatted, result.nodes, {
+      fileSize: new Blob([formatted]).size,
+      totalKeys: result.totalKeys,
+      maxDepth: result.maxDepth,
       url,
       contentType,
-    })
-  );
+    });
+  } else {
+    store.setParseError(result.error);
+  }
 
   // Create React root and render
   root = createRoot(container);

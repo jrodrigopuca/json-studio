@@ -6,37 +6,45 @@
 import { initViewer } from "../src/viewer/init";
 
 // Fixture imports (bundled for demo convenience)
-import smallJson from "./fixtures/small.json?raw";
-import mediumJson from "./fixtures/medium.json?raw";
-import nestedDeepJson from "./fixtures/nested-deep.json?raw";
-import arrayOfObjectsJson from "./fixtures/array-of-objects.json?raw";
-import withUrlsJson from "./fixtures/with-urls.json?raw";
-import invalidJson from "./fixtures/invalid.json?raw";
-import minifiedJson from "./fixtures/minified.json?raw";
+import stripeWebhook from "./fixtures/stripe-webhook.json?raw";
+import githubRepo from "./fixtures/github-repo.json?raw";
+import clerkUser from "./fixtures/clerk-user.json?raw";
+import shopifyProducts from "./fixtures/shopify-products.json?raw";
+import packageJson from "./fixtures/package-json.json?raw";
+import turboConfig from "./fixtures/turbo-config.json?raw";
+import apiError from "./fixtures/api-error.json?raw";
+import graphqlResponse from "./fixtures/graphql-response.json?raw";
 
 const FIXTURES: Record<string, string> = {
-	small: smallJson,
-	medium: mediumJson,
-	"nested-deep": nestedDeepJson,
-	"array-of-objects": arrayOfObjectsJson,
-	"with-urls": withUrlsJson,
-	invalid: invalidJson,
-	minified: minifiedJson,
+	"stripe-webhook": stripeWebhook,
+	"github-repo": githubRepo,
+	"clerk-user": clerkUser,
+	"shopify-products": shopifyProducts,
+	"package-json": packageJson,
+	"turbo-config": turboConfig,
+	"api-error": apiError,
+	"graphql-minified": graphqlResponse,
 };
 
 let cleanup: (() => void) | null = null;
 const container = document.getElementById("root");
 
 function loadFixture(name: string): void {
-	if (!container) return;
+	console.log("[Demo] loadFixture called with:", name);
+	if (!container) {
+		console.error("[Demo] container not found!");
+		return;
+	}
 
 	// Cleanup previous viewer
 	if (cleanup) {
+		console.log("[Demo] Cleaning up previous viewer");
 		cleanup();
 		cleanup = null;
 	}
 
 	const rawJson = FIXTURES[name] ?? "{}";
+	console.log("[Demo] Loading JSON, length:", rawJson.length);
 
 	cleanup = initViewer({
 		container,
@@ -46,17 +54,78 @@ function loadFixture(name: string): void {
 	});
 }
 
+function loadCustomJson(jsonStr: string): void {
+	if (!container) return;
+
+	// Cleanup previous viewer
+	if (cleanup) {
+		cleanup();
+		cleanup = null;
+	}
+
+	cleanup = initViewer({
+		container,
+		rawJson: jsonStr || "{}",
+		contentType: "application/json",
+		url: "demo://custom.json",
+	});
+}
+
 // Wire up demo controls
 const select = document.getElementById("fixture-select") as HTMLSelectElement;
 const reloadBtn = document.getElementById("reload-btn") as HTMLButtonElement;
+const customJsonInput = document.getElementById(
+	"custom-json",
+) as HTMLTextAreaElement;
+const loadCustomBtn = document.getElementById(
+	"load-custom-btn",
+) as HTMLButtonElement;
+const demoPanel = document.getElementById("demo-panel");
+const demoHeader = document.getElementById("demo-header");
+const demoToggle = document.getElementById("demo-toggle");
+const themeBtns =
+	document.querySelectorAll<HTMLButtonElement>(".demo-theme-btn");
 
+// Fixture select
 select?.addEventListener("change", () => {
+	console.log("[Demo] Select changed to:", select.value);
 	loadFixture(select.value);
 });
 
 reloadBtn?.addEventListener("click", () => {
+	console.log("[Demo] Load button clicked, select value:", select?.value);
 	loadFixture(select?.value ?? "medium");
 });
 
+// Custom JSON
+loadCustomBtn?.addEventListener("click", () => {
+	const customJson = customJsonInput?.value?.trim();
+	if (customJson) {
+		loadCustomJson(customJson);
+	}
+});
+
+// Theme switcher
+themeBtns.forEach((btn) => {
+	btn.addEventListener("click", () => {
+		const theme = btn.dataset.theme;
+		if (theme) {
+			document.documentElement.setAttribute("data-theme", theme);
+			themeBtns.forEach((b) => b.classList.remove("active"));
+			btn.classList.add("active");
+		}
+	});
+});
+
+// Collapse/expand panel
+demoHeader?.addEventListener("click", () => {
+	demoPanel?.classList.toggle("collapsed");
+	if (demoToggle) {
+		demoToggle.textContent = demoPanel?.classList.contains("collapsed")
+			? "▲"
+			: "▼";
+	}
+});
+
 // Initial load
-loadFixture(select?.value ?? "medium");
+loadFixture(select?.value ?? "github-repo");

@@ -5,34 +5,301 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JSON Spark — Demo</title>
   <style>
-    /* Demo-specific controls (not part of the extension) */
-    .demo-controls {
+    /* Demo Panel - Floating control panel */
+    .demo-panel {
       position: fixed;
-      bottom: 40px;
+      bottom: 16px;
       right: 16px;
-      z-index: 1000;
-      display: flex;
-      gap: 8px;
-      padding: 8px;
-      background: rgba(0, 0, 0, 0.8);
-      border-radius: 8px;
-      backdrop-filter: blur(8px);
+      z-index: 10000;
+      width: 320px;
+      background: rgba(28, 28, 30, 0.95);
+      border-radius: 12px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      transition: transform 0.3s ease, opacity 0.3s ease;
     }
-    .demo-controls select,
-    .demo-controls button {
-      padding: 4px 8px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+
+    .demo-panel.collapsed {
+      transform: translateY(calc(100% - 44px));
+    }
+
+    [data-theme="light"] .demo-panel {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .demo-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    [data-theme="light"] .demo-header {
+      background: rgba(0, 0, 0, 0.03);
+      border-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .demo-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    [data-theme="light"] .demo-title {
+      color: #1c1c1e;
+    }
+
+    .demo-title-icon {
+      font-size: 16px;
+    }
+
+    .demo-badge {
+      padding: 2px 6px;
+      font-size: 10px;
+      font-weight: 500;
+      background: #0a84ff;
+      color: #fff;
       border-radius: 4px;
-      background: rgba(255, 255, 255, 0.1);
-      color: #f1f5f9;
-      font-family: monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .demo-toggle {
+      background: none;
+      border: none;
+      color: #8e8e93;
       font-size: 12px;
       cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background 0.15s;
     }
-    .demo-controls select:hover,
-    .demo-controls button:hover {
-      background: rgba(255, 255, 255, 0.2);
+
+    .demo-toggle:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .demo-content {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .demo-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .demo-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #8e8e93;
+    }
+
+    .demo-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .demo-select {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .demo-select:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .demo-select:focus {
+      border-color: #0a84ff;
+    }
+
+    [data-theme="light"] .demo-select {
+      background: rgba(0, 0, 0, 0.05);
+      border-color: rgba(0, 0, 0, 0.15);
+      color: #1c1c1e;
+    }
+
+    .demo-btn {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .demo-btn:active {
+      transform: scale(0.95);
+    }
+
+    .demo-btn-primary {
+      background: #0a84ff;
+      color: #fff;
+    }
+
+    .demo-btn-primary:hover {
+      background: #409cff;
+    }
+
+    .demo-btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .demo-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    [data-theme="light"] .demo-btn-secondary {
+      background: rgba(0, 0, 0, 0.08);
+      color: #1c1c1e;
+    }
+
+    .demo-textarea {
+      width: 100%;
+      height: 100px;
+      padding: 10px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      font-family: ui-monospace, "Cascadia Code", "JetBrains Mono", monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      resize: vertical;
+      outline: none;
+    }
+
+    .demo-textarea:focus {
+      border-color: #0a84ff;
+    }
+
+    .demo-textarea::placeholder {
+      color: #8e8e93;
+    }
+
+    [data-theme="light"] .demo-textarea {
+      background: rgba(0, 0, 0, 0.03);
+      border-color: rgba(0, 0, 0, 0.15);
+      color: #1c1c1e;
+    }
+
+    .demo-theme-row {
+      display: flex;
+      gap: 4px;
+    }
+
+    .demo-theme-btn {
+      flex: 1;
+      padding: 6px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      background: transparent;
+      color: #8e8e93;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .demo-theme-btn.active {
+      background: rgba(10, 132, 255, 0.2);
+      border-color: #0a84ff;
+      color: #0a84ff;
+    }
+
+    .demo-theme-btn:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    [data-theme="light"] .demo-theme-btn {
+      border-color: rgba(0, 0, 0, 0.15);
+    }
+
+    .demo-shortcuts {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+      font-size: 11px;
+    }
+
+    .demo-shortcut {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #8e8e93;
+    }
+
+    .demo-kbd {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 18px;
+      padding: 0 4px;
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      color: #fff;
+    }
+
+    [data-theme="light"] .demo-kbd {
+      background: rgba(0, 0, 0, 0.05);
+      border-color: rgba(0, 0, 0, 0.15);
+      color: #1c1c1e;
+    }
+
+    .demo-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      background: rgba(10, 132, 255, 0.1);
+      border-radius: 8px;
+      font-size: 11px;
+      color: #64d2ff;
+    }
+
+    [data-theme="light"] .demo-info {
+      background: rgba(10, 132, 255, 0.08);
+      color: #0a84ff;
+    }
+
+    /* Responsive */
+    @media (max-width: 400px) {
+      .demo-panel {
+        width: calc(100vw - 32px);
+        left: 16px;
+        right: 16px;
+      }
     }
   </style>
 </head>
@@ -40,18 +307,95 @@
   <!-- Viewer mounts here -->
   <div id="root"></div>
 
-  <!-- Demo controls (separate from extension UI) -->
-  <div class="demo-controls">
-    <select id="fixture-select">
-      <option value="small">small.json (~1KB)</option>
-      <option value="medium" selected>medium.json (~10KB)</option>
-      <option value="nested-deep">nested-deep.json</option>
-      <option value="array-of-objects">array-of-objects.json</option>
-      <option value="with-urls">with-urls.json</option>
-      <option value="invalid">invalid.json</option>
-      <option value="minified">minified.json (test Prettify/Minify)</option>
-    </select>
-    <button id="reload-btn">Reload</button>
+  <!-- Demo Control Panel -->
+  <div class="demo-panel" id="demo-panel">
+    <div class="demo-header" id="demo-header">
+      <div class="demo-title">
+        <span class="demo-title-icon">⚡</span>
+        JSON Spark Demo
+        <span class="demo-badge">v2.0</span>
+      </div>
+      <button class="demo-toggle" id="demo-toggle">▼</button>
+    </div>
+
+    <div class="demo-content" id="demo-content">
+      <!-- Theme Selector -->
+      <div class="demo-section">
+        <span class="demo-label">Theme</span>
+        <div class="demo-theme-row">
+          <button class="demo-theme-btn active" data-theme="dark">🌙 Dark</button>
+          <button class="demo-theme-btn" data-theme="light">☀️ Light</button>
+        </div>
+      </div>
+
+      <!-- Fixture Selector -->
+      <div class="demo-section">
+        <span class="demo-label">Sample Data</span>
+        <div class="demo-row">
+          <select class="demo-select" id="fixture-select">
+            <option value="github-repo" selected>GitHub API — Repo</option>
+            <option value="stripe-webhook">Stripe — Webhook Event</option>
+            <option value="clerk-user">Clerk — User Profile</option>
+            <option value="shopify-products">Shopify — Products</option>
+            <option value="package-json">package.json</option>
+            <option value="turbo-config">Turbo — Config (nested)</option>
+            <option value="api-error">API Error (invalid JSON)</option>
+            <option value="graphql-minified">GraphQL (minified)</option>
+          </select>
+          <button class="demo-btn demo-btn-secondary" id="reload-btn" title="Reload fixture">⟳</button>
+        </div>
+      </div>
+
+      <!-- Custom JSON Input -->
+      <div class="demo-section">
+        <span class="demo-label">Custom JSON</span>
+        <textarea 
+          class="demo-textarea" 
+          id="custom-json"
+          placeholder='Paste your JSON here...&#10;{"example": "data"}'
+        ></textarea>
+        <button class="demo-btn demo-btn-secondary" id="load-custom-btn" style="align-self: flex-start;">
+          Load Custom JSON
+        </button>
+      </div>
+
+      <!-- Shortcuts Reference -->
+      <div class="demo-section">
+        <span class="demo-label">Shortcuts</span>
+        <div class="demo-shortcuts">
+          <div class="demo-shortcut">
+            <span class="demo-kbd">⌘F</span>
+            <span>Search</span>
+          </div>
+          <div class="demo-shortcut">
+            <span class="demo-kbd">⌘S</span>
+            <span>Save</span>
+          </div>
+          <div class="demo-shortcut">
+            <span class="demo-kbd">⌘E</span>
+            <span>Expand all</span>
+          </div>
+          <div class="demo-shortcut">
+            <span class="demo-kbd">⌘⇧E</span>
+            <span>Collapse</span>
+          </div>
+          <div class="demo-shortcut">
+            <span class="demo-kbd">?</span>
+            <span>Help</span>
+          </div>
+          <div class="demo-shortcut">
+            <span class="demo-kbd">1-4</span>
+            <span>Views</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div class="demo-info">
+        <span>💡</span>
+        <span>This is a development preview. In production, JSON Spark runs as a Chrome extension.</span>
+      </div>
+    </div>
   </div>
 
   <script type="module" src="./demo.ts"></script>

@@ -1,0 +1,145 @@
+{
+  "products": [
+    {
+      "id": "gid://shopify/Product/7982541619",
+      "title": "Minimalist Leather Backpack",
+      "handle": "minimalist-leather-backpack",
+      "description": "Handcrafted full-grain leather backpack with laptop compartment. Perfect for daily commute or weekend trips.",
+      "vendor": "Heritage Goods Co.",
+      "product_type": "Bags",
+      "created_at": "2024-03-15T10:30:00Z",
+      "updated_at": "2026-02-20T14:22:00Z",
+      "published_at": "2024-03-16T00:00:00Z",
+      "status": "active",
+      "tags": ["leather", "backpack", "laptop-bag", "handmade", "premium"],
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/42867234123",
+          "title": "Cognac / Regular",
+          "price": "289.00",
+          "compare_at_price": "350.00",
+          "sku": "HGC-BP-COG-R",
+          "inventory_quantity": 23,
+          "inventory_policy": "deny",
+          "weight": 1.2,
+          "weight_unit": "kg"
+        },
+        {
+          "id": "gid://shopify/ProductVariant/42867234124",
+          "title": "Black / Regular",
+          "price": "289.00",
+          "compare_at_price": "350.00",
+          "sku": "HGC-BP-BLK-R",
+          "inventory_quantity": 45,
+          "inventory_policy": "deny",
+          "weight": 1.2,
+          "weight_unit": "kg"
+        },
+        {
+          "id": "gid://shopify/ProductVariant/42867234125",
+          "title": "Cognac / Large",
+          "price": "319.00",
+          "compare_at_price": "380.00",
+          "sku": "HGC-BP-COG-L",
+          "inventory_quantity": 12,
+          "inventory_policy": "deny",
+          "weight": 1.4,
+          "weight_unit": "kg"
+        }
+      ],
+      "images": [
+        {
+          "id": "gid://shopify/ProductImage/31234567890",
+          "src": "https://cdn.shopify.com/s/files/1/0123/4567/8901/products/backpack-main.jpg",
+          "alt": "Minimalist leather backpack front view",
+          "position": 1,
+          "width": 2048,
+          "height": 2048
+        },
+        {
+          "id": "gid://shopify/ProductImage/31234567891",
+          "src": "https://cdn.shopify.com/s/files/1/0123/4567/8901/products/backpack-side.jpg",
+          "alt": "Minimalist leather backpack side view",
+          "position": 2,
+          "width": 2048,
+          "height": 2048
+        }
+      ],
+      "options": [
+        {
+          "id": "gid://shopify/ProductOption/9123456789",
+          "name": "Color",
+          "position": 1,
+          "values": ["Cognac", "Black"]
+        },
+        {
+          "id": "gid://shopify/ProductOption/9123456790",
+          "name": "Size",
+          "position": 2,
+          "values": ["Regular", "Large"]
+        }
+      ]
+    },
+    {
+      "id": "gid://shopify/Product/7982541620",
+      "title": "Ceramic Pour-Over Coffee Set",
+      "handle": "ceramic-pour-over-coffee-set",
+      "description": "Japanese-inspired ceramic dripper with matching carafe. Includes reusable stainless steel filter.",
+      "vendor": "Brew Ritual",
+      "product_type": "Coffee",
+      "created_at": "2024-06-01T08:00:00Z",
+      "updated_at": "2026-02-18T09:15:00Z",
+      "published_at": "2024-06-02T00:00:00Z",
+      "status": "active",
+      "tags": ["coffee", "ceramic", "pour-over", "gift", "japanese"],
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/42867234200",
+          "title": "Matte White",
+          "price": "79.00",
+          "compare_at_price": null,
+          "sku": "BR-PO-WHT",
+          "inventory_quantity": 67,
+          "inventory_policy": "continue",
+          "weight": 0.8,
+          "weight_unit": "kg"
+        },
+        {
+          "id": "gid://shopify/ProductVariant/42867234201",
+          "title": "Forest Green",
+          "price": "79.00",
+          "compare_at_price": null,
+          "sku": "BR-PO-GRN",
+          "inventory_quantity": 34,
+          "inventory_policy": "continue",
+          "weight": 0.8,
+          "weight_unit": "kg"
+        }
+      ],
+      "images": [
+        {
+          "id": "gid://shopify/ProductImage/31234567900",
+          "src": "https://cdn.shopify.com/s/files/1/0123/4567/8901/products/pourover-set.jpg",
+          "alt": "Ceramic pour-over coffee set",
+          "position": 1,
+          "width": 2048,
+          "height": 2048
+        }
+      ],
+      "options": [
+        {
+          "id": "gid://shopify/ProductOption/9123456800",
+          "name": "Color",
+          "position": 1,
+          "values": ["Matte White", "Forest Green"]
+        }
+      ]
+    }
+  ],
+  "page_info": {
+    "has_next_page": true,
+    "has_previous_page": false,
+    "start_cursor": "eyJsYXN0X2lkIjo3OTgyNTQxNjE5fQ==",
+    "end_cursor": "eyJsYXN0X2lkIjo3OTgyNTQxNjIwfQ=="
+  }
+}

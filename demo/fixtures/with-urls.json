@@ -1,0 +1,67 @@
+{
+  "project": {
+    "name": "JSON Spark",
+    "repository": "https://github.com/example/json-spark",
+    "homepage": "https://json-spark.dev",
+    "documentation": "https://docs.json-spark.dev/getting-started",
+    "issues": "https://github.com/example/json-spark/issues"
+  },
+  "resources": [
+    {
+      "type": "API Documentation",
+      "url": "https://api.example.com/v2/docs",
+      "description": "Complete REST API reference"
+    },
+    {
+      "type": "Tutorial",
+      "url": "https://youtube.com/watch?v=abc123",
+      "description": "Getting started video tutorial"
+    },
+    {
+      "type": "Blog Post",
+      "url": "https://blog.example.com/json-best-practices",
+      "description": "Best practices for working with JSON"
+    }
+  ],
+  "team": {
+    "lead": {
+      "name": "Jane Developer",
+      "profile": "https://github.com/janedev",
+      "linkedin": "https://linkedin.com/in/janedev",
+      "twitter": "https://twitter.com/janedev"
+    },
+    "contributors": [
+      {
+        "name": "John Coder",
+        "github": "https://github.com/johncoder"
+      },
+      {
+        "name": "Mary Engineer",
+        "github": "https://github.com/maryeng"
+      }
+    ]
+  },
+  "dependencies": {
+    "react": {
+      "version": "19.0.0",
+      "npm": "https://www.npmjs.com/package/react",
+      "docs": "https://react.dev"
+    },
+    "zustand": {
+      "version": "5.0.0",
+      "npm": "https://www.npmjs.com/package/zustand",
+      "docs": "https://docs.pmnd.rs/zustand"
+    },
+    "vite": {
+      "version": "7.0.0",
+      "npm": "https://www.npmjs.com/package/vite",
+      "docs": "https://vite.dev"
+    }
+  },
+  "cdn_assets": [
+    "https://cdn.example.com/assets/logo.png",
+    "https://cdn.example.com/assets/icon-32.png",
+    "https://cdn.example.com/assets/icon-128.png",
+    "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700"
+  ]
+}

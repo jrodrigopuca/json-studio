@@ -1,0 +1,64 @@
+{
+  "data": {
+    "id": "user_2cSSCzV7948rhPJMsY601tXsEU4",
+    "object": "user",
+    "first_name": "Sarah",
+    "last_name": "Chen",
+    "email_addresses": [
+      {
+        "id": "idn_2cSSCzV7948rhPJMsY601tXsEU4",
+        "email_address": "sarah.chen@company.io",
+        "verification": {
+          "status": "verified",
+          "strategy": "email_code"
+        }
+      }
+    ],
+    "phone_numbers": [],
+    "username": "sarahchen",
+    "profile_image_url": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yY1NTQ3pWNzk0OHJoUEpNc1k2MDF0WHNFVTQucG5nIn0",
+    "public_metadata": {
+      "role": "admin",
+      "department": "Engineering",
+      "permissions": ["read", "write", "delete", "admin"]
+    },
+    "private_metadata": {},
+    "unsafe_metadata": {},
+    "external_accounts": [
+      {
+        "id": "eac_2cSSCzV7948rhPJMsY601tXsEU4",
+        "object": "external_account",
+        "provider": "oauth_google",
+        "identification_id": "idn_google_123",
+        "email_address": "sarah.chen@gmail.com",
+        "first_name": "Sarah",
+        "last_name": "Chen",
+        "avatar_url": "https://lh3.googleusercontent.com/a/ACg8ocKfYl2MiLfGDg=s96-c",
+        "verification": {
+          "status": "verified",
+          "strategy": "oauth_google",
+          "expire_at": null
+        }
+      },
+      {
+        "id": "eac_2cSSCzV7948rhPJMsY601tXsEU5",
+        "object": "external_account",
+        "provider": "oauth_github",
+        "username": "sarahchen",
+        "avatar_url": "https://avatars.githubusercontent.com/u/12345678",
+        "verification": {
+          "status": "verified",
+          "strategy": "oauth_github",
+          "expire_at": null
+        }
+      }
+    ],
+    "created_at": 1698764421000,
+    "updated_at": 1708934521000,
+    "last_sign_in_at": 1708934521000,
+    "banned": false,
+    "locked": false,
+    "two_factor_enabled": true,
+    "backup_code_enabled": true
+  }
+}

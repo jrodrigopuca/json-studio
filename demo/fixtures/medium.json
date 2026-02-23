@@ -1,0 +1,109 @@
+{
+  "company": {
+    "name": "TechCorp Industries",
+    "founded": 2015,
+    "headquarters": {
+      "city": "San Francisco",
+      "state": "CA",
+      "country": "USA",
+      "coordinates": {
+        "lat": 37.7749,
+        "lng": -122.4194
+      }
+    }
+  },
+  "employees": [
+    {
+      "id": 1,
+      "name": "Alice Johnson",
+      "email": "alice@techcorp.com",
+      "role": "CEO",
+      "department": "Executive",
+      "salary": 250000,
+      "startDate": "2015-01-15",
+      "active": true,
+      "skills": ["Leadership", "Strategy", "Finance"]
+    },
+    {
+      "id": 2,
+      "name": "Bob Smith",
+      "email": "bob@techcorp.com",
+      "role": "CTO",
+      "department": "Engineering",
+      "salary": 220000,
+      "startDate": "2015-02-01",
+      "active": true,
+      "skills": ["Architecture", "Cloud", "DevOps", "AI/ML"]
+    },
+    {
+      "id": 3,
+      "name": "Carol Williams",
+      "email": "carol@techcorp.com",
+      "role": "Senior Engineer",
+      "department": "Engineering",
+      "salary": 180000,
+      "startDate": "2016-06-15",
+      "active": true,
+      "skills": ["React", "TypeScript", "Node.js", "PostgreSQL"]
+    },
+    {
+      "id": 4,
+      "name": "David Brown",
+      "email": "david@techcorp.com",
+      "role": "Designer",
+      "department": "Design",
+      "salary": 140000,
+      "startDate": "2018-03-20",
+      "active": true,
+      "skills": ["Figma", "UI/UX", "Prototyping"]
+    },
+    {
+      "id": 5,
+      "name": "Eva Martinez",
+      "email": "eva@techcorp.com",
+      "role": "Product Manager",
+      "department": "Product",
+      "salary": 160000,
+      "startDate": "2017-09-01",
+      "active": false,
+      "skills": ["Agile", "Roadmapping", "Analytics"]
+    }
+  ],
+  "products": [
+    {
+      "id": "prod-001",
+      "name": "CloudSync Pro",
+      "category": "SaaS",
+      "price": 29.99,
+      "currency": "USD",
+      "features": ["Real-time sync", "Offline mode", "Team collaboration"],
+      "rating": 4.7,
+      "reviews": 1250
+    },
+    {
+      "id": "prod-002",
+      "name": "DataVault Enterprise",
+      "category": "Security",
+      "price": 199.99,
+      "currency": "USD",
+      "features": ["End-to-end encryption", "Audit logs", "Compliance"],
+      "rating": 4.9,
+      "reviews": 890
+    },
+    {
+      "id": "prod-003",
+      "name": "Analytics Dashboard",
+      "category": "Business Intelligence",
+      "price": 49.99,
+      "currency": "USD",
+      "features": ["Custom reports", "Data visualization", "Export"],
+      "rating": 4.5,
+      "reviews": 2100
+    }
+  ],
+  "metadata": {
+    "lastUpdated": "2026-02-23T10:30:00Z",
+    "version": "3.2.1",
+    "apiVersion": "v2"
+  }
+}

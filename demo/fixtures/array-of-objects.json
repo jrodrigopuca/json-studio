@@ -1,0 +1,22 @@
+[
+  { "id": 1, "name": "Item Alpha", "price": 19.99, "stock": 150, "category": "Electronics", "tags": ["new", "featured"] },
+  { "id": 2, "name": "Item Beta", "price": 29.99, "stock": 85, "category": "Electronics", "tags": ["sale"] },
+  { "id": 3, "name": "Item Gamma", "price": 9.99, "stock": 200, "category": "Accessories", "tags": ["popular"] },
+  { "id": 4, "name": "Item Delta", "price": 49.99, "stock": 30, "category": "Electronics", "tags": ["premium", "new"] },
+  { "id": 5, "name": "Item Epsilon", "price": 14.99, "stock": 120, "category": "Accessories", "tags": [] },
+  { "id": 6, "name": "Item Zeta", "price": 79.99, "stock": 15, "category": "Premium", "tags": ["limited", "exclusive"] },
+  { "id": 7, "name": "Item Eta", "price": 24.99, "stock": 95, "category": "Electronics", "tags": ["featured"] },
+  { "id": 8, "name": "Item Theta", "price": 34.99, "stock": 60, "category": "Accessories", "tags": ["sale", "popular"] },
+  { "id": 9, "name": "Item Iota", "price": 44.99, "stock": 40, "category": "Premium", "tags": ["new"] },
+  { "id": 10, "name": "Item Kappa", "price": 59.99, "stock": 25, "category": "Premium", "tags": ["exclusive"] },
+  { "id": 11, "name": "Item Lambda", "price": 12.99, "stock": 180, "category": "Accessories", "tags": ["sale"] },
+  { "id": 12, "name": "Item Mu", "price": 89.99, "stock": 10, "category": "Premium", "tags": ["limited", "premium"] },
+  { "id": 13, "name": "Item Nu", "price": 7.99, "stock": 300, "category": "Accessories", "tags": ["popular", "sale"] },
+  { "id": 14, "name": "Item Xi", "price": 99.99, "stock": 5, "category": "Premium", "tags": ["exclusive", "limited"] },
+  { "id": 15, "name": "Item Omicron", "price": 16.99, "stock": 140, "category": "Electronics", "tags": [] },
+  { "id": 16, "name": "Item Pi", "price": 22.99, "stock": 110, "category": "Electronics", "tags": ["new", "popular"] },
+  { "id": 17, "name": "Item Rho", "price": 39.99, "stock": 55, "category": "Accessories", "tags": ["featured"] },
+  { "id": 18, "name": "Item Sigma", "price": 54.99, "stock": 35, "category": "Premium", "tags": ["sale"] },
+  { "id": 19, "name": "Item Tau", "price": 11.99, "stock": 170, "category": "Accessories", "tags": [] },
+  { "id": 20, "name": "Item Upsilon", "price": 69.99, "stock": 20, "category": "Premium", "tags": ["new", "premium"] }
+]

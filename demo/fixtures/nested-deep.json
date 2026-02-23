@@ -1,0 +1,77 @@
+{
+  "level1": {
+    "name": "Root Level",
+    "level2": {
+      "name": "Second Level",
+      "level3": {
+        "name": "Third Level",
+        "level4": {
+          "name": "Fourth Level",
+          "level5": {
+            "name": "Fifth Level",
+            "level6": {
+              "name": "Sixth Level",
+              "level7": {
+                "name": "Seventh Level",
+                "level8": {
+                  "name": "Eighth Level",
+                  "data": {
+                    "message": "You found the deepest level!",
+                    "treasure": "🏆",
+                    "coordinates": [12.345, -67.890]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "config": {
+    "database": {
+      "primary": {
+        "connection": {
+          "host": "db.example.com",
+          "port": 5432,
+          "ssl": {
+            "enabled": true,
+            "certificate": {
+              "path": "/etc/ssl/certs/db.crt",
+              "key": "/etc/ssl/private/db.key"
+            }
+          }
+        }
+      },
+      "replica": {
+        "connection": {
+          "host": "replica.example.com",
+          "port": 5432,
+          "ssl": {
+            "enabled": true,
+            "certificate": {
+              "path": "/etc/ssl/certs/replica.crt",
+              "key": "/etc/ssl/private/replica.key"
+            }
+          }
+        }
+      }
+    },
+    "cache": {
+      "redis": {
+        "cluster": {
+          "nodes": [
+            { "host": "redis-1.example.com", "port": 6379 },
+            { "host": "redis-2.example.com", "port": 6379 },
+            { "host": "redis-3.example.com", "port": 6379 }
+          ],
+          "options": {
+            "maxRetries": 3,
+            "retryDelay": 100,
+            "poolSize": 10
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["**/.env.*local", ".env"],
+  "globalEnv": ["NODE_ENV", "VERCEL_URL", "DATABASE_URL"],
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "env": ["NEXT_PUBLIC_API_URL", "NEXT_PUBLIC_ANALYTICS_ID"]
+    },
+    "lint": {
+      "dependsOn": ["^lint"],
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"],
+      "env": ["CI", "DATABASE_URL"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "clean": {
+      "cache": false
+    }
+  },
+  "experimentalSpaces": {
+    "id": "team_acme",
+    "other": {
+      "telemetry": {
+        "enabled": true,
+        "anonymousId": "anon_kJ8hF9pL2mN",
+        "events": {
+          "build": { "track": true, "sample_rate": 1.0 },
+          "error": { "track": true, "include_stacktrace": false },
+          "cache": {
+            "track": true,
+            "metrics": ["hit_rate", "miss_rate", "size"]
+          }
+        }
+      },
+      "caching": {
+        "remote": {
+          "enabled": true,
+          "provider": "vercel",
+          "team_id": "team_kJ8hF9pL2mN",
+          "signature": true,
+          "preflight": false,
+          "timeout": 30000,
+          "upload": {
+            "max_size_mb": 512,
+            "concurrency": 10,
+            "retry": {
+              "attempts": 3,
+              "backoff": "exponential",
+              "initial_delay_ms": 1000
+            }
+          }
+        },
+        "local": {
+          "enabled": true,
+          "dir": "node_modules/.cache/turbo",
+          "max_size_gb": 10,
+          "compression": "zstd"
+        }
+      },
+      "daemon": {
+        "enabled": true,
+        "idle_timeout_secs": 14400,
+        "log_level": "warn",
+        "socket_path": "/tmp/turbo-daemon.sock"
+      }
+    }
+  }
+}

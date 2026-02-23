@@ -1,0 +1,27 @@
+{
+  "error": {
+    "code": "validation_error",
+    "message": "The request body contains invalid data",
+    "type": "invalid_request_error",
+    "doc_url": "https://docs.api.com/errors#validation_error",
+    "request_id": "req_kJ8hF9pL2mN4xR5t"
+  },
+  "errors": [
+    {
+      "field": "email",
+      "code": "invalid_format",
+      "message": "Must be a valid email address"
+      "received": "not-an-email"
+    },
+    {
+      "field": "metadata.tags[2]",
+      "code": "max_length",
+      "message": "Tag must be 50 characters or less",
+      "received": "this-is-a-very-long-tag-that-exceeds-the-maximum-allowed-length-for-tags"
+    }
+  ],
+  "meta": {
+    "timestamp": "2026-02-23T12:00:00Z",
+    "api_version": "2026-01-15"
+  }
+}

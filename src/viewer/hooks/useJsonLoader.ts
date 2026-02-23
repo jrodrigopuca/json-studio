@@ -11,8 +11,14 @@ export function useJsonLoader() {
 	const setJson = useStore((s) => s.setJson);
 	const setParseError = useStore((s) => s.setParseError);
 	const setIsParsing = useStore((s) => s.setIsParsing);
+	const hasData = useStore((s) => s.nodes.length > 0 || s.parseError !== null);
 
 	useEffect(() => {
+		// Skip if store already has data (loaded by initViewer)
+		if (hasData) {
+			return;
+		}
+
 		const loadJson = async () => {
 			setIsParsing(true);
 
@@ -91,5 +97,5 @@ export function useJsonLoader() {
 		};
 
 		loadJson();
-	}, [setJson, setParseError, setIsParsing]);
+	}, [setJson, setParseError, setIsParsing, hasData]);
 }

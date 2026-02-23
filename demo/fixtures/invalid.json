@@ -1,0 +1,6 @@
+{
+  "name": "This JSON has errors",
+  "description": "Missing comma after this line"
+  "also": "trailing comma issue",
+  "number": 42,
+}
