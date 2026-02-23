@@ -6,6 +6,34 @@ import { useMemo } from "react";
 import { useStore } from "../../store";
 import styles from "./Breadcrumb.module.css";
 
+/**
+ * Extracts the last segment from a JSONPath for display.
+ * Examples:
+ *   $.data -> "data"
+ *   $.users[0] -> "[0]"
+ *   $.items[2].name -> "name"
+ */
+function getLabelFromPath(path: string): string {
+  // Match array index at end: [N]
+  const arrayMatch = path.match(/\[(\d+)\]$/);
+  if (arrayMatch) {
+    return `[${arrayMatch[1]}]`;
+  }
+  
+  // Match property name at end: .name or just the root $
+  const propMatch = path.match(/\.([^.[]+)$/);
+  if (propMatch) {
+    return propMatch[1];
+  }
+  
+  // Root case
+  if (path === "$") {
+    return "root";
+  }
+  
+  return path;
+}
+
 export function Breadcrumb() {
   const nodes = useStore((s) => s.nodes);
   const selectedNodeId = useStore((s) => s.selectedNodeId);
@@ -27,7 +55,7 @@ export function Breadcrumb() {
 
       result.unshift({
         id: node.id,
-        label: node.key ?? (node.id === 0 ? "root" : `[${node.id}]`),
+        label: getLabelFromPath(node.path),
       });
 
       currentId = node.parentId;
