@@ -22,7 +22,7 @@ function getLabelFromPath(path: string): string {
   
   // Match property name at end: .name or just the root $
   const propMatch = path.match(/\.([^.[]+)$/);
-  if (propMatch) {
+  if (propMatch && propMatch[1]) {
     return propMatch[1];
   }
   

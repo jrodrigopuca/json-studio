@@ -18,15 +18,16 @@ const BRACKETS: Record<string, string> = {
   ']': '[',
 };
 const OPEN_BRACKETS = new Set(['{', '[']);
-const CLOSE_BRACKETS = new Set(['}', ']']);
 
 // Find matching bracket position
 function findMatchingBracket(text: string, pos: number): number | null {
   const char = text[pos];
-  if (!BRACKETS[char]) return null;
+  if (!char || !BRACKETS[char]) return null;
   
   const isOpen = OPEN_BRACKETS.has(char);
   const target = BRACKETS[char];
+  if (!target) return null;
+  
   const dir = isOpen ? 1 : -1;
   let depth = 1;
   let i = pos + dir;
@@ -50,6 +51,7 @@ function findFoldableRegions(text: string): Map<number, { endLine: number; type:
   let pos = 0;
   for (let lineNum = 0; lineNum < lines.length; lineNum++) {
     const line = lines[lineNum];
+    if (!line) continue;
     for (let i = 0; i < line.length; i++) {
       const char = line[i];
       if (char === '{' || char === '[') {
@@ -138,7 +140,8 @@ export function EditView() {
     const textBeforeCursor = editContent.substring(0, pos);
     const lines = textBeforeCursor.split('\n');
     const line = lines.length;
-    const column = lines[lines.length - 1].length + 1;
+    const lastLine = lines[lines.length - 1] ?? '';
+    const column = lastLine.length + 1;
 
     setCursorLine(line);
     setCursorColumn(column);
@@ -146,9 +149,12 @@ export function EditView() {
     // Check for bracket matching
     // Check character at cursor and before cursor
     let bracketPos: number | null = null;
-    if (pos < editContent.length && BRACKETS[editContent[pos]]) {
+    const charAtPos = editContent[pos];
+    const charBeforePos = pos > 0 ? editContent[pos - 1] : undefined;
+    
+    if (pos < editContent.length && charAtPos && BRACKETS[charAtPos]) {
       bracketPos = pos;
-    } else if (pos > 0 && BRACKETS[editContent[pos - 1]]) {
+    } else if (charBeforePos && BRACKETS[charBeforePos]) {
       bracketPos = pos - 1;
     }
     
@@ -186,7 +192,7 @@ export function EditView() {
     
     // Try to parse and format as JSON
     try {
-      const parsed = JSON.parse(pastedText);
+      JSON.parse(pastedText); // Validate JSON
       const formatted = prettyPrint(pastedText, editorIndentSize);
       
       if (formatted !== pastedText) {
@@ -327,12 +333,12 @@ export function EditView() {
       hiddenRanges.some(([start, end]) => lineNum >= start && lineNum <= end);
     
     for (let idx = 0; idx < lines.length; idx++) {
-      const line = lines[idx];
+      const line = lines[idx] ?? '';
       const lineNum = idx + 1;
       let html = highlightJson(line) || " ";
       
       // Highlight search matches within the line
-      if (searchQuery && line.toLowerCase().includes(searchQuery.toLowerCase())) {
+      if (searchQuery && line && line.toLowerCase().includes(searchQuery.toLowerCase())) {
         const regex = new RegExp(`(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
         html = html.replace(regex, '<mark class="search-match">$1</mark>');
       }
@@ -342,15 +348,15 @@ export function EditView() {
       if (hasBracketMatch && matchingBrackets) {
         // Highlight matching brackets
         const [pos1, pos2] = matchingBrackets;
-        const char1 = editContent[pos1];
-        const char2 = editContent[pos2];
-        if (lineNum === bracket1Line) {
+        const char1 = editContent[pos1] ?? '';
+        const char2 = editContent[pos2] ?? '';
+        if (lineNum === bracket1Line && char1) {
           html = html.replace(
             new RegExp(`(\\${char1})`),
             '<span class="bracket-match">$1</span>'
           );
         }
-        if (lineNum === bracket2Line) {
+        if (lineNum === bracket2Line && char2) {
           html = html.replace(
             new RegExp(`(\\${char2})`),
             '<span class="bracket-match">$1</span>'
@@ -398,8 +404,8 @@ export function EditView() {
   return (
     <div className={styles.editView} style={editorStyle}>
       <EditorToolbar
-        cursorLine={cursorLine}
-        cursorColumn={cursorColumn}
+        currentLine={cursorLine}
+        currentColumn={cursorColumn}
         totalLines={totalLines}
       />
 
