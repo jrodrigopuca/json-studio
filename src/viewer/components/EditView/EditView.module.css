@@ -21,7 +21,7 @@
   display: flex;
   overflow: hidden;
   font-family: var(--font-mono);
-  font-size: var(--font-size, 13px);
+  font-size: var(--editor-font-size, 13px);
   line-height: 1.6;
 }
 
@@ -59,12 +59,22 @@
   pointer-events: none;
   overflow: auto;
   background: transparent;
-  white-space: pre-wrap;
+  white-space: var(--editor-word-wrap, pre-wrap);
   word-wrap: break-word;
 }
 
 .line {
   min-height: 1.6em;
+  padding-right: 12px;
+}
+
+.currentLine {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.currentLineNumber {
+  color: var(--text-primary) !important;
+  opacity: 1 !important;
 }
 
 .matchLine {
@@ -111,7 +121,7 @@
   resize: none;
   outline: none;
   overflow: auto;
-  white-space: pre-wrap;
+  white-space: var(--editor-word-wrap, pre-wrap);
   word-wrap: break-word;
 }
 

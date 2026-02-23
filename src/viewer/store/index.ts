@@ -92,6 +92,12 @@ export interface AppState {
 	showLineNumbers: boolean;
 	isEditing: boolean;
 
+	// Editor settings
+	editorIndentSize: 2 | 4;
+	editorWordWrap: boolean;
+	editorFontSize: number;
+	editorCurrentLine: number | null;
+
 	// History
 	undoStack: string[];
 	redoStack: string[];
@@ -161,6 +167,12 @@ export interface AppActions {
 	toggleSortedByKeys: () => void;
 	toggleLineNumbers: () => void;
 
+	// Editor settings
+	toggleEditorIndent: () => void;
+	toggleEditorWordWrap: () => void;
+	setEditorFontSize: (size: number) => void;
+	setEditorCurrentLine: (line: number | null) => void;
+
 	// Format actions (Raw view)
 	prettifyJson: () => void;
 	minifyJson: () => void;
@@ -220,6 +232,12 @@ const initialState: AppState = {
 	originalJsonForSort: null,
 	showLineNumbers: true,
 	isEditing: false,
+
+	// Editor settings
+	editorIndentSize: 2,
+	editorWordWrap: true,
+	editorFontSize: 13,
+	editorCurrentLine: null,
 
 	undoStack: [],
 	redoStack: [],
@@ -564,6 +582,15 @@ export const useStore = create<AppState & AppActions>()(
 			toggleLineNumbers: () =>
 				set((s) => ({ showLineNumbers: !s.showLineNumbers })),
 			setIsEditing: (editing) => set({ isEditing: editing }),
+
+			// ─── Editor Settings ─────────────────────────────────────────────────
+			toggleEditorIndent: () =>
+				set((s) => ({ editorIndentSize: s.editorIndentSize === 2 ? 4 : 2 })),
+			toggleEditorWordWrap: () =>
+				set((s) => ({ editorWordWrap: !s.editorWordWrap })),
+			setEditorFontSize: (size) =>
+				set({ editorFontSize: Math.max(10, Math.min(24, size)) }),
+			setEditorCurrentLine: (line) => set({ editorCurrentLine: line }),
 
 			// ─── Format Actions (Raw view) ───────────────────────────────────────
 			prettifyJson: () => {

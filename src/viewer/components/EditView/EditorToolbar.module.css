@@ -1,0 +1,113 @@
+/**
+ * EditorToolbar styles
+ */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  background: color-mix(in srgb, var(--toolbar-bg) 85%, transparent);
+  backdrop-filter: blur(12px) saturate(150%);
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  user-select: none;
+}
+
+.control {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.control:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.control.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #1a1a1a;
+}
+
+.label {
+  font-weight: 500;
+}
+
+.fontControls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.fontButton {
+  padding: 3px 6px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.fontButton:hover:not(:disabled) {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.fontButton:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.fontSize {
+  padding: 3px 6px;
+  color: var(--text-primary);
+  font-weight: 500;
+  min-width: 36px;
+  text-align: center;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+}
+
+.position {
+  font-variant-numeric: tabular-nums;
+}
+
+.lines {
+  font-variant-numeric: tabular-nums;
+}
+
+.separator {
+  opacity: 0.3;
+}
+
+.encoding,
+.language {
+  color: var(--text-tertiary);
+}

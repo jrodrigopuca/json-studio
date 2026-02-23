@@ -1,10 +1,12 @@
 /**
  * EditView component - editable JSON with syntax highlighting.
+ * Mini-VSCode style editor with formatting controls.
  */
 
-import { useRef, useEffect, useMemo, useCallback } from "react";
+import { useRef, useEffect, useMemo, useCallback, useState } from "react";
 import { useStore } from "../../store";
 import { highlightJson } from "../../core/highlighter";
+import { EditorToolbar } from "./EditorToolbar";
 import styles from "./EditView.module.css";
 
 export function EditView() {
@@ -16,10 +18,19 @@ export function EditView() {
   const searchLineMatches = useStore((s) => s.searchLineMatches);
   const searchCurrentIndex = useStore((s) => s.searchCurrentIndex);
   const searchQuery = useStore((s) => s.searchQuery);
+  
+  // Editor settings
+  const editorIndentSize = useStore((s) => s.editorIndentSize);
+  const editorWordWrap = useStore((s) => s.editorWordWrap);
+  const editorFontSize = useStore((s) => s.editorFontSize);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const highlightRef = useRef<HTMLPreElement>(null);
   const lineRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+
+  // Cursor position state
+  const [cursorLine, setCursorLine] = useState(1);
+  const [cursorColumn, setCursorColumn] = useState(1);
 
   // Current match line number
   const currentMatchLine = searchLineMatches[searchCurrentIndex];
@@ -54,6 +65,80 @@ export function EditView() {
       highlightRef.current.scrollLeft = textareaRef.current.scrollLeft;
     }
   }, []);
+
+  // Calculate cursor position
+  const updateCursorPosition = useCallback(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const pos = textarea.selectionStart;
+    const textBeforeCursor = editContent.substring(0, pos);
+    const lines = textBeforeCursor.split('\n');
+    const line = lines.length;
+    const column = lines[lines.length - 1].length + 1;
+
+    setCursorLine(line);
+    setCursorColumn(column);
+  }, [editContent]);
+
+  // Update cursor position on selection change
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const handleSelectionChange = () => updateCursorPosition();
+    
+    textarea.addEventListener('click', handleSelectionChange);
+    textarea.addEventListener('keyup', handleSelectionChange);
+    
+    return () => {
+      textarea.removeEventListener('click', handleSelectionChange);
+      textarea.removeEventListener('keyup', handleSelectionChange);
+    };
+  }, [updateCursorPosition]);
+
+  // Handle Tab key for indentation
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const textarea = e.currentTarget;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const indent = ' '.repeat(editorIndentSize);
+      
+      if (e.shiftKey) {
+        // Shift+Tab: Remove indentation
+        const lineStart = editContent.lastIndexOf('\n', start - 1) + 1;
+        const lineContent = editContent.substring(lineStart, start);
+        const spacesToRemove = Math.min(
+          editorIndentSize,
+          lineContent.length - lineContent.trimStart().length
+        );
+        
+        if (spacesToRemove > 0) {
+          const newContent = 
+            editContent.substring(0, lineStart) +
+            editContent.substring(lineStart + spacesToRemove);
+          setEditContent(newContent);
+          
+          requestAnimationFrame(() => {
+            textarea.selectionStart = textarea.selectionEnd = start - spacesToRemove;
+          });
+        }
+      } else {
+        // Tab: Add indentation
+        const newContent = 
+          editContent.substring(0, start) + 
+          indent + 
+          editContent.substring(end);
+        setEditContent(newContent);
+        
+        requestAnimationFrame(() => {
+          textarea.selectionStart = textarea.selectionEnd = start + editorIndentSize;
+        });
+      }
+    }
+  }, [editContent, editorIndentSize, setEditContent]);
 
   // Save changes
   const handleSave = useCallback(() => {
@@ -92,12 +177,26 @@ export function EditView() {
         html,
         isMatch: searchMatchSet.has(lineNum),
         isCurrentMatch: lineNum === currentMatchLine,
+        isCurrentLine: lineNum === cursorLine,
       };
     });
-  }, [editContent, searchLineMatches, currentMatchLine, searchQuery]);
+  }, [editContent, searchLineMatches, currentMatchLine, searchQuery, cursorLine]);
+
+  const totalLines = highlightedLines.length;
+
+  const editorStyle = {
+    '--editor-font-size': `${editorFontSize}px`,
+    '--editor-word-wrap': editorWordWrap ? 'pre-wrap' : 'pre',
+  } as React.CSSProperties;
 
   return (
-    <div className={styles.editView}>
+    <div className={styles.editView} style={editorStyle}>
+      <EditorToolbar
+        cursorLine={cursorLine}
+        cursorColumn={cursorColumn}
+        totalLines={totalLines}
+      />
+
       {error && (
         <div className={styles.error}>
           ⚠️ {error}
@@ -110,7 +209,7 @@ export function EditView() {
             {highlightedLines.map((line) => (
               <div
                 key={line.number}
-                className={`${styles.lineNumber} ${line.isMatch ? styles.matchLineNumber : ""} ${line.isCurrentMatch ? styles.currentMatchLineNumber : ""}`}
+                className={`${styles.lineNumber} ${line.isMatch ? styles.matchLineNumber : ""} ${line.isCurrentMatch ? styles.currentMatchLineNumber : ""} ${line.isCurrentLine ? styles.currentLineNumber : ""}`}
               >
                 {line.number}
               </div>
@@ -133,7 +232,7 @@ export function EditView() {
                     lineRefs.current.set(line.number, el);
                   }
                 }}
-                className={`${styles.line} ${line.isMatch ? styles.matchLine : ""} ${line.isCurrentMatch ? styles.currentMatchLine : ""}`}
+                className={`${styles.line} ${line.isMatch ? styles.matchLine : ""} ${line.isCurrentMatch ? styles.currentMatchLine : ""} ${line.isCurrentLine ? styles.currentLine : ""}`}
                 dangerouslySetInnerHTML={{ __html: line.html }}
               />
             ))}
@@ -146,6 +245,7 @@ export function EditView() {
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
             onScroll={handleScroll}
+            onKeyDown={handleKeyDown}
             spellCheck={false}
             autoComplete="off"
             autoCorrect="off"
