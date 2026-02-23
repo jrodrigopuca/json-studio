@@ -34,8 +34,9 @@ Se migró completamente el viewer de JSON Spark desde una arquitectura Vanilla T
 
 ### 🔧 Toolbar y Controles
 
-- **Tabs de navegación**: Tree, Raw, Table, Diff, Edit, Saved (⌘1-6)
-- **Expand/Collapse All**: Expandir o colapsar todos los nodos (⌘E / ⌘W)
+- **Tabs de navegación**: Tree, Raw, Table, Diff, Edit, Saved (⌥1-6)
+- **Expand/Collapse All**: Expandir o colapsar todos los nodos (⌥E / ⌥C)
+- **Expand to Level N**: Dropdown para expandir hasta nivel específico (1-5)
 - **Sort by Keys**: 3 estados — A→Z (ascendente), Z→A (descendente), original
 - **Line Numbers**: Toggle para mostrar/ocultar números de línea (#)
 - **Prettify/Minify**: Formatear (`{ }`) o compactar (`{}`) JSON en vista Raw
@@ -44,6 +45,20 @@ Se migró completamente el viewer de JSON Spark desde una arquitectura Vanilla T
 - **Copy**: Copiar JSON al clipboard (📋)
 - **Download**: Descargar como archivo .json (⬇)
 - **Save to Favorites**: Guardar JSON actual con nombre personalizado (⭐)
+
+### 🖱️ Context Menu (Click Derecho en TreeView)
+
+| Opción                     | Descripción                                     |
+| -------------------------- | ----------------------------------------------- |
+| 🏷️ **Copy Key**            | Copia solo el nombre de la propiedad            |
+| 📍 **Copy Path**           | Copia el JSONPath completo (`$.users[0].email`) |
+| 📋 **Copy Value**          | Copia el valor (compacto para primitivos)       |
+| ✨ **Copy Formatted JSON** | Copia el valor con indentación bonita           |
+| 📂 **Expand Children**     | Expande el nodo y todos sus descendientes       |
+| 📁 **Collapse Children**   | Colapsa el nodo y todos sus descendientes       |
+| 🎯 **Filter to This**      | Focus mode - solo muestra este subárbol         |
+
+> Las opciones Expand/Collapse y Filter solo aparecen para nodos expandibles (objects/arrays)
 
 ### 🔍 Búsqueda
 
@@ -70,6 +85,26 @@ Se migró completamente el viewer de JSON Spark desde una arquitectura Vanilla T
 - Guardado con formateo automático
 - Modal de confirmación para cambios no guardados
 - Preview del JSON formateado
+
+#### Editor Toolbar
+
+| Control             | Descripción                                              |
+| ------------------- | -------------------------------------------------------- |
+| **Indent Size**     | Cicla entre 2sp → 4sp → Tab (re-formatea todo el código) |
+| **Word Wrap**       | Toggle para ajuste de líneas largas                      |
+| **Font Size**       | A− / A+ controles (10px - 24px)                          |
+| **Cursor Position** | Muestra Ln X, Col Y en tiempo real                       |
+| **Line Count**      | Total de líneas en el documento                          |
+
+#### Funcionalidades Avanzadas
+
+| Feature                    | Descripción                                                |
+| -------------------------- | ---------------------------------------------------------- |
+| **Bracket Matching**       | Resalta corchetes/llaves coincidentes al posicionar cursor |
+| **Format on Paste**        | Auto-formatea JSON válido al pegar                         |
+| **Fold/Unfold**            | Colapsar/expandir regiones de objetos y arrays             |
+| **Current Line Highlight** | Resalta la línea actual del cursor                         |
+| **Tab Key Support**        | Tab/Shift+Tab para indentar/desindentar                    |
 
 ### 💾 Saved View (Favoritos)
 
@@ -120,7 +155,8 @@ src/viewer/
 ├── App.tsx                 # Componente principal
 ├── init.tsx                # Inicialización para content scripts
 ├── components/
-│   ├── Breadcrumb/         # Navegación de path
+│   ├── Breadcrumb/         # Navegación de path con JSONPath correcto
+│   ├── ContextMenu/        # Menú contextual (Copy, Expand, Filter)
 │   ├── DiffView/           # Comparador
 │   ├── EditView/           # Editor
 │   ├── Modal/              # Modales reutilizables
@@ -131,8 +167,9 @@ src/viewer/
 │   ├── TableView/          # Vista tabla
 │   ├── Toast/              # Notificaciones
 │   ├── Toolbar/            # Barra de herramientas
-│   └── TreeView/           # Vista árbol
+│   └── TreeView/           # Vista árbol + TreeViewHeader
 ├── core/
+│   ├── clipboard.ts        # Utilidades para copiar (getNodeValue, copyToClipboard)
 │   ├── formatter.ts        # prettyPrint, minify, sortJsonByKeys
 │   ├── highlighter.ts      # Syntax highlighting
 │   ├── parser.ts           # Parser JSON → FlatNode[]
@@ -166,7 +203,7 @@ src/viewer/
 - [ ] Drag & drop para cargar archivos JSON
 - [ ] Redimensionar paneles en Diff View
 - [ ] Breadcrumb clickeable para navegar en Tree View
-- [ ] Copiar path/valor con click derecho (context menu)
+- [x] ~~Copiar path/valor con click derecho (context menu)~~ ✅
 - [ ] Indent guides (líneas verticales de indentación)
 - [ ] Tooltips con preview de valores largos
 
@@ -223,8 +260,8 @@ src/viewer/
 ### Personalización
 
 - [ ] Temas personalizados con editor visual
-- [ ] Configurar indent size (2/4 espacios o tabs)
-- [ ] Configurar font family y size
+- [x] ~~Configurar indent size (2/4 espacios o tabs)~~ ✅
+- [x] ~~Configurar font family y size~~ ✅
 - [ ] Exportar/importar configuración
 
 ### JSON Lines
@@ -246,11 +283,12 @@ src/viewer/
 
 | Métrica                | Valor       |
 | ---------------------- | ----------- |
-| **Bundle size**        | ~243 KB     |
+| **Bundle size**        | ~272 KB     |
 | **Tests**              | 123 pasando |
-| **Componentes React**  | 12          |
+| **Componentes React**  | 15          |
 | **Vistas disponibles** | 6           |
 | **Shortcuts**          | 10+         |
+| **Context Menu Items** | 7           |
 
 ---
 
@@ -269,6 +307,19 @@ src/viewer/
 11. ✅ Keyboard shortcuts completos
 12. ✅ Cleanup de código legacy (vanilla TS)
 13. ✅ Refactoring SOLID/DRY con carpetas por componente
+14. ✅ URLs y emails clickeables en TreeView
+15. ✅ Node count en TreeViewHeader
+16. ✅ Context Menu completo (Copy Key/Path/Value/Formatted)
+17. ✅ Expand/Collapse Children desde context menu
+18. ✅ Filter to This Node (focus mode)
+19. ✅ Expand to Level N dropdown
+20. ✅ Breadcrumb con índices de array correctos (JSONPath)
+21. ✅ **Edit Mode Toolbar** (indent toggle, word wrap, font size)
+22. ✅ **Bracket Matching** en Edit View
+23. ✅ **Format on Paste** para JSON válido
+24. ✅ **Fold/Unfold Regions** para objects/arrays
+25. ✅ **Current Line Highlight** y cursor position
+26. ✅ **Tab Indentation Support** (2sp/4sp/Tab)
 
 ---
 

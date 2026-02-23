@@ -24,12 +24,14 @@ export function EditorToolbar({ currentLine, currentColumn, totalLines }: Editor
     <div className={styles.toolbar}>
       {/* Indent control */}
       <button
-        className={styles.control}
+        className={`${styles.control} ${styles.active}`}
         onClick={toggleEditorIndent}
-        title={`Indentación: ${editorIndentSize} espacios (click para cambiar)`}
+        title={`Indentación: ${editorIndentSize === "tab" ? "Tab" : `${editorIndentSize} espacios`} (click para cambiar)`}
       >
         <Icon name="chevron-right" size={12} />
-        <span className={styles.label}>{editorIndentSize}sp</span>
+        <span className={styles.label}>
+          {editorIndentSize === "tab" ? "Tab" : `${editorIndentSize}sp`}
+        </span>
       </button>
 
       {/* Word wrap toggle */}

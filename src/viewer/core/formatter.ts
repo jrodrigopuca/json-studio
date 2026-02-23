@@ -8,13 +8,14 @@
  * Pretty-prints a JSON string with configurable indentation.
  *
  * @param raw - Raw JSON string
- * @param indent - Number of spaces for indentation (default: 2)
+ * @param indent - Number of spaces or "tab" for tab indentation (default: 2)
  * @returns Formatted JSON string
  */
-export function prettyPrint(raw: string, indent: number = 2): string {
+export function prettyPrint(raw: string, indent: number | "tab" = 2): string {
 	try {
 		const parsed = JSON.parse(raw);
-		return JSON.stringify(parsed, null, indent);
+		const indentArg = indent === "tab" ? "\t" : indent;
+		return JSON.stringify(parsed, null, indentArg);
 	} catch {
 		return raw;
 	}

@@ -236,16 +236,25 @@ export function EditView() {
       const textarea = e.currentTarget;
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
-      const indent = ' '.repeat(editorIndentSize);
+      const indent = editorIndentSize === "tab" ? "\t" : ' '.repeat(editorIndentSize);
+      const indentLength = editorIndentSize === "tab" ? 1 : editorIndentSize;
       
       if (e.shiftKey) {
         // Shift+Tab: Remove indentation
         const lineStart = editContent.lastIndexOf('\n', start - 1) + 1;
         const lineContent = editContent.substring(lineStart, start);
-        const spacesToRemove = Math.min(
-          editorIndentSize,
-          lineContent.length - lineContent.trimStart().length
-        );
+        
+        // Check for tab or spaces at start
+        let spacesToRemove = 0;
+        if (lineContent.startsWith('\t')) {
+          spacesToRemove = 1;
+        } else {
+          const leadingSpaces = lineContent.length - lineContent.trimStart().length;
+          spacesToRemove = Math.min(
+            editorIndentSize === "tab" ? 1 : editorIndentSize,
+            leadingSpaces
+          );
+        }
         
         if (spacesToRemove > 0) {
           const newContent = 
@@ -266,7 +275,7 @@ export function EditView() {
         setEditContent(newContent);
         
         requestAnimationFrame(() => {
-          textarea.selectionStart = textarea.selectionEnd = start + editorIndentSize;
+          textarea.selectionStart = textarea.selectionEnd = start + indentLength;
         });
       }
     }

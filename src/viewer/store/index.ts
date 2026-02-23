@@ -93,7 +93,7 @@ export interface AppState {
 	isEditing: boolean;
 
 	// Editor settings
-	editorIndentSize: 2 | 4;
+	editorIndentSize: 2 | 4 | "tab";
 	editorWordWrap: boolean;
 	editorFontSize: number;
 	editorCurrentLine: number | null;
@@ -508,11 +508,11 @@ export const useStore = create<AppState & AppActions>()(
 			},
 
 			saveEditContent: () => {
-				const { editContent } = get();
+				const { editContent, editorIndentSize } = get();
 				try {
 					const result = parseJSON(editContent);
 					if (result.ok) {
-						const formatted = prettyPrint(editContent);
+						const formatted = prettyPrint(editContent, editorIndentSize);
 						set({
 							rawJson: formatted,
 							nodes: result.nodes,
@@ -584,8 +584,26 @@ export const useStore = create<AppState & AppActions>()(
 			setIsEditing: (editing) => set({ isEditing: editing }),
 
 			// ─── Editor Settings ─────────────────────────────────────────────────
-			toggleEditorIndent: () =>
-				set((s) => ({ editorIndentSize: s.editorIndentSize === 2 ? 4 : 2 })),
+			toggleEditorIndent: () => {
+				const { editorIndentSize, editContent, rawJson } = get();
+				const newIndent =
+					editorIndentSize === 2 ? 4 : editorIndentSize === 4 ? "tab" : 2;
+
+				// Re-format content with new indentation
+				const contentToFormat = editContent || rawJson;
+				try {
+					const reformatted = prettyPrint(contentToFormat, newIndent);
+					set({
+						editorIndentSize: newIndent,
+						editContent: reformatted,
+						rawJson: reformatted,
+						hasUnsavedEdits: false,
+					});
+				} catch {
+					// If formatting fails, just change the setting
+					set({ editorIndentSize: newIndent });
+				}
+			},
 			toggleEditorWordWrap: () =>
 				set((s) => ({ editorWordWrap: !s.editorWordWrap })),
 			setEditorFontSize: (size) =>
@@ -594,8 +612,8 @@ export const useStore = create<AppState & AppActions>()(
 
 			// ─── Format Actions (Raw view) ───────────────────────────────────────
 			prettifyJson: () => {
-				const { rawJson } = get();
-				const formatted = prettyPrint(rawJson);
+				const { rawJson, editorIndentSize } = get();
+				const formatted = prettyPrint(rawJson, editorIndentSize);
 				set({ rawJson: formatted });
 			},
 
