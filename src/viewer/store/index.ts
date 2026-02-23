@@ -128,6 +128,7 @@ export interface AppActions {
 	collapseNode: (nodeId: number) => void;
 	expandAll: () => void;
 	collapseAll: () => void;
+	expandToLevel: (level: number) => void;
 	selectNode: (nodeId: number | null) => void;
 
 	// Search operations
@@ -307,6 +308,17 @@ export const useStore = create<AppState & AppActions>()(
 			},
 
 			collapseAll: () => set({ expandedNodes: new Set([0]) }),
+
+			expandToLevel: (level) => {
+				const { nodes } = get();
+				const expanded = new Set<number>();
+				nodes.forEach((n) => {
+					if (n.isExpandable && n.depth < level) {
+						expanded.add(n.id);
+					}
+				});
+				set({ expandedNodes: expanded });
+			},
 
 			selectNode: (nodeId) => set({ selectedNodeId: nodeId }),
 

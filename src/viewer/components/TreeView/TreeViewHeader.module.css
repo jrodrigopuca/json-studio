@@ -1,0 +1,99 @@
+/**
+ * TreeViewHeader styles (CSS Module)
+ */
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 12px;
+	border-bottom: 1px solid var(--border);
+	background: var(--surface);
+	font-family: var(--font-sans);
+	font-size: 12px;
+	gap: 12px;
+}
+
+.controls {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.button {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 10px;
+	border: 1px solid var(--border);
+	border-radius: 4px;
+	background: var(--bg);
+	color: var(--text-secondary);
+	font-size: 11px;
+	font-family: var(--font-sans);
+	cursor: pointer;
+	transition: all 0.15s;
+}
+
+.button:hover {
+	background: var(--surface-hover);
+	color: var(--text-primary);
+	border-color: var(--text-secondary);
+}
+
+.button:active {
+	background: var(--accent);
+	color: white;
+	border-color: var(--accent);
+}
+
+.icon {
+	font-size: 8px;
+	opacity: 0.7;
+}
+
+.levelControl {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-left: 8px;
+	padding-left: 8px;
+	border-left: 1px solid var(--border);
+}
+
+.levelLabel {
+	color: var(--text-secondary);
+	font-size: 11px;
+}
+
+.levelSelect {
+	padding: 3px 6px;
+	border: 1px solid var(--border);
+	border-radius: 4px;
+	background: var(--bg);
+	color: var(--text-primary);
+	font-size: 11px;
+	font-family: var(--font-sans);
+	cursor: pointer;
+	min-width: 50px;
+}
+
+.levelSelect:hover {
+	border-color: var(--text-secondary);
+}
+
+.levelSelect:focus {
+	outline: none;
+	border-color: var(--accent);
+}
+
+.stats {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.nodeCount {
+	color: var(--text-secondary);
+	font-size: 11px;
+}

@@ -7,6 +7,7 @@ import { useStore, selectVisibleNodes } from "../../store";
 import { getNodeValue, copyToClipboard } from "../../core/clipboard";
 import { ContextMenu, type ContextMenuPosition } from "../ContextMenu";
 import { useToast } from "../Toast";
+import { TreeViewHeader } from "./TreeViewHeader";
 import type { FlatNode } from "../../core/parser.types";
 import styles from "./TreeView.module.css";
 
@@ -76,30 +77,33 @@ export function TreeView() {
   }, []);
 
   return (
-    <div className={styles.tree} ref={containerRef} role="tree">
-      {visibleNodes.map((node) => (
-        <TreeNode
-          key={node.id}
-          node={node}
-          isExpanded={expandedNodes.has(node.id)}
-          isSelected={selectedNodeId === node.id}
-          isMatch={searchMatches.includes(node.id)}
-          isCurrentMatch={currentMatch === node.id}
-          onToggle={toggleNode}
-          onSelect={selectNode}
-          onContextMenu={handleContextMenu}
-        />
-      ))}
+    <div className={styles.container}>
+      <TreeViewHeader />
+      <div className={styles.tree} ref={containerRef} role="tree">
+        {visibleNodes.map((node) => (
+          <TreeNode
+            key={node.id}
+            node={node}
+            isExpanded={expandedNodes.has(node.id)}
+            isSelected={selectedNodeId === node.id}
+            isMatch={searchMatches.includes(node.id)}
+            isCurrentMatch={currentMatch === node.id}
+            onToggle={toggleNode}
+            onSelect={selectNode}
+            onContextMenu={handleContextMenu}
+          />
+        ))}
 
-      {/* Context Menu */}
-      {contextMenu && (
-        <ContextMenu
-          position={contextMenu.position}
-          onCopyPath={handleCopyPath}
-          onCopyValue={handleCopyValue}
-          onClose={handleCloseContextMenu}
-        />
-      )}
+        {/* Context Menu */}
+        {contextMenu && (
+          <ContextMenu
+            position={contextMenu.position}
+            onCopyPath={handleCopyPath}
+            onCopyValue={handleCopyValue}
+            onClose={handleCloseContextMenu}
+          />
+        )}
+      </div>
     </div>
   );
 }
