@@ -3,7 +3,7 @@
  */
 
 /** Extension name. */
-export const APP_NAME = "JSON Spark";
+export const APP_NAME = "JSON Studio";
 
 /** Size threshold (bytes) for delegating parse to Web Worker. */
 export const WORKER_THRESHOLD = 1_048_576; // 1MB

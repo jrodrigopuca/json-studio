@@ -1,9 +1,9 @@
 /**
- * Demo entrypoint — Loads the JSON Spark viewer with sample data.
+ * Demo entrypoint — Loads the JSON Studio viewer with sample data.
  * This file is only used during development, NOT part of the extension.
  */
 
-import { initViewer } from "../src/viewer/viewer-init.js";
+import { initViewer } from "../src/viewer/init";
 
 // Fixture imports (bundled for demo convenience)
 import smallJson from "./fixtures/small.json?raw";
@@ -25,7 +25,7 @@ const FIXTURES: Record<string, string> = {
 };
 
 let cleanup: (() => void) | null = null;
-const container = document.getElementById("viewer-root");
+const container = document.getElementById("root");
 
 function loadFixture(name: string): void {
 	if (!container) return;
