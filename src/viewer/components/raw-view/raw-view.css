@@ -49,6 +49,20 @@
   flex: 1;
 }
 
+.js-raw-view__line {
+  display: block;
+}
+
+.js-raw-view__line--match {
+  background: rgba(var(--accent-rgb, 77, 171, 247), 0.15);
+  border-left: 2px solid var(--accent);
+  margin-left: -2px;
+}
+
+.js-raw-view__line--current {
+  background: rgba(var(--accent-rgb, 77, 171, 247), 0.35);
+}
+
 .js-raw-view__error-line {
   background: var(--error-bg);
   display: inline-block;

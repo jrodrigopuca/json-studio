@@ -1,7 +1,10 @@
 /**
- * Search Bar component — Full-text search within the JSON tree.
+ * Search Bar component — Full-text search within the JSON.
  *
- * Activated via Ctrl+F / Cmd+F. Matches keys and values.
+ * In Tree view: searches nodes (keys and values)
+ * In Raw/Edit view: searches text lines
+ *
+ * Activated via Ctrl+F / Cmd+F.
  */
 
 import { BaseComponent } from "../../base-component.js";
@@ -24,7 +27,7 @@ export class SearchBar extends BaseComponent {
 			className: "js-search-bar__input",
 			attributes: {
 				type: "text",
-				placeholder: "Search keys and values…",
+				placeholder: "Search…",
 				"aria-label": "Search query",
 			},
 		}) as HTMLInputElement;
@@ -75,8 +78,15 @@ export class SearchBar extends BaseComponent {
 		container.appendChild(this.el);
 
 		// Watch for search state changes
-		this.watch(["searchQuery", "searchMatches", "searchCurrentIndex"], () =>
-			this.update({}),
+		this.watch(
+			[
+				"searchQuery",
+				"searchMatches",
+				"searchCurrentIndex",
+				"searchLineMatches",
+				"viewMode",
+			],
+			() => this.update({}),
 		);
 
 		// Global keyboard shortcut: Ctrl+F / Cmd+F
@@ -95,13 +105,19 @@ export class SearchBar extends BaseComponent {
 		const isVisible = fullState.searchQuery !== "";
 		this.el.classList.toggle("js-search-bar--visible", isVisible);
 
-		// Update count
+		// Update count based on view mode
 		if (this.countEl) {
-			const { searchMatches, searchCurrentIndex } = fullState;
-			if (searchMatches.length === 0 && fullState.searchQuery) {
+			const isTextView =
+				fullState.viewMode === "raw" || fullState.viewMode === "edit";
+			const matches = isTextView
+				? fullState.searchLineMatches
+				: fullState.searchMatches;
+			const currentIndex = fullState.searchCurrentIndex;
+
+			if (matches.length === 0 && fullState.searchQuery.trim()) {
 				this.countEl.textContent = "No results";
-			} else if (searchMatches.length > 0) {
-				this.countEl.textContent = `${searchCurrentIndex + 1} of ${searchMatches.length}`;
+			} else if (matches.length > 0) {
+				this.countEl.textContent = `${currentIndex + 1} of ${matches.length}`;
 			} else {
 				this.countEl.textContent = "";
 			}
@@ -124,6 +140,7 @@ export class SearchBar extends BaseComponent {
 		this.store.setState({
 			searchQuery: "",
 			searchMatches: [],
+			searchLineMatches: [],
 			searchCurrentIndex: 0,
 		});
 		this.el.classList.remove("js-search-bar--visible");
@@ -140,17 +157,36 @@ export class SearchBar extends BaseComponent {
 				this.store.setState({
 					searchQuery: "",
 					searchMatches: [],
+					searchLineMatches: [],
 					searchCurrentIndex: 0,
 				});
 				return;
 			}
 
-			const matches = this.performSearch(query);
-			this.store.setState({
-				searchQuery: query,
-				searchMatches: matches,
-				searchCurrentIndex: matches.length > 0 ? 0 : 0,
-			});
+			const { viewMode } = this.store.getState();
+			const isTextView = viewMode === "raw" || viewMode === "edit";
+
+			if (isTextView) {
+				const lineMatches = this.performLineSearch(query);
+				this.store.setState({
+					searchQuery: query,
+					searchMatches: [],
+					searchLineMatches: lineMatches,
+					searchCurrentIndex: lineMatches.length > 0 ? 0 : 0,
+				});
+				// Scroll to first match
+				if (lineMatches.length > 0) {
+					this.scrollToLine(lineMatches[0]!);
+				}
+			} else {
+				const matches = this.performNodeSearch(query);
+				this.store.setState({
+					searchQuery: query,
+					searchMatches: matches,
+					searchLineMatches: [],
+					searchCurrentIndex: matches.length > 0 ? 0 : 0,
+				});
+			}
 		}, 150);
 	}
 
@@ -169,7 +205,7 @@ export class SearchBar extends BaseComponent {
 	/**
 	 * Searches all flat nodes for matching keys or values.
 	 */
-	private performSearch(query: string): number[] {
+	private performNodeSearch(query: string): number[] {
 		const { nodes } = this.store.getState();
 		const lowerQuery = query.toLowerCase();
 		const matches: number[] = [];
@@ -193,18 +229,64 @@ export class SearchBar extends BaseComponent {
 		return matches;
 	}
 
+	/**
+	 * Searches raw JSON text for matching lines.
+	 * Returns array of 1-indexed line numbers.
+	 */
+	private performLineSearch(query: string): number[] {
+		const { rawJson } = this.store.getState();
+		const lowerQuery = query.toLowerCase();
+		const lines = rawJson.split("\n");
+		const matches: number[] = [];
+
+		for (let i = 0; i < lines.length; i++) {
+			if (lines[i]!.toLowerCase().includes(lowerQuery)) {
+				matches.push(i + 1); // 1-indexed line numbers
+			}
+		}
+
+		return matches;
+	}
+
+	/**
+	 * Scrolls to a specific line in raw/edit view.
+	 */
+	private scrollToLine(lineNumber: number): void {
+		// Dispatch a custom event for raw-view and edit-view to handle
+		document.dispatchEvent(
+			new CustomEvent("json-spark:scroll-to-line", {
+				detail: { line: lineNumber },
+			}),
+		);
+	}
+
 	private goToNextMatch(): void {
-		const { searchMatches, searchCurrentIndex } = this.store.getState();
-		if (searchMatches.length === 0) return;
-		const next = (searchCurrentIndex + 1) % searchMatches.length;
+		const { viewMode, searchMatches, searchLineMatches, searchCurrentIndex } =
+			this.store.getState();
+		const isTextView = viewMode === "raw" || viewMode === "edit";
+		const matches = isTextView ? searchLineMatches : searchMatches;
+
+		if (matches.length === 0) return;
+		const next = (searchCurrentIndex + 1) % matches.length;
 		this.store.setState({ searchCurrentIndex: next });
+
+		if (isTextView) {
+			this.scrollToLine(matches[next]!);
+		}
 	}
 
 	private goToPrevMatch(): void {
-		const { searchMatches, searchCurrentIndex } = this.store.getState();
-		if (searchMatches.length === 0) return;
-		const prev =
-			(searchCurrentIndex - 1 + searchMatches.length) % searchMatches.length;
+		const { viewMode, searchMatches, searchLineMatches, searchCurrentIndex } =
+			this.store.getState();
+		const isTextView = viewMode === "raw" || viewMode === "edit";
+		const matches = isTextView ? searchLineMatches : searchMatches;
+
+		if (matches.length === 0) return;
+		const prev = (searchCurrentIndex - 1 + matches.length) % matches.length;
 		this.store.setState({ searchCurrentIndex: prev });
+
+		if (isTextView) {
+			this.scrollToLine(matches[prev]!);
+		}
 	}
 }

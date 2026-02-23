@@ -109,3 +109,94 @@
   margin: 0 4px;
   flex-shrink: 0;
 }
+
+/* ── Dropdown wrapper (export, bookmarks) ── */
+
+.js-toolbar__dropdown-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.js-toolbar__dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.js-toolbar__dropdown-item {
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: var(--font-size);
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--transition-fast);
+}
+
+.js-toolbar__dropdown-item:hover {
+  background: var(--surface-hover);
+}
+
+.js-toolbar__dropdown-empty {
+  padding: 8px 12px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* ── Bookmarks ── */
+
+.js-toolbar__bookmarks-panel {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.js-toolbar__bookmark-row {
+  display: flex;
+  align-items: center;
+}
+
+.js-toolbar__bookmark-row .js-toolbar__dropdown-item {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.js-toolbar__bookmark-add {
+  color: var(--accent);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+
+.js-toolbar__bookmark-remove {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+  transition: color var(--transition-fast);
+}
+
+.js-toolbar__bookmark-remove:hover {
+  color: var(--syntax-null);
+}

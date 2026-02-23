@@ -5,11 +5,40 @@
  * - Listens for messages from content scripts
  * - Manages extension lifecycle
  * - Handles browser action clicks
+ * - Provides "Format JSON in selection" context menu
  *
  * @module service-worker
  */
 
 import { JSON_CONTENT_TYPES } from "../shared/constants.js";
+
+/**
+ * Create context menu items on install.
+ */
+chrome.runtime.onInstalled.addListener(() => {
+	chrome.contextMenus.create({
+		id: "json-spark-format-selection",
+		title: "Format JSON in selection",
+		contexts: ["selection"],
+	});
+});
+
+/**
+ * Handle context menu clicks.
+ */
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+	if (info.menuItemId === "json-spark-format-selection" && tab?.id) {
+		const selectedText = info.selectionText ?? "";
+		chrome.tabs
+			.sendMessage(tab.id, {
+				type: "FORMAT_SELECTION",
+				payload: { text: selectedText },
+			})
+			.catch(() => {
+				// Content script not loaded — try executing inline
+			});
+	}
+});
 
 /**
  * Listen for web navigation events to detect JSON content-type

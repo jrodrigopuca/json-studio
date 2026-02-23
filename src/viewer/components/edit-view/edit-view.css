@@ -1,0 +1,143 @@
+/**
+ * edit-view.css — Styles for the JSON editor view with syntax highlighting.
+ * Styled to match raw-view for visual consistency.
+ */
+
+.js-edit-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+  overflow: auto;
+  font-family: inherit;
+  font-size: var(--font-size);
+  line-height: 1.6;
+  tab-size: 2;
+  color: var(--text-primary);
+}
+
+/* Error message at top */
+.js-edit-view__error {
+  padding: var(--gap-sm) var(--gap-md);
+  background: rgba(239, 154, 154, 0.15);
+  color: var(--syn-null);
+  font-size: 13px;
+  border-bottom: 1px solid rgba(239, 154, 154, 0.3);
+  display: none;
+  flex-shrink: 0;
+}
+
+/* Main wrapper for gutter + editor (matches raw-view__wrapper) */
+.js-edit-view__wrapper {
+  display: flex;
+  flex: 1;
+  min-height: 100%;
+}
+
+/* Line numbers gutter (matches raw-view__gutter) */
+.js-edit-view__gutter {
+  display: block;
+  flex-shrink: 0;
+  padding: var(--gap-md) var(--gap-sm);
+  background: var(--toolbar-bg);
+  border-right: 1px solid var(--border);
+  text-align: right;
+  user-select: none;
+  white-space: pre;
+  line-height: 1.6;
+  min-width: 40px;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+.js-edit-view__line-number {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+/* Editor container (overlay technique) */
+.js-edit-view__editor {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Syntax highlight layer (underneath textarea) */
+.js-edit-view__highlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: var(--gap-md);
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow: auto;
+  pointer-events: none;
+  tab-size: 2;
+}
+
+/* Textarea (transparent text, captures input) */
+.js-edit-view__textarea {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: var(--gap-md);
+  border: none;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size);
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+  overflow: auto;
+  tab-size: 2;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.js-edit-view__textarea:focus {
+  outline: none;
+}
+
+.js-edit-view__textarea::selection {
+  background: var(--selection-bg, rgba(100, 150, 255, 0.3));
+  color: transparent;
+}
+
+/* Syntax colors (same as raw-view) */
+.js-edit-view__highlight .json-key { color: var(--syn-key); }
+.js-edit-view__highlight .json-string { color: var(--syn-string); }
+.js-edit-view__highlight .json-number { color: var(--syn-number); }
+.js-edit-view__highlight .json-boolean { color: var(--syn-boolean); }
+.js-edit-view__highlight .json-null { color: var(--syn-null); }
+.js-edit-view__highlight .json-bracket { color: var(--syn-bracket); }
+
+/* Line wrapper for search highlighting */
+.js-edit-view__line {
+  display: block;
+}
+
+.js-edit-view__line--match {
+  background: rgba(var(--accent-rgb, 77, 171, 247), 0.15);
+  border-left: 2px solid var(--accent);
+  margin-left: -2px;
+}
+
+.js-edit-view__line--current {
+  background: rgba(var(--accent-rgb, 77, 171, 247), 0.35);
+}

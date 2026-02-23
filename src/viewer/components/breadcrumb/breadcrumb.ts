@@ -34,12 +34,31 @@ export class Breadcrumb extends BaseComponent {
 		// Clear existing breadcrumbs
 		this.el.innerHTML = "";
 
-		if (selectedNodeId === null || nodes.length === 0) {
-			this.el.style.display = "none";
+		// Always show at least root segment
+		if (nodes.length === 0) {
+			const rootBtn = createElement("button", {
+				className: "js-breadcrumb__segment js-breadcrumb__segment--active",
+				textContent: "root",
+				attributes: { title: "root" },
+			});
+			this.el.appendChild(rootBtn);
 			return;
 		}
 
-		this.el.style.display = "flex";
+		// If no node selected, show root only
+		if (selectedNodeId === null) {
+			const rootNode = nodes[0];
+			const rootBtn = createElement("button", {
+				className: "js-breadcrumb__segment js-breadcrumb__segment--active",
+				textContent: rootNode ? this.getSegmentLabel(rootNode) : "root",
+				attributes: { title: "root" },
+			});
+			rootBtn.addEventListener("click", () => {
+				if (rootNode) this.store.setState({ selectedNodeId: rootNode.id });
+			});
+			this.el.appendChild(rootBtn);
+			return;
+		}
 
 		const segments = this.buildSegments(selectedNodeId, nodes);
 

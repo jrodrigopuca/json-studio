@@ -160,3 +160,23 @@
 .js-tree-view__context-item:hover {
   background: var(--surface-hover);
 }
+
+/* Inline edit textarea */
+.js-tree-view__edit-input {
+  padding: 4px 8px;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size);
+  outline: none;
+  min-width: 200px;
+  max-width: 500px;
+  min-height: 24px;
+  max-height: 150px;
+  resize: none;
+  overflow-y: auto;
+  line-height: 1.4;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2), 0 2px 8px rgba(0, 0, 0, 0.2);
+}

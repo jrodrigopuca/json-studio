@@ -20,6 +20,7 @@ import {
 	createVirtualScroll,
 	type VirtualScrollInstance,
 } from "../../core/virtual-scroll.js";
+import { prettyPrint } from "../../core/formatter.js";
 import type { AppState } from "../../core/store.types.js";
 import type { FlatNode } from "../../core/parser.types.js";
 
@@ -314,13 +315,126 @@ export class TreeView extends BaseComponent {
 			});
 		}
 
-		// Double-click to copy value
-		row.addEventListener("dblclick", () => {
-			const value = node.isExpandable ? "" : formatValue(node);
-			copyToClipboard(value);
+		// Double-click to edit value (always enabled for leaf nodes)
+		row.addEventListener("dblclick", (e) => {
+			if (!node.isExpandable) {
+				e.preventDefault();
+				e.stopPropagation();
+				this.startInlineEdit(row, node);
+			} else {
+				// Copy value for expandable nodes
+				const value = formatValue(node);
+				if (value) copyToClipboard(value);
+			}
 		});
 
+		// Show edit cursor for editable values
+		if (!node.isExpandable) {
+			const valueEl = row.querySelector(".js-tree-view__value") as HTMLElement;
+			if (valueEl) {
+				valueEl.style.cursor = "text";
+				valueEl.title = "Double-click to edit";
+			}
+		}
+
 		return row;
+	}
+
+	/**
+	 * Starts inline editing for a node value.
+	 */
+	private startInlineEdit(row: HTMLElement, node: FlatNode): void {
+		const valueEl = row.querySelector(".js-tree-view__value") as HTMLElement;
+		if (!valueEl) return;
+
+		// Get current display value (without quotes for strings)
+		const currentValue =
+			node.type === "string" ? String(node.value) : formatValue(node);
+
+		// Create textarea for more editing space
+		const textarea = document.createElement("textarea");
+		textarea.className = "js-tree-view__edit-input";
+		textarea.value = currentValue;
+		textarea.rows = 1;
+		// Auto-expand based on content, min 200px, max 500px width
+		const estimatedWidth = Math.min(
+			Math.max(currentValue.length * 8 + 40, 200),
+			500,
+		);
+		textarea.style.width = `${estimatedWidth}px`;
+
+		// Auto-resize height based on content
+		const autoResize = (): void => {
+			textarea.style.height = "auto";
+			textarea.style.height = `${Math.min(textarea.scrollHeight, 150)}px`;
+		};
+
+		// Replace value with textarea
+		valueEl.style.display = "none";
+		row.insertBefore(textarea, valueEl.nextSibling);
+		textarea.focus();
+		textarea.select();
+		autoResize();
+
+		const commit = (): void => {
+			const newValue = textarea.value;
+			textarea.remove();
+			valueEl.style.display = "";
+
+			this.commitEdit(node, newValue);
+		};
+
+		const cancel = (): void => {
+			textarea.remove();
+			valueEl.style.display = "";
+		};
+
+		textarea.addEventListener("input", autoResize);
+
+		textarea.addEventListener("keydown", (e) => {
+			if (e.key === "Enter" && !e.shiftKey) {
+				e.preventDefault();
+				commit();
+			} else if (e.key === "Escape") {
+				e.preventDefault();
+				cancel();
+			}
+		});
+
+		textarea.addEventListener("blur", () => {
+			// Small delay to allow Enter to fire first
+			setTimeout(() => {
+				if (textarea.parentElement) {
+					commit();
+				}
+			}, 50);
+		});
+	}
+
+	/**
+	 * Commits an inline edit, updating the JSON and re-parsing.
+	 */
+	private commitEdit(node: FlatNode, newValueStr: string): void {
+		const { rawJson, undoStack } = this.store.getState();
+
+		try {
+			const parsed = JSON.parse(rawJson);
+
+			// Navigate to the node using its path and set the new value
+			const newValue = parseEditValue(newValueStr);
+			setValueAtPath(parsed, node.path, newValue);
+
+			const updated = prettyPrint(JSON.stringify(parsed));
+
+			this.store.setState({
+				rawJson: updated,
+				undoStack: [...undoStack, rawJson],
+				redoStack: [],
+				fileSize: new Blob([updated]).size,
+			});
+		} catch {
+			// If edit fails, silently revert
+		}
 	}
 
 	/**
@@ -514,4 +628,95 @@ function formatStringValue(value: string): string {
 		const escapedUrl = escapeHtml(url);
 		return `<a class="js-url" href="${escapedUrl}" target="_blank" rel="noopener noreferrer">${escapedUrl}</a>`;
 	})}"`;
+}
+
+/**
+ * Parses a user-entered edit value into the correct JS type.
+ */
+function parseEditValue(str: string): unknown {
+	const trimmed = str.trim();
+	if (trimmed === "null") return null;
+	if (trimmed === "true") return true;
+	if (trimmed === "false") return false;
+	if (trimmed === "") return "";
+
+	// Try as number
+	const num = Number(trimmed);
+	if (!isNaN(num) && trimmed !== "") return num;
+
+	// Default to string
+	return trimmed;
+}
+
+/**
+ * Sets a value at a JSONPath in a parsed JSON object.
+ * Supports paths like $.key, $.arr[0], $.nested.deep.value
+ */
+function setValueAtPath(obj: unknown, path: string, value: unknown): void {
+	// Parse JSONPath: $ > key > [0] > nested
+	const segments = parsePath(path);
+	if (segments.length === 0) return;
+
+	let current: unknown = obj;
+	for (let i = 0; i < segments.length - 1; i++) {
+		const seg = segments[i]!;
+		if (typeof seg === "number") {
+			current = (current as unknown[])[seg];
+		} else {
+			current = (current as Record<string, unknown>)[seg];
+		}
+		if (current === null || current === undefined) return;
+	}
+
+	const lastSeg = segments[segments.length - 1]!;
+	if (typeof lastSeg === "number") {
+		(current as unknown[])[lastSeg] = value;
+	} else {
+		(current as Record<string, unknown>)[lastSeg] = value;
+	}
+}
+
+/**
+ * Parses a JSONPath string into path segments.
+ * "$" → []
+ * "$.name" → ["name"]
+ * "$.users[0].name" → ["users", 0, "name"]
+ */
+function parsePath(path: string): (string | number)[] {
+	const segments: (string | number)[] = [];
+	// Remove leading $
+	let remaining = path.startsWith("$") ? path.substring(1) : path;
+
+	while (remaining.length > 0) {
+		if (remaining.startsWith(".")) {
+			remaining = remaining.substring(1);
+		}
+
+		if (remaining.startsWith("[")) {
+			const end = remaining.indexOf("]");
+			if (end === -1) break;
+			const indexStr = remaining.substring(1, end);
+			segments.push(parseInt(indexStr, 10));
+			remaining = remaining.substring(end + 1);
+		} else {
+			const dotIndex = remaining.indexOf(".");
+			const bracketIndex = remaining.indexOf("[");
+			let endIndex: number;
+
+			if (dotIndex === -1 && bracketIndex === -1) {
+				endIndex = remaining.length;
+			} else if (dotIndex === -1) {
+				endIndex = bracketIndex;
+			} else if (bracketIndex === -1) {
+				endIndex = dotIndex;
+			} else {
+				endIndex = Math.min(dotIndex, bracketIndex);
+			}
+
+			segments.push(remaining.substring(0, endIndex));
+			remaining = remaining.substring(endIndex);
+		}
+	}
+
+	return segments;
 }

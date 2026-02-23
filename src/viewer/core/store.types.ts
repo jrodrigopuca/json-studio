@@ -9,6 +9,18 @@ import type {
 } from "../../shared/types.js";
 import type { FlatNode, ParseError } from "./parser.types.js";
 
+/** A saved bookmark for a JSON path. */
+export interface Bookmark {
+	/** Unique ID. */
+	id: string;
+	/** JSONPath. */
+	path: string;
+	/** Display label (key name or custom). */
+	label: string;
+	/** Node ID for navigation. */
+	nodeId: number;
+}
+
 /** Full application state. */
 export interface AppState {
 	/** The raw JSON string. */
@@ -37,6 +49,8 @@ export interface AppState {
 	searchMatches: number[];
 	/** Current match index in search results. */
 	searchCurrentIndex: number;
+	/** Line numbers matching search in raw/edit view. */
+	searchLineMatches: number[];
 	/** File size in bytes. */
 	fileSize: number;
 	/** Total number of keys. */
@@ -49,6 +63,18 @@ export interface AppState {
 	sortedByKeys: boolean;
 	/** Whether line numbers are shown in raw view. */
 	showLineNumbers: boolean;
+	/** Whether inline editing mode is active. */
+	isEditing: boolean;
+	/** Undo history stack (raw JSON snapshots). */
+	undoStack: string[];
+	/** Redo history stack (raw JSON snapshots). */
+	redoStack: string[];
+	/** Saved bookmarks for the current JSON. */
+	bookmarks: Bookmark[];
+	/** Second JSON for diff comparison (null = no diff active). */
+	diffJson: string | null;
+	/** Whether edit view has unsaved changes. */
+	hasUnsavedEdits: boolean;
 }
 
 /** Keys of AppState for subscription granularity. */

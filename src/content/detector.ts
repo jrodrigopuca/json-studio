@@ -192,3 +192,109 @@ async function activateViewer(
 
 // Run detection
 detect();
+
+// Listen for messages from background script
+chrome.runtime?.onMessage?.addListener((message, _sender, _sendResponse) => {
+	if (message.type === "FORMAT_SELECTION") {
+		const text = message.payload?.text ?? "";
+		if (text) {
+			formatSelectionAsJson(text);
+		}
+	}
+	return false;
+});
+
+/**
+ * Attempts to format selected text as JSON and show it in a floating panel.
+ */
+function formatSelectionAsJson(text: string): void {
+	try {
+		const parsed = JSON.parse(text);
+		const formatted = JSON.stringify(parsed, null, 2);
+
+		// Create a floating panel with the formatted JSON
+		const existing = document.getElementById("json-spark-format-panel");
+		if (existing) existing.remove();
+
+		const panel = document.createElement("div");
+		panel.id = "json-spark-format-panel";
+		panel.style.cssText = `
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			max-width: 80vw;
+			max-height: 80vh;
+			overflow: auto;
+			background: #1e293b;
+			color: #f1f5f9;
+			padding: 16px;
+			border-radius: 8px;
+			box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+			z-index: 999999;
+			font-family: "SF Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+			font-size: 13px;
+			white-space: pre;
+			tab-size: 2;
+		`;
+
+		const closeBtn = document.createElement("button");
+		closeBtn.textContent = "✕ Close";
+		closeBtn.style.cssText = `
+			position: sticky;
+			top: 0;
+			float: right;
+			background: #334155;
+			color: #f1f5f9;
+			border: none;
+			padding: 4px 12px;
+			border-radius: 4px;
+			cursor: pointer;
+			font-size: 12px;
+			margin-bottom: 8px;
+		`;
+		closeBtn.addEventListener("click", () => panel.remove());
+
+		const copyBtn = document.createElement("button");
+		copyBtn.textContent = "📋 Copy";
+		copyBtn.style.cssText = `
+			position: sticky;
+			top: 0;
+			float: right;
+			background: #334155;
+			color: #f1f5f9;
+			border: none;
+			padding: 4px 12px;
+			border-radius: 4px;
+			cursor: pointer;
+			font-size: 12px;
+			margin-bottom: 8px;
+			margin-right: 4px;
+		`;
+		copyBtn.addEventListener("click", () => {
+			navigator.clipboard.writeText(formatted);
+			copyBtn.textContent = "✓ Copied!";
+			setTimeout(() => (copyBtn.textContent = "📋 Copy"), 1500);
+		});
+
+		const pre = document.createElement("pre");
+		pre.textContent = formatted;
+		pre.style.margin = "0";
+
+		panel.appendChild(closeBtn);
+		panel.appendChild(copyBtn);
+		panel.appendChild(pre);
+		document.body.appendChild(panel);
+
+		// Close on Escape
+		const onEscape = (e: KeyboardEvent): void => {
+			if (e.key === "Escape") {
+				panel.remove();
+				document.removeEventListener("keydown", onEscape);
+			}
+		};
+		document.addEventListener("keydown", onEscape);
+	} catch {
+		// Not valid JSON — silently ignore
+	}
+}

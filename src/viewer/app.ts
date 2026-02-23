@@ -11,7 +11,11 @@ import { createStore, type Store } from "./core/store.js";
 import { parseJSON } from "./core/parser.js";
 import { sortJsonByKeys, prettyPrint } from "./core/formatter.js";
 import type { AppState } from "./core/store.types.js";
-import type { ResolvedTheme, ContentTypeClass } from "../shared/types.js";
+import type {
+	ResolvedTheme,
+	ContentTypeClass,
+	ViewMode,
+} from "../shared/types.js";
 import { WORKER_THRESHOLD } from "../shared/constants.js";
 
 // Components
@@ -19,6 +23,8 @@ import { Toolbar } from "./components/toolbar/index.js";
 import { TreeView } from "./components/tree-view/index.js";
 import { RawView } from "./components/raw-view/index.js";
 import { TableView } from "./components/table-view/index.js";
+import { DiffView } from "./components/diff-view/index.js";
+import { EditView } from "./components/edit-view/index.js";
 import { Breadcrumb } from "./components/breadcrumb/index.js";
 import { SearchBar } from "./components/search-bar/index.js";
 import { StatusBar } from "./components/status-bar/index.js";
@@ -32,6 +38,8 @@ import "./components/toolbar/toolbar.css";
 import "./components/tree-view/tree-view.css";
 import "./components/raw-view/raw-view.css";
 import "./components/table-view/table-view.css";
+import "./components/diff-view/diff-view.css";
+import "./components/edit-view/edit-view.css";
 import "./components/breadcrumb/breadcrumb.css";
 import "./components/search-bar/search-bar.css";
 import "./components/status-bar/status-bar.css";
@@ -84,12 +92,19 @@ export function initViewer(options: ViewerOptions): () => void {
 		searchQuery: "",
 		searchMatches: [],
 		searchCurrentIndex: 0,
+		searchLineMatches: [],
 		fileSize: new Blob([rawJson]).size,
 		totalKeys: 0,
 		maxDepth: 0,
 		isParsing: false,
 		sortedByKeys: false,
 		showLineNumbers: true,
+		isEditing: false,
+		undoStack: [],
+		redoStack: [],
+		bookmarks: [],
+		diffJson: null,
+		hasUnsavedEdits: false,
 	};
 
 	const store = createStore(initialState);
@@ -119,6 +134,8 @@ export function initViewer(options: ViewerOptions): () => void {
 	const treeView = new TreeView(store);
 	const rawView = new RawView(store);
 	const tableView = new TableView(store);
+	const diffView = new DiffView(store);
+	const editView = new EditView(store);
 	const statusBar = new StatusBar(store);
 
 	// Render components in order
@@ -138,6 +155,8 @@ export function initViewer(options: ViewerOptions): () => void {
 	treeView.render(viewContainer);
 	rawView.render(viewContainer);
 	tableView.render(viewContainer);
+	diffView.render(viewContainer);
+	editView.render(viewContainer);
 
 	statusBar.render(mainContainer);
 	container.appendChild(mainContainer);
@@ -149,6 +168,14 @@ export function initViewer(options: ViewerOptions): () => void {
 		const tableEl = viewContainer.querySelector(
 			".js-table-view",
 		) as HTMLElement;
+		const diffEl = viewContainer.querySelector(".js-diff-view") as HTMLElement;
+		const editEl = viewContainer.querySelector(".js-edit-view") as HTMLElement;
+		const breadcrumbEl = mainContainer.querySelector(
+			".js-breadcrumb",
+		) as HTMLElement;
+		const searchBarEl = mainContainer.querySelector(
+			".js-search-bar",
+		) as HTMLElement;
 
 		if (treeEl)
 			treeEl.style.display = state.viewMode === "tree" ? "block" : "none";
@@ -156,6 +183,21 @@ export function initViewer(options: ViewerOptions): () => void {
 			rawEl.style.display = state.viewMode === "raw" ? "block" : "none";
 		if (tableEl)
 			tableEl.style.display = state.viewMode === "table" ? "block" : "none";
+		if (diffEl)
+			diffEl.style.display = state.viewMode === "diff" ? "flex" : "none";
+		if (editEl)
+			editEl.style.display = state.viewMode === "edit" ? "flex" : "none";
+
+		// Breadcrumb only visible in Tree view (where node selection makes sense)
+		if (breadcrumbEl)
+			breadcrumbEl.style.display = state.viewMode === "tree" ? "flex" : "none";
+
+		// SearchBar visible in Tree, Raw, and Edit views
+		const searchViews = ["tree", "raw", "edit"];
+		if (searchBarEl)
+			searchBarEl.style.display = searchViews.includes(state.viewMode)
+				? "flex"
+				: "none";
 	};
 
 	store.subscribe(["viewMode"], (state) => updateViewVisibility(state));
@@ -173,6 +215,15 @@ export function initViewer(options: ViewerOptions): () => void {
 		}
 	});
 
+	// Re-parse when rawJson changes (e.g., from EditView save)
+	let lastRawJson = rawJson;
+	store.subscribe(["rawJson"], (state) => {
+		if (state.rawJson !== lastRawJson) {
+			lastRawJson = state.rawJson;
+			parseAndSetState(state.rawJson, store);
+		}
+	});
+
 	// Initial view visibility
 	updateViewVisibility(store.getState());
 
@@ -187,13 +238,56 @@ export function initViewer(options: ViewerOptions): () => void {
 	};
 	themeMediaQuery.addEventListener("change", onThemeChange);
 
+	// Helper to change view with unsaved edits confirmation
+	const changeViewMode = (newMode: ViewMode): void => {
+		const { viewMode, hasUnsavedEdits } = store.getState();
+		if (viewMode === "edit" && hasUnsavedEdits && newMode !== "edit") {
+			const response = confirm(
+				"You have unsaved changes. Do you want to save before leaving?\n\n" +
+					"Click OK to save and switch, or Cancel to discard changes.",
+			);
+			if (response) {
+				// Dispatch save action to EditView
+				document.dispatchEvent(
+					new CustomEvent("json-spark:edit-action", {
+						detail: { action: "save" },
+					}),
+				);
+			}
+			store.setState({ hasUnsavedEdits: false });
+		}
+		store.setState({ viewMode: newMode });
+	};
+
+	// Expose changeViewMode globally for toolbar to use
+	(
+		window as unknown as { __jsonSparkChangeViewMode: typeof changeViewMode }
+	).__jsonSparkChangeViewMode = changeViewMode;
+
 	// Global keyboard shortcuts
 	const onGlobalKeyDown = (e: KeyboardEvent): void => {
-		// Number keys to switch views
-		if (!e.ctrlKey && !e.metaKey && !e.altKey) {
-			if (e.key === "1") store.setState({ viewMode: "tree" });
-			if (e.key === "2") store.setState({ viewMode: "raw" });
-			if (e.key === "3") store.setState({ viewMode: "table" });
+		// Cmd/Ctrl + Number keys to switch views
+		if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey) {
+			if (e.key === "1") {
+				e.preventDefault();
+				changeViewMode("tree");
+			}
+			if (e.key === "2") {
+				e.preventDefault();
+				changeViewMode("raw");
+			}
+			if (e.key === "3") {
+				e.preventDefault();
+				changeViewMode("table");
+			}
+			if (e.key === "4") {
+				e.preventDefault();
+				changeViewMode("diff");
+			}
+			if (e.key === "5") {
+				e.preventDefault();
+				changeViewMode("edit");
+			}
 		}
 
 		// Ctrl+Shift+F: Expand all
@@ -214,6 +308,24 @@ export function initViewer(options: ViewerOptions): () => void {
 	};
 	document.addEventListener("keydown", onGlobalKeyDown);
 
+	// Listen for file imports from toolbar
+	const onImport = ((e: CustomEvent<{ rawJson: string; filename: string }>) => {
+		const imported = prettyPrint(e.detail.rawJson);
+		store.setState({
+			rawJson: imported,
+			sortedByKeys: false,
+			isEditing: false,
+			undoStack: [],
+			redoStack: [],
+			bookmarks: [],
+			diffJson: null,
+			fileSize: new Blob([imported]).size,
+			url: `file://${e.detail.filename}`,
+		});
+		parseAndSetState(imported, store);
+	}) as EventListener;
+	document.addEventListener("json-spark:import", onImport);
+
 	// Return cleanup function
 	return () => {
 		toolbar.dispose();
@@ -223,10 +335,13 @@ export function initViewer(options: ViewerOptions): () => void {
 		treeView.dispose();
 		rawView.dispose();
 		tableView.dispose();
+		diffView.dispose();
+		editView.dispose();
 		statusBar.dispose();
 		store.dispose();
 		themeMediaQuery.removeEventListener("change", onThemeChange);
 		document.removeEventListener("keydown", onGlobalKeyDown);
+		document.removeEventListener("json-spark:import", onImport);
 		container.innerHTML = "";
 	};
 }

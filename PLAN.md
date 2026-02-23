@@ -790,11 +790,11 @@ Semana 11+:   Comunidad, plugins, cross-browser
 
 > Última actualización: Febrero 2026
 
-### Estado actual: Fase 2 — Power Features (Alta y Media prioridad) ✅ + UX Polish
+### Estado actual: Fase 3 — Pro Features (en progreso)
 
-Fase 1 scaffold completo. Fase 2 features de prioridad alta y media implementadas con iteración de UX/diseño. TypeScript compila sin errores, 111 unit tests pasando, y la estructura sigue la arquitectura definida en este plan.
+Fase 1 scaffold completo. Fase 2 features de prioridad alta y media implementadas con iteración de UX/diseño. Fase 3 prioridades Alta y Media completadas: Import files, Conversión (JSON↔YAML, CSV, TS), Edición inline, Context menu, Undo/Redo, JSON Diff, Bookmarks. TypeScript compila sin errores, 141 unit tests pasando (5 archivos), y la estructura sigue la arquitectura definida en este plan.
 
-### Archivos implementados (65 archivos)
+### Archivos implementados (75+ archivos)
 
 | Área                  | Archivos                                                                                                                         | Estado      |
 | --------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ----------- |
@@ -818,6 +818,8 @@ Fase 1 scaffold completo. Fase 2 features de prioridad alta y media implementada
 | **Demo**              | `index.html`, `demo.ts`, 7 fixtures JSON (incluye `minified.json`)                                                               | ✅ Completo |
 | **Breadcrumb**        | `breadcrumb.ts`, `breadcrumb.css`, `breadcrumb.types.ts`, `index.ts`                                                             | ✅ Completo |
 | **Table View**        | `table-view.ts`, `table-view.css`, `table-view.types.ts`, `index.ts`                                                             | ✅ Completo |
+| **Diff View**         | `diff-view.ts`, `diff-view.css`, `diff-view.types.ts`, `index.ts`                                                                | ✅ Completo |
+| **Converter**         | `converter.ts` (JSON↔YAML, CSV, TypeScript)                                                                                      | ✅ Completo |
 
 ### Checklist Fase 1 — MVP (v0.1)
 
@@ -870,6 +872,7 @@ Fase 1 scaffold completo. Fase 2 features de prioridad alta y media implementada
 - [x] Unit tests: `formatter.test.ts` (incluye `sortJsonByKeys`)
 - [x] Unit tests: `store.test.ts`
 - [x] Unit tests: `highlighter.test.ts`
+- [x] Unit tests: `converter.test.ts` (jsonToYaml, jsonToCsv, jsonToTypeScript, yamlToJson)
 - [ ] Fixtures grandes: `large.json` (~5MB), `huge.json` (~50MB) — `scripts/generate-fixtures.ts`
 - [ ] E2E tests con Playwright (detección, tree-view, búsqueda)
 
@@ -916,15 +919,38 @@ Fase 1 scaffold completo. Fase 2 features de prioridad alta y media implementada
 - [ ] Screenshots para Chrome Web Store — `scripts/generate-screenshots.ts`
 - [ ] Publicación en Chrome Web Store
 
+### Checklist Fase 3 — Pro Features (v1.0)
+
+#### Prioridad Alta ✅
+
+- [x] Import files — Botón 📂 para abrir archivos locales (.json, .yaml, .yml, .xml, .csv), convierte YAML→JSON automáticamente, dispara custom event `json-spark:import`
+- [x] Conversión — Export dropdown (⤓) con 4 formatos: JSON, YAML, CSV, TypeScript interfaces. Módulo `converter.ts` zero-dependency
+- [x] Edición inline — Toggle ✏️ activa modo edición, doble-click en valores abre input inline, commit con Enter, cancel con Escape
+- [x] Context menu — Chrome contextMenus API: "Format JSON in selection", crea panel flotante con JSON formateado y botón Copy
+
+#### Prioridad Media ✅
+
+- [x] Undo/Redo — Botones ↩/↪ en toolbar + atajos Ctrl+Z / Ctrl+Shift+Z, stack de historial en AppState
+- [x] JSON Diff — Vista lado a lado con input de segundo JSON (textarea o carga de archivo), diff estructural con highlighting (added/removed/changed), resumen de diferencias
+- [x] Bookmarks — Panel desplegable ★, guardar/navegar/eliminar paths, expande la cadena de padres al navegar
+
+#### Prioridad Baja (diferido — evaluación futura)
+
+Las siguientes features se evalúan para fases posteriores por los motivos indicados:
+
+- [ ] JSON Schema validation — **Motivo:** Requiere que el usuario provea o referencie un schema externo; workflow poco frecuente en uso casual. Alta complejidad de implementación (parser de JSON Schema, display de errores inline) con beneficio limitado para la mayoría de usuarios. Mejor candidato para un plugin.
+- [ ] Chart View — **Motivo:** Caso de uso muy nicho (solo arrays numéricos). Requiere una librería de charting o implementación SVG custom, lo cual contradice la filosofía zero-dependency. El peso del bundle no justifica el uso marginal.
+- [ ] Custom themes — **Motivo:** Dark/Light con CSS custom properties ya cubre el 95% de las preferencias. Un editor de temas completo agrega complejidad de UI (color pickers, preview, persistencia) con retorno bajo. Los usuarios avanzados pueden usar la extensión Stylus para customizar.
+- [ ] Shareable URLs — **Motivo:** Comprimir JSON en URL tiene limitaciones severas de tamaño (~2KB útil). Para JSONs grandes (el caso de uso principal) es inviable. Alternativas como pastebin cubren mejor este caso.
+- [ ] Omnibox integration — **Motivo:** Requiere permiso adicional (`omnibox`) y solo funciona en Chrome. Beneficio marginal vs. abrir Scratch Pad desde el popup, que ya existe. Bajo descubrimiento por parte de usuarios.
+
 ### Próximos pasos inmediatos
 
-1. **Build de producción** — Verificar que `vite build` con `vite.extension.config.ts` genera los bundles correctos para la extensión.
-2. **Prueba en Chrome** — Cargar la extensión como "unpacked" en `chrome://extensions` y verificar detección + rendering en URLs reales con JSON.
-3. **Generar iconos PNG** — Crear `scripts/generate-icons.ts` que convierta el SVG a 16/48/128px.
-4. **Fixtures grandes** — Crear `scripts/generate-fixtures.ts` para generar `large.json` y `huge.json` y validar virtualización + Web Worker.
-5. **E2E tests** — Tests con Playwright para detección, tree-view y búsqueda.
-6. **Polish y bug fixes** — Iterar sobre UX después de testing real en Chrome.
-7. **Chrome Web Store submission** — Preparar screenshots, descripción, y publicar v0.1.
+1. **Fase 3 — Alta prioridad**: Import files, Conversión, Edición inline, Context menu.
+2. **Fase 3 — Media prioridad**: Undo/Redo, JSON Diff, Bookmarks.
+3. **Build de producción** — Verificar que `vite build` con `vite.extension.config.ts` genera los bundles correctos.
+4. **Prueba en Chrome** — Cargar como "unpacked" y verificar detección + rendering.
+5. **Chrome Web Store submission** — Screenshots, descripción, y publicar.
 
 ---
 
