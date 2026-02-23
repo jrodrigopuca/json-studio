@@ -4,6 +4,7 @@
 
 import { useEffect, useRef, useCallback } from "react";
 import { useStore } from "../../store";
+import { useI18n } from "../../hooks/useI18n";
 import styles from "./SearchBar.module.css";
 
 export function SearchBar() {
@@ -25,6 +26,7 @@ export function SearchBar() {
   const expandToNode = useStore((s) => s.expandToNode);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const { t } = useI18n();
 
   // Get current matches based on view mode
   const matches = viewMode === "tree" ? searchMatches : searchLineMatches;
@@ -151,18 +153,18 @@ export function SearchBar() {
         ref={inputRef}
         type="text"
         className={styles.input}
-        placeholder="Search..."
+        placeholder={t("searchBar.placeholder")}
         value={searchQuery}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        aria-label="Search query"
+        aria-label={t("searchBar.ariaLabel")}
       />
 
       <span className={styles.count}>
         {matches.length > 0
-          ? `${searchCurrentIndex + 1} of ${matches.length}`
+          ? t("searchBar.count.format", { current: searchCurrentIndex + 1, total: matches.length })
           : searchQuery
-          ? "No results"
+          ? t("searchBar.count.noResults")
           : ""}
       </span>
 
@@ -171,7 +173,7 @@ export function SearchBar() {
           className={styles.navButton}
           onClick={prevMatch}
           disabled={matches.length === 0}
-          title="Previous (Shift+Enter)"
+          title={t("searchBar.tooltip.previous")}
         >
           ↑
         </button>
@@ -179,14 +181,14 @@ export function SearchBar() {
           className={styles.navButton}
           onClick={nextMatch}
           disabled={matches.length === 0}
-          title="Next (Enter)"
+          title={t("searchBar.tooltip.next")}
         >
           ↓
         </button>
         <button
           className={styles.navButton}
           onClick={closeSearch}
-          title="Close (Escape)"
+          title={t("searchBar.tooltip.close")}
         >
           ✕
         </button>

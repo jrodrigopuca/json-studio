@@ -4,6 +4,7 @@
 
 import { useMemo } from "react";
 import { useStore } from "../../store";
+import { useI18n } from "../../hooks/useI18n";
 import styles from "./TreeViewHeader.module.css";
 
 export function TreeViewHeader() {
@@ -14,6 +15,7 @@ export function TreeViewHeader() {
 	const collapseAll = useStore((s) => s.collapseAll);
 	const expandToLevel = useStore((s) => s.expandToLevel);
 	const setFocusedNode = useStore((s) => s.setFocusedNode);
+	const { t } = useI18n();
 
 	// Calculate node count
 	const nodeCount = nodes.length;
@@ -53,7 +55,7 @@ export function TreeViewHeader() {
 					<button
 						className={styles.clearFilter}
 						onClick={handleClearFilter}
-						title="Clear filter and show all nodes"
+						title={t("treeViewHeader.tooltip.clearFilter")}
 						type="button"
 					>
 						<span className={styles.icon}>✕</span>
@@ -66,29 +68,29 @@ export function TreeViewHeader() {
 						<button
 							className={styles.button}
 							onClick={expandAll}
-							title="Expand All (⌥E)"
-							type="button"
-						>
-							<span className={styles.icon}>▼</span>
-							Expand
-						</button>
+						title={t("treeViewHeader.tooltip.expandAll")}
+						type="button"
+					>
+						<span className={styles.icon}>▼</span>
+						{t("treeViewHeader.button.expand")}
+					</button>
 						<button
 							className={styles.button}
 							onClick={collapseAll}
-							title="Collapse All (⌥C)"
+							title={t("treeViewHeader.tooltip.collapseAll")}
 							type="button"
 						>
 							<span className={styles.icon}>▶</span>
-							Collapse
+							{t("treeViewHeader.button.collapse")}
 						</button>
 						
 						{levelOptions.length > 1 && (
 							<div className={styles.levelControl}>
-								<label className={styles.levelLabel}>Level:</label>
+								<label className={styles.levelLabel}>{t("treeViewHeader.label.level")}</label>
 								<select
 									className={styles.levelSelect}
 									onChange={handleLevelChange}
-									title="Expand to specific depth level"
+									title={t("treeViewHeader.tooltip.expandToLevel")}
 								>
 									<option value="">—</option>
 									{levelOptions.map((level) => (
@@ -96,7 +98,7 @@ export function TreeViewHeader() {
 											{level}
 										</option>
 									))}
-									<option value="all">All</option>
+									<option value="all">{t("treeViewHeader.option.all")}</option>
 								</select>
 							</div>
 						)}
@@ -106,7 +108,7 @@ export function TreeViewHeader() {
 
 			<div className={styles.stats}>
 				<span className={styles.nodeCount}>
-					{nodeCount.toLocaleString()} nodes
+					{t("treeViewHeader.stats.nodeCount", { count: nodeCount.toLocaleString() })}
 				</span>
 			</div>
 		</div>

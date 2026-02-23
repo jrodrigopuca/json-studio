@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useStore, type SavedJson } from "../../store";
 import { useToast } from "../Toast";
 import { Icon } from "../Icon";
+import { useI18n } from "../../hooks/useI18n";
 import { formatSize, formatDate } from "../../core/formatter";
 import styles from "./SavedView.module.css";
 
@@ -19,6 +20,7 @@ export function SavedView() {
   const deleteSavedJson = useStore((s) => s.deleteSavedJson);
   const renameSavedJson = useStore((s) => s.renameSavedJson);
   const { show: showToast } = useToast();
+  const { t } = useI18n();
 
   const [saveName, setSaveName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -33,26 +35,26 @@ export function SavedView() {
     
     const success = saveCurrentJson(saveName.trim());
     if (success) {
-      showToast({ message: `"${saveName}" guardado`, type: "success" });
+      showToast({ message: t("savedView.toast.saved", { name: saveName }), type: "success" });
       setSaveName("");
     } else {
-      showToast({ message: "Error al guardar", type: "error" });
+      showToast({ message: t("savedView.toast.saveError"), type: "error" });
     }
   };
 
   const handleLoad = (item: SavedJson) => {
     loadSavedJson(item.id);
-    showToast({ message: `"${item.name}" cargado`, type: "success" });
+    showToast({ message: t("savedView.toast.loaded", { name: item.name }), type: "success" });
   };
 
   const handleLoadToEdit = (item: SavedJson) => {
     loadSavedJson(item.id, "edit");
-    showToast({ message: `"${item.name}" abierto en Edit`, type: "success" });
+    showToast({ message: t("savedView.toast.openedInEdit", { name: item.name }), type: "success" });
   };
 
   const handleDelete = (item: SavedJson) => {
     deleteSavedJson(item.id);
-    showToast({ message: `"${item.name}" eliminado`, type: "info" });
+    showToast({ message: t("savedView.toast.deleted", { name: item.name }), type: "info" });
   };
 
   const handleStartRename = (item: SavedJson) => {
@@ -63,7 +65,7 @@ export function SavedView() {
   const handleRename = (item: SavedJson) => {
     if (editName.trim()) {
       renameSavedJson(item.id, editName.trim());
-      showToast({ message: "Nombre actualizado", type: "success" });
+      showToast({ message: t("savedView.toast.nameUpdated"), type: "success" });
     }
     setEditingId(null);
   };
@@ -72,9 +74,9 @@ export function SavedView() {
     <div className={styles.savedView}>
       {/* Saved list */}
       <section className={styles.listSection}>
-        <h3>JSONs guardados</h3>
+        <h3>{t("savedView.title")}</h3>
         {savedJsons.length === 0 ? (
-          <p className={styles.emptyMessage}>No hay JSONs guardados</p>
+          <p className={styles.emptyMessage}>{t("savedView.empty")}</p>
         ) : (
           <ul className={styles.list}>
             {savedJsons
@@ -100,7 +102,7 @@ export function SavedView() {
                       <span
                         className={styles.itemName}
                         onDoubleClick={() => handleStartRename(item)}
-                        title="Doble clic para renombrar"
+                        title={t("savedView.tooltip.doubleClickRename")}
                       >
                         {item.name}
                       </span>
@@ -113,28 +115,28 @@ export function SavedView() {
                     <button
                       className={styles.actionButton}
                       onClick={() => handleLoad(item)}
-                      title="Cargar en Tree View"
+                      title={t("savedView.tooltip.loadInTreeView")}
                     >
                       <Icon name="folder" size={14} />
                     </button>
                     <button
                       className={styles.actionButton}
                       onClick={() => handleLoadToEdit(item)}
-                      title="Abrir en Edit Mode"
+                      title={t("savedView.tooltip.openInEditMode")}
                     >
                       <Icon name="edit" size={14} />
                     </button>
                     <button
                       className={styles.actionButton}
                       onClick={() => handleStartRename(item)}
-                      title="Renombrar"
+                      title={t("savedView.tooltip.rename")}
                     >
                       <Icon name="pencil" size={14} />
                     </button>
                     <button
                       className={`${styles.actionButton} ${styles.deleteButton}`}
                       onClick={() => handleDelete(item)}
-                      title="Eliminar"
+                      title={t("savedView.tooltip.delete")}
                     >
                       <Icon name="trash" size={14} />
                     </button>
@@ -147,12 +149,12 @@ export function SavedView() {
 
       {/* Save current JSON - sticky footer */}
       <section className={styles.saveSection}>
-        <h3>Guardar JSON actual</h3>
+        <h3>{t("savedView.saveTitle")}</h3>
         <div className={styles.saveForm}>
           <input
             type="text"
             className={styles.input}
-            placeholder="Nombre del guardado..."
+            placeholder={t("savedView.placeholder.saveName")}
             value={saveName}
             onChange={(e) => setSaveName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSave()}
@@ -164,28 +166,28 @@ export function SavedView() {
             disabled={!canSave}
             title={
               isOverSize
-                ? `El JSON excede el límite de ${MAX_SIZE_KB}KB`
+                ? t("savedView.tooltip.jsonExceedsLimit", { maxSize: MAX_SIZE_KB })
                 : savedJsons.length >= 10
-                ? "Límite de 10 guardados alcanzado"
+                ? t("savedView.tooltip.savedLimitReached")
                 : undefined
             }
           >
-            <Icon name="download" size={14} /> Guardar
+            <Icon name="download" size={14} /> {t("savedView.button.save")}
           </button>
         </div>
         <div className={styles.saveInfo}>
           {rawJson && (
             <span className={styles.sizeInfo}>
-              Tamaño: {formatSize(currentSize)}
+              {t("savedView.label.size", { size: formatSize(currentSize) })}
               {isOverSize && (
                 <span className={styles.sizeWarning}>
-                  {" "}(máx: {MAX_SIZE_KB}KB)
+                  {" "}{t("savedView.label.sizeWarning", { maxSize: MAX_SIZE_KB })}
                 </span>
               )}
             </span>
           )}
           <span className={styles.limitInfo}>
-            {savedJsons.length}/10 guardados
+            {t("savedView.label.savedCount", { count: savedJsons.length })}
           </span>
         </div>
       </section>

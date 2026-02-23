@@ -4,6 +4,7 @@
 
 import { useMemo } from "react";
 import { useStore } from "../../store";
+import { useI18n } from "../../hooks/useI18n";
 import styles from "./Breadcrumb.module.css";
 
 /**
@@ -39,11 +40,12 @@ export function Breadcrumb() {
   const selectedNodeId = useStore((s) => s.selectedNodeId);
   const selectNode = useStore((s) => s.selectNode);
   const expandNode = useStore((s) => s.expandNode);
+  const { t } = useI18n();
 
   // Build breadcrumb path from selected node
   const path = useMemo(() => {
     if (selectedNodeId === null) {
-      return [{ id: 0, label: "root" }];
+      return [{ id: 0, label: t("breadcrumb.root") }];
     }
 
     const result: { id: number; label: string }[] = [];
@@ -55,14 +57,14 @@ export function Breadcrumb() {
 
       result.unshift({
         id: node.id,
-        label: getLabelFromPath(node.path),
+        label: node.path === "$" ? t("breadcrumb.root") : getLabelFromPath(node.path),
       });
 
       currentId = node.parentId;
     }
 
-    return result.length > 0 ? result : [{ id: 0, label: "root" }];
-  }, [nodes, selectedNodeId]);
+    return result.length > 0 ? result : [{ id: 0, label: t("breadcrumb.root") }];
+  }, [nodes, selectedNodeId, t]);
 
   const handleClick = (nodeId: number) => {
     selectNode(nodeId);
@@ -70,7 +72,7 @@ export function Breadcrumb() {
   };
 
   return (
-    <nav className={styles.breadcrumb} aria-label="JSON path">
+    <nav className={styles.breadcrumb} aria-label={t("breadcrumb.ariaLabel")}>
       {path.map((item, idx) => (
         <span key={item.id} className={styles.item}>
           {idx > 0 && <span className={styles.separator}>/</span>}

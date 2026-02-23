@@ -4,7 +4,8 @@ import {
 	jsonToCsv,
 	jsonToTypeScript,
 	yamlToJson,
-} from "../../src/viewer/core/converter.js";
+	jsonToXml,
+} from "../../src/viewer/core/converters.js";
 
 describe("jsonToYaml", () => {
 	it("converts simple object to YAML", () => {
@@ -130,7 +131,7 @@ describe("jsonToTypeScript", () => {
 	it("generates interface for simple object", () => {
 		const json = '{"name": "Alice", "age": 30, "active": true}';
 		const ts = jsonToTypeScript(json);
-		expect(ts).toContain("export interface RootObject");
+		expect(ts).toContain("interface Root");
 		expect(ts).toContain("name: string;");
 		expect(ts).toContain("age: number;");
 		expect(ts).toContain("active: boolean;");
@@ -139,9 +140,9 @@ describe("jsonToTypeScript", () => {
 	it("generates interfaces for nested objects", () => {
 		const json = '{"user": {"name": "Alice"}}';
 		const ts = jsonToTypeScript(json);
-		expect(ts).toContain("export interface RootObject");
-		expect(ts).toContain("user: RootObjectUser;");
-		expect(ts).toContain("export interface RootObjectUser");
+		expect(ts).toContain("interface Root");
+		expect(ts).toContain("user: RootUser;");
+		expect(ts).toContain("interface RootUser");
 		expect(ts).toContain("name: string;");
 	});
 
@@ -154,7 +155,7 @@ describe("jsonToTypeScript", () => {
 	it("handles arrays of objects", () => {
 		const json = '{"users": [{"name": "Alice"}]}';
 		const ts = jsonToTypeScript(json);
-		expect(ts).toContain("users: RootObjectUsersItem[];");
+		expect(ts).toContain("users: RootUsersItem[];");
 	});
 
 	it("handles null values", () => {
@@ -172,7 +173,7 @@ describe("jsonToTypeScript", () => {
 	it("handles custom root name", () => {
 		const json = '{"id": 1}';
 		const ts = jsonToTypeScript(json, "User");
-		expect(ts).toContain("export interface User");
+		expect(ts).toContain("interface User");
 	});
 
 	it("returns error comment for invalid JSON", () => {
@@ -217,5 +218,48 @@ describe("yamlToJson", () => {
 		const json = yamlToJson(yaml);
 		const parsed = JSON.parse(json);
 		expect(parsed).toEqual([1, 2, 3]);
+	});
+});
+
+describe("jsonToXml", () => {
+	it("converts simple object to XML", () => {
+		const result = jsonToXml({ name: "Alice", age: 30 });
+		expect(result).toContain('<?xml version="1.0" encoding="UTF-8"?>');
+		expect(result).toContain("<name>Alice</name>");
+		expect(result).toContain("<age>30</age>");
+	});
+
+	it("uses proper closing tags for booleans", () => {
+		const result = jsonToXml({ active: true, deleted: false });
+		expect(result).toContain("<active>true</active>");
+		expect(result).toContain("<deleted>false</deleted>");
+		expect(result).not.toContain("</tag>");
+	});
+
+	it("handles nested objects", () => {
+		const result = jsonToXml({ user: { name: "Bob" } });
+		expect(result).toContain("<user>");
+		expect(result).toContain("<name>Bob</name>");
+		expect(result).toContain("</user>");
+	});
+
+	it("handles arrays with item wrapper", () => {
+		const result = jsonToXml({ items: [1, 2, 3] });
+		expect(result).toContain("<items>");
+		expect(result).toContain("<item>1</item>");
+		expect(result).toContain("<item>2</item>");
+		expect(result).toContain("<item>3</item>");
+	});
+
+	it("escapes XML special characters in strings", () => {
+		const result = jsonToXml({ text: '<script>alert("xss")</script>' });
+		expect(result).not.toContain("<script>");
+		expect(result).toContain("&lt;script&gt;");
+	});
+
+	it("uses custom root name", () => {
+		const result = jsonToXml({ id: 1 }, "response");
+		expect(result).toContain("<response>");
+		expect(result).toContain("</response>");
 	});
 });

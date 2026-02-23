@@ -7,6 +7,7 @@
 import { useEffect, useCallback, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { formatSize } from "../../core/formatter";
+import { useI18n } from "../../hooks/useI18n";
 import styles from "./Modal.module.css";
 
 interface ModalProps {
@@ -74,26 +75,27 @@ export function UnsavedChangesModal({
   onDiscard,
   onCancel,
 }: UnsavedChangesModalProps) {
+  const { t } = useI18n();
   return (
     <Modal
       isOpen={isOpen}
-      title="Cambios sin guardar"
+      title={t("modal.unsavedChanges.title")}
       onClose={onCancel}
       actions={
         <>
           <button className={styles.buttonSecondary} onClick={onCancel}>
-            Cancelar
+            {t("modal.unsavedChanges.cancel")}
           </button>
           <button className={styles.buttonSecondary} onClick={onDiscard}>
-            Descartar cambios
+            {t("modal.unsavedChanges.discard")}
           </button>
           <button className={styles.buttonPrimary} onClick={onSave}>
-            Guardar cambios
+            {t("modal.unsavedChanges.save")}
           </button>
         </>
       }
     >
-      <p>Tienes cambios sin guardar en el editor. ¿Qué deseas hacer?</p>
+      <p>{t("modal.unsavedChanges.message")}</p>
     </Modal>
   );
 }
@@ -118,6 +120,7 @@ export function SaveJsonModal({
   maxSize = 500 * 1024,
   maxCount = 10,
 }: SaveJsonModalProps) {
+  const { t } = useI18n();
   const [name, setName] = useState("");
   const isOverSize = currentSize > maxSize;
   const isOverCount = savedCount >= maxCount;
@@ -138,19 +141,19 @@ export function SaveJsonModal({
   return (
     <Modal
       isOpen={isOpen}
-      title="Guardar JSON"
+      title={t("modal.saveJson.title")}
       onClose={handleClose}
       actions={
         <>
           <button className={styles.buttonSecondary} onClick={handleClose}>
-            Cancelar
+            {t("modal.saveJson.cancel")}
           </button>
           <button
             className={styles.buttonPrimary}
             onClick={handleSave}
             disabled={!canSave}
           >
-            Guardar
+            {t("modal.saveJson.save")}
           </button>
         </>
       }
@@ -159,21 +162,21 @@ export function SaveJsonModal({
         <input
           type="text"
           className={styles.input}
-          placeholder="Nombre del guardado..."
+          placeholder={t("modal.saveJson.placeholder")}
           value={name}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSave()}
           autoFocus
         />
         <p className={styles.saveInfo}>
-          Tamaño: {formatSize(currentSize)}
+          {t("modal.saveJson.size", { size: formatSize(currentSize) })}
           {isOverSize && (
-            <span className={styles.warning}> (máx: {formatSize(maxSize)})</span>
+            <span className={styles.warning}> {t("modal.saveJson.sizeWarning", { maxSize: formatSize(maxSize) })}</span>
           )}
         </p>
         <p className={styles.saveInfo}>
-          {savedCount}/{maxCount} guardados
-          {isOverCount && <span className={styles.warning}> (límite alcanzado)</span>}
+          {t("modal.saveJson.savedCount", { count: String(savedCount), max: String(maxCount) })}
+          {isOverCount && <span className={styles.warning}> {t("modal.saveJson.limitReached")}</span>}
         </p>
       </div>
     </Modal>
@@ -188,72 +191,73 @@ interface ShortcutsHelpModalProps {
 
 const SHORTCUTS = [
   {
-    category: "Navegación",
+    category: "modal.shortcuts.navigation" as const,
     items: [
-      { keys: ["⌥", "1"], desc: "Vista Tree" },
-      { keys: ["⌥", "2"], desc: "Vista Raw" },
-      { keys: ["⌥", "3"], desc: "Vista Table" },
-      { keys: ["⌥", "4"], desc: "Vista Diff" },
-      { keys: ["⌥", "5"], desc: "Vista Edit" },
-      { keys: ["⌥", "6"], desc: "Vista Saved" },
+      { keys: ["⌥", "1"], desc: "modal.shortcuts.treeView" as const },
+      { keys: ["⌥", "2"], desc: "modal.shortcuts.rawView" as const },
+      { keys: ["⌥", "3"], desc: "modal.shortcuts.tableView" as const },
+      { keys: ["⌥", "4"], desc: "modal.shortcuts.diffView" as const },
+      { keys: ["⌥", "5"], desc: "modal.shortcuts.editView" as const },
+      { keys: ["⌥", "6"], desc: "modal.shortcuts.savedView" as const },
     ],
   },
   {
-    category: "Búsqueda",
+    category: "modal.shortcuts.search" as const,
     items: [
-      { keys: ["⌘", "F"], desc: "Abrir búsqueda" },
-      { keys: ["⌥", "F"], desc: "Abrir búsqueda (alternativa)" },
-      { keys: ["Esc"], desc: "Cerrar búsqueda" },
-      { keys: ["↑", "↓"], desc: "Resultado anterior/siguiente" },
-      { keys: ["Enter"], desc: "Ir al siguiente resultado" },
+      { keys: ["⌘", "F"], desc: "modal.shortcuts.openSearch" as const },
+      { keys: ["⌥", "F"], desc: "modal.shortcuts.openSearchAlt" as const },
+      { keys: ["Esc"], desc: "modal.shortcuts.closeSearch" as const },
+      { keys: ["↑", "↓"], desc: "modal.shortcuts.prevNextResult" as const },
+      { keys: ["Enter"], desc: "modal.shortcuts.goToNextResult" as const },
     ],
   },
   {
-    category: "Tree View",
+    category: "modal.shortcuts.treeViewCategory" as const,
     items: [
-      { keys: ["⌥", "E"], desc: "Expandir todos los nodos" },
-      { keys: ["⌥", "C"], desc: "Colapsar todos los nodos" },
-      { keys: ["⌥", "S"], desc: "Ordenar por keys (ciclo)" },
+      { keys: ["⌥", "E"], desc: "modal.shortcuts.expandAllNodes" as const },
+      { keys: ["⌥", "C"], desc: "modal.shortcuts.collapseAllNodes" as const },
+      { keys: ["⌥", "S"], desc: "modal.shortcuts.sortByKeys" as const },
     ],
   },
   {
-    category: "Raw / Edit View",
+    category: "modal.shortcuts.rawEditView" as const,
     items: [
-      { keys: ["⌥", "L"], desc: "Toggle números de línea" },
+      { keys: ["⌥", "L"], desc: "modal.shortcuts.toggleLineNumbers" as const },
     ],
   },
   {
-    category: "Edición",
+    category: "modal.shortcuts.editing" as const,
     items: [
-      { keys: ["⌘", "Z"], desc: "Deshacer" },
-      { keys: ["⌘", "⇧", "Z"], desc: "Rehacer" },
-      { keys: ["⌘", "S"], desc: "Guardar cambios (en Edit)" },
+      { keys: ["⌘", "Z"], desc: "modal.shortcuts.undo" as const },
+      { keys: ["⌘", "⇧", "Z"], desc: "modal.shortcuts.redo" as const },
+      { keys: ["⌘", "S"], desc: "modal.shortcuts.saveChanges" as const },
     ],
   },
   {
-    category: "General",
+    category: "modal.shortcuts.general" as const,
     items: [
-      { keys: ["?"], desc: "Mostrar/ocultar esta ayuda" },
+      { keys: ["?"], desc: "modal.shortcuts.showHideHelp" as const },
     ],
   },
 ];
 
 export function ShortcutsHelpModal({ isOpen, onClose }: ShortcutsHelpModalProps) {
+  const { t } = useI18n();
   return (
     <Modal
       isOpen={isOpen}
-      title="Atajos de teclado"
+      title={t("modal.shortcuts.title")}
       onClose={onClose}
       actions={
         <button className={styles.buttonPrimary} onClick={onClose}>
-          Cerrar
+          {t("modal.shortcuts.close")}
         </button>
       }
     >
       <div className={styles.shortcutsGrid}>
         {SHORTCUTS.map((section) => (
           <div key={section.category} className={styles.shortcutsSection}>
-            <h3 className={styles.shortcutsCategory}>{section.category}</h3>
+            <h3 className={styles.shortcutsCategory}>{t(section.category)}</h3>
             <dl className={styles.shortcutsList}>
               {section.items.map((item, idx) => (
                 <div key={idx} className={styles.shortcutItem}>
@@ -262,7 +266,7 @@ export function ShortcutsHelpModal({ isOpen, onClose }: ShortcutsHelpModalProps)
                       <kbd key={i} className={styles.kbd}>{k}</kbd>
                     ))}
                   </dt>
-                  <dd className={styles.shortcutDesc}>{item.desc}</dd>
+                  <dd className={styles.shortcutDesc}>{t(item.desc)}</dd>
                 </div>
               ))}
             </dl>

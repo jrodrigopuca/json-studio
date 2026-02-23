@@ -5,6 +5,7 @@
 
 import { useRef, useEffect, useMemo, useCallback, useState } from "react";
 import { useStore } from "../../store";
+import { useI18n } from "../../hooks/useI18n";
 import { highlightJson } from "../../core/highlighter";
 import { prettyPrint } from "../../core/formatter";
 import { EditorToolbar } from "./EditorToolbar";
@@ -96,6 +97,7 @@ export function EditView() {
   
   // Fold/unfold state
   const [foldedLines, setFoldedLines] = useState<Set<number>>(new Set());
+  const { t } = useI18n();
 
   // Current match line number
   const currentMatchLine = searchLineMatches[searchCurrentIndex];
@@ -111,7 +113,7 @@ export function EditView() {
       JSON.parse(editContent);
       return null;
     } catch (e) {
-      return e instanceof Error ? e.message : "Invalid JSON";
+      return e instanceof Error ? e.message : t("editView.error.invalidJson");
     }
   }, [editContent]);
 
@@ -436,7 +438,7 @@ export function EditView() {
                   <button
                     className={`${styles.foldButton} ${line.isFolded ? styles.folded : ''}`}
                     onClick={() => toggleFold(line.number)}
-                    title={line.isFolded ? 'Unfold' : 'Fold'}
+                    title={line.isFolded ? t('editView.tooltip.unfold') : t('editView.tooltip.fold')}
                   >
                     {line.isFolded ? '▶' : '▼'}
                   </button>
@@ -481,7 +483,7 @@ export function EditView() {
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"
-            aria-label="JSON editor"
+            aria-label={t("editView.ariaLabel.jsonEditor")}
           />
         </div>
       </div>
@@ -492,14 +494,14 @@ export function EditView() {
           onClick={handleSave}
           disabled={!!error || editContent === rawJson}
         >
-          Save (⌘S)
+          {t("editView.button.save")}
         </button>
         <button
           className={styles.discardButton}
           onClick={() => setEditContent(rawJson)}
           disabled={editContent === rawJson}
         >
-          Discard
+          {t("editView.button.discard")}
         </button>
       </div>
     </div>

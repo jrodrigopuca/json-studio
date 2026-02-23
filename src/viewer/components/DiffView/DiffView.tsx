@@ -4,6 +4,7 @@
 
 import { useState, useMemo, useCallback, useRef } from "react";
 import { useStore } from "../../store";
+import { useI18n } from "../../hooks/useI18n";
 import { highlightJson } from "../../core/highlighter";
 import { prettyPrint } from "../../core/formatter";
 import { Icon } from "../Icon";
@@ -28,6 +29,7 @@ export function DiffView() {
   const rawJson = useStore((s) => s.rawJson);
   const diffJson = useStore((s) => s.diffJson);
   const setDiffJson = useStore((s) => s.setDiffJson);
+  const { t } = useI18n();
 
   const [compareText, setCompareText] = useState(diffJson || "");
   const [error, setError] = useState<string | null>(null);
@@ -73,9 +75,9 @@ export function DiffView() {
       JSON.parse(compareText); // Validate
       setDiffJson(compareText);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Invalid JSON");
+      setError(e instanceof Error ? e.message : t("diffView.error.invalidJson"));
     }
-  }, [compareText, setDiffJson]);
+  }, [compareText, setDiffJson, t]);
 
   const handleClear = useCallback(() => {
     setDiffJson(null);
@@ -102,14 +104,14 @@ export function DiffView() {
         JSON.parse(content);
         setDiffJson(content);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Invalid JSON file");
+        setError(err instanceof Error ? err.message : t("diffView.error.invalidJsonFile"));
       }
     };
     reader.readAsText(file);
     
     // Reset input
     e.target.value = "";
-  }, [setDiffJson]);
+  }, [setDiffJson, t]);
 
   const handlePaste = useCallback(async () => {
     try {
@@ -122,19 +124,19 @@ export function DiffView() {
         JSON.parse(text);
         setDiffJson(text);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Invalid JSON in clipboard");
+        setError(err instanceof Error ? err.message : t("diffView.error.invalidJsonInClipboard"));
       }
     } catch (err) {
-      setError("Failed to read clipboard");
+      setError(t("diffView.error.failedToReadClipboard"));
     }
-  }, [setDiffJson]);
+  }, [setDiffJson, t]);
 
   return (
     <div className={styles.diffView}>
       {/* Header */}
       <div className={styles.header}>
         <div className={styles.headerLeft}>
-          <span className={styles.headerTitle}>Original (Current)</span>
+          <span className={styles.headerTitle}>{t("diffView.header.original")}</span>
         </div>
         <div className={styles.headerCenter}>
           {diffResult && (
@@ -146,10 +148,10 @@ export function DiffView() {
           )}
         </div>
         <div className={styles.headerRight}>
-          <span className={styles.headerTitle}>Compare</span>
+          <span className={styles.headerTitle}>{t("diffView.header.compare")}</span>
           {diffJson && (
             <button className={styles.clearButton} onClick={handleClear}>
-              Clear
+              {t("diffView.button.clear")}
             </button>
           )}
         </div>
@@ -188,10 +190,10 @@ export function DiffView() {
             <div className={styles.inputPanel}>
               <div className={styles.inputActions}>
                 <button className={styles.actionButton} onClick={handleFileOpen}>
-                  <Icon name="folder" size={14} /> Open File
+                  <Icon name="folder" size={14} /> {t("diffView.button.openFile")}
                 </button>
                 <button className={styles.actionButton} onClick={handlePaste}>
-                  <Icon name="clipboard" size={14} /> Paste from Clipboard
+                  <Icon name="clipboard" size={14} /> {t("diffView.button.pasteFromClipboard")}
                 </button>
                 <input
                   ref={fileInputRef}
@@ -209,7 +211,7 @@ export function DiffView() {
                     setCompareText(value);
                     setError(null);
                   }}
-                  placeholder="Paste or type JSON to compare..."
+                  placeholder={t("diffView.placeholder.pasteJson")}
                 />
               </div>
               
@@ -224,7 +226,7 @@ export function DiffView() {
                 onClick={handleCompare}
                 disabled={!compareText.trim()}
               >
-                Compare
+                {t("diffView.button.compare")}
               </button>
             </div>
           )}

@@ -4,6 +4,7 @@
 
 import { useCallback, useMemo, useRef, useEffect, useState } from "react";
 import { useStore, selectVisibleNodes } from "../../store";
+import { useI18n } from "../../hooks/useI18n";
 import { getNodeValue, getFormattedNodeValue, copyToClipboard } from "../../core/clipboard";
 import { ContextMenu, type ContextMenuPosition } from "../ContextMenu";
 import { useToast } from "../Toast";
@@ -24,6 +25,7 @@ export function TreeView() {
   const collapseChildren = useStore((s) => s.collapseChildren);
   const setFocusedNode = useStore((s) => s.setFocusedNode);
   const { show: showToast } = useToast();
+  const { t } = useI18n();
 
   // Context menu state
   const [contextMenu, setContextMenu] = useState<{
@@ -68,31 +70,31 @@ export function TreeView() {
   const handleCopyKey = useCallback(async () => {
     if (!contextMenu || !contextMenuNode?.key) return;
     await copyToClipboard(contextMenuNode.key);
-    showToast({ message: `Copied: ${contextMenuNode.key}`, type: "success" });
-  }, [contextMenu, contextMenuNode, showToast]);
+    showToast({ message: t("treeView.toast.copiedKey", { key: contextMenuNode.key }), type: "success" });
+  }, [contextMenu, contextMenuNode, showToast, t]);
 
   const handleCopyPath = useCallback(async () => {
     if (!contextMenu) return;
     const node = nodes.find((n) => n.id === contextMenu.nodeId);
     if (node) {
       await copyToClipboard(node.path);
-      showToast({ message: `Copied: ${node.path}`, type: "success" });
+      showToast({ message: t("treeView.toast.copiedPath", { path: node.path }), type: "success" });
     }
-  }, [contextMenu, nodes, showToast]);
+  }, [contextMenu, nodes, showToast, t]);
 
   const handleCopyValue = useCallback(async () => {
     if (!contextMenu) return;
     const value = getNodeValue(nodes, contextMenu.nodeId);
     await copyToClipboard(value);
-    showToast({ message: "Value copied to clipboard", type: "success" });
-  }, [contextMenu, nodes, showToast]);
+    showToast({ message: t("treeView.toast.valueCopied"), type: "success" });
+  }, [contextMenu, nodes, showToast, t]);
 
   const handleCopyFormattedJson = useCallback(async () => {
     if (!contextMenu) return;
     const value = getFormattedNodeValue(nodes, contextMenu.nodeId);
     await copyToClipboard(value);
-    showToast({ message: "Formatted JSON copied", type: "success" });
-  }, [contextMenu, nodes, showToast]);
+    showToast({ message: t("treeView.toast.formattedJsonCopied"), type: "success" });
+  }, [contextMenu, nodes, showToast, t]);
 
   const handleExpandChildren = useCallback(() => {
     if (!contextMenu) return;
@@ -249,7 +251,8 @@ function TreeNode({
 
 function ExpandableValue({ node, isExpanded }: { node: FlatNode; isExpanded: boolean }) {
   const bracket = node.type === "array" ? ["[", "]"] : ["{", "}"];
-  const countLabel = `${node.childCount} ${node.childCount === 1 ? "item" : "items"}`;
+  const { t } = useI18n();
+  const countLabel = node.childCount === 1 ? t("treeView.expandable.item") : t("treeView.expandable.items", { count: node.childCount });
   
   return (
     <span className={styles.expandable}>

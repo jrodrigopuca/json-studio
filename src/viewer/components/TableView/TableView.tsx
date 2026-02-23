@@ -4,10 +4,12 @@
 
 import { useMemo } from "react";
 import { useStore } from "../../store";
+import { useI18n } from "../../hooks/useI18n";
 import styles from "./TableView.module.css";
 
 export function TableView() {
   const rawJson = useStore((s) => s.rawJson);
+  const { t } = useI18n();
 
   // Parse and analyze JSON for table rendering
   const tableData = useMemo(() => {
@@ -50,7 +52,7 @@ export function TableView() {
   if (tableData.type === "invalid") {
     return (
       <div className={styles.message}>
-        <p>Invalid JSON - cannot render as table.</p>
+        <p>{t("tableView.error.invalidJson")}</p>
       </div>
     );
   }
@@ -58,8 +60,8 @@ export function TableView() {
   if (tableData.type === "not-array") {
     return (
       <div className={styles.message}>
-        <p>Table view works best with arrays of objects.</p>
-        <p>Current data is a {typeof tableData.data === "object" ? "object" : typeof tableData.data}.</p>
+        <p>{t("tableView.message.worksWithArrays")}</p>
+        <p>{t("tableView.message.currentDataType", { type: typeof tableData.data === "object" ? "object" : typeof tableData.data })}</p>
       </div>
     );
   }
@@ -67,7 +69,7 @@ export function TableView() {
   if (tableData.type === "empty-array") {
     return (
       <div className={styles.message}>
-        <p>Empty array - no data to display.</p>
+        <p>{t("tableView.message.emptyArray")}</p>
       </div>
     );
   }
@@ -78,8 +80,8 @@ export function TableView() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th className={styles.th}>Index</th>
-              <th className={styles.th}>Value</th>
+              <th className={styles.th}>{t("tableView.column.index")}</th>
+              <th className={styles.th}>{t("tableView.column.value")}</th>
             </tr>
           </thead>
           <tbody>
@@ -103,7 +105,7 @@ export function TableView() {
       <table className={styles.table}>
         <thead>
           <tr>
-            <th className={styles.th}>#</th>
+            <th className={styles.th}>{t("tableView.column.rowNumber")}</th>
             {tableData.columns.map((col) => (
               <th key={col} className={styles.th}>
                 {col}
@@ -129,6 +131,8 @@ export function TableView() {
 }
 
 function CellValue({ value }: { value: unknown }) {
+  const { t } = useI18n();
+
   if (value === null) {
     return <span className={styles.null}>null</span>;
   }
@@ -152,11 +156,11 @@ function CellValue({ value }: { value: unknown }) {
   }
 
   if (Array.isArray(value)) {
-    return <span className={styles.complex}>[Array: {value.length}]</span>;
+    return <span className={styles.complex}>{t("tableView.cell.arrayLabel", { length: value.length })}</span>;
   }
 
   if (typeof value === "object") {
-    return <span className={styles.complex}>{"{Object}"}</span>;
+    return <span className={styles.complex}>{t("tableView.cell.objectLabel")}</span>;
   }
 
   return <span>{String(value)}</span>;

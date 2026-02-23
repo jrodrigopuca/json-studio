@@ -4,6 +4,7 @@
 
 import { useState, useMemo } from 'react';
 import { useStore } from '../../store';
+import { useI18n } from '../../hooks/useI18n';
 import { convertJson, CONVERT_FORMATS, type ConvertFormat } from '../../core/converters';
 import { useToast } from '../Toast';
 import { Icon } from '../Icon';
@@ -13,6 +14,7 @@ export function ConvertView() {
   const rawJson = useStore((s) => s.rawJson);
   const [format, setFormat] = useState<ConvertFormat>('typescript');
   const { show: showToast } = useToast();
+  const { t } = useI18n();
 
   // Parse JSON and convert
   const { converted, error } = useMemo(() => {
@@ -29,9 +31,9 @@ export function ConvertView() {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(converted);
-      showToast({ message: 'Copiado al portapapeles', type: 'success' });
+      showToast({ message: t('convertView.toast.copiedToClipboard'), type: 'success' });
     } catch {
-      showToast({ message: 'Error al copiar', type: 'error' });
+      showToast({ message: t('convertView.toast.copyError'), type: 'error' });
     }
   };
 
@@ -46,7 +48,7 @@ export function ConvertView() {
     a.download = `converted.${extension}`;
     a.click();
     URL.revokeObjectURL(url);
-    showToast({ message: `Descargado como converted.${extension}`, type: 'success' });
+    showToast({ message: t('convertView.toast.downloadedAs', { ext: extension }), type: 'success' });
   };
 
   return (
@@ -80,7 +82,7 @@ export function ConvertView() {
             <button
               className={styles.actionButton}
               onClick={handleCopy}
-              title="Copiar al portapapeles"
+              title={t('convertView.tooltip.copyToClipboard')}
               disabled={!!error}
             >
               <Icon name="copy" size={14} />
@@ -88,7 +90,7 @@ export function ConvertView() {
             <button
               className={styles.actionButton}
               onClick={handleDownload}
-              title="Descargar archivo"
+              title={t('convertView.tooltip.downloadFile')}
               disabled={!!error}
             >
               <Icon name="download" size={14} />

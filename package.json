@@ -14,7 +14,11 @@
     "type": "git",
     "url": "git+https://jrodrigopuca@github.com/jrodrigopuca/json-studio.git"
   },
-  "keywords": ["json", "viewer", "chrome-extension"],
+  "keywords": [
+    "json",
+    "viewer",
+    "chrome-extension"
+  ],
   "author": "",
   "license": "ISC",
   "bugs": {
@@ -27,11 +31,15 @@
     "zustand": "^5.0.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/chrome": "^0.1.37",
     "@types/node": "^25.3.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.4.0",
+    "jsdom": "^28.1.0",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vitest": "^4.0.18"

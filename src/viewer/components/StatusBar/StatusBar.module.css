@@ -49,3 +49,20 @@
 .themeButton:hover {
   background: color-mix(in srgb, var(--text-primary) 10%, transparent);
 }
+
+.localeButton {
+  padding: 2px 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast);
+  color: inherit;
+}
+
+.localeButton:hover {
+  background: color-mix(in srgb, var(--text-primary) 10%, transparent);
+}

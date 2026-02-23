@@ -7,6 +7,7 @@ import { useStore } from "./store";
 import { useJsonLoader } from "./hooks/useJsonLoader";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useTheme } from "./hooks/useTheme";
+import { useI18n } from "./hooks/useI18n";
 
 // Components
 import {
@@ -49,6 +50,7 @@ function AppContent() {
   const cancelViewChange = useStore((s) => s.cancelViewChange);
   const saveEditContent = useStore((s) => s.saveEditContent);
   const { show: showToast } = useToast();
+  const { t } = useI18n();
 
   // Load JSON from URL or message
   useJsonLoader();
@@ -63,10 +65,10 @@ function AppContent() {
   const handleSaveAndChange = useCallback(() => {
     const saved = saveEditContent();
     if (saved) {
-      showToast({ message: "Cambios guardados", type: "success" });
+      showToast({ message: t("app.toast.changesSaved"), type: "success" });
       confirmViewChange();
     } else {
-      showToast({ message: "Error al guardar (JSON inválido)", type: "error" });
+      showToast({ message: t("app.toast.saveError"), type: "error" });
     }
   }, [saveEditContent, showToast, confirmViewChange]);
 
@@ -81,7 +83,7 @@ function AppContent() {
       return (
         <div className={styles.loading}>
           <span className={styles.spinner} />
-          Parsing JSON...
+          {t("app.loading.parsingJson")}
         </div>
       );
     }
@@ -89,10 +91,10 @@ function AppContent() {
     if (!isValid && parseError) {
       return (
         <div className={styles.error}>
-          <h2>Parse Error</h2>
+          <h2>{t("app.error.parseErrorTitle")}</h2>
           <p>{parseError.message}</p>
           <p>
-            Line {parseError.line}, Column {parseError.column}
+            {t("app.error.parseErrorLocation", { line: parseError.line, column: parseError.column })}
           </p>
         </div>
       );

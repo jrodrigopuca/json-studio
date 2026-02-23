@@ -4,6 +4,7 @@
  */
 
 import { useEffect, useRef } from "react";
+import { useI18n } from "../../hooks/useI18n";
 import type { FlatNode } from "../../core/parser.types";
 import { Icon } from "../Icon";
 import styles from "./ContextMenu.module.css";
@@ -41,6 +42,7 @@ export function ContextMenu({
 	onClose,
 }: ContextMenuProps) {
 	const menuRef = useRef<HTMLDivElement>(null);
+	const { t } = useI18n();
 
 	// Adjust position to stay within viewport
 	useEffect(() => {
@@ -107,7 +109,7 @@ export function ContextMenu({
 						onClick={createHandler(onCopyKey)}
 					>
 						<span className={styles.icon}><Icon name="hash" size={14} /></span>
-						Copy Key
+					{t("contextMenu.copyKey")}
 					</button>
 				)}
 				<button
@@ -116,7 +118,7 @@ export function ContextMenu({
 					onClick={createHandler(onCopyPath)}
 				>
 					<span className={styles.icon}><Icon name="document" size={14} /></span>
-					Copy Path
+					{t("contextMenu.copyPath")}
 				</button>
 				<button
 					className={styles.item}
@@ -124,7 +126,7 @@ export function ContextMenu({
 					onClick={createHandler(onCopyValue)}
 				>
 					<span className={styles.icon}><Icon name="copy" size={14} /></span>
-					Copy Value
+					{t("contextMenu.copyValue")}
 				</button>
 				<button
 					className={styles.item}
@@ -132,7 +134,7 @@ export function ContextMenu({
 					onClick={createHandler(onCopyFormattedJson)}
 				>
 					<span className={styles.icon}><Icon name="star" size={14} /></span>
-					Copy Formatted JSON
+					{t("contextMenu.copyFormattedJson")}
 				</button>
 
 				{/* Expand/Collapse Section (only for expandable nodes) */}
@@ -146,25 +148,25 @@ export function ContextMenu({
 								onClick={createHandler(onCollapseChildren)}
 							>
 								<span className={styles.icon}><Icon name="folder" size={14} /></span>
-								Collapse Children
-							</button>
-						) : (
-							<button
-								className={styles.item}
-								role="menuitem"
-								onClick={createHandler(onExpandChildren)}
-							>
-								<span className={styles.icon}><Icon name="folder" size={14} /></span>
-								Expand Children
-							</button>
-						)}
+						{t("contextMenu.collapseChildren")}
+					</button>
+					) : (
+						<button
+							className={styles.item}
+							role="menuitem"
+							onClick={createHandler(onExpandChildren)}
+						>
+							<span className={styles.icon}><Icon name="folder" size={14} /></span>
+							{t("contextMenu.expandChildren")}
+						</button>
+					)}
 						<button
 							className={styles.item}
 							role="menuitem"
 							onClick={createHandler(onFocusNode)}
 						>
 							<span className={styles.icon}><Icon name="search" size={14} /></span>
-							Filter to This
+							{t("contextMenu.filterToThis")}
 						</button>
 					</>
 				)}

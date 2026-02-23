@@ -8,16 +8,17 @@ import { useToast } from "../Toast";
 import { SaveJsonModal } from "../Modal";
 import { Icon } from "../Icon";
 import type { ViewMode } from "@shared/types";
+import { useI18n } from "../../hooks/useI18n";
 import styles from "./Toolbar.module.css";
 
 const VIEW_TABS: { mode: ViewMode; label: string; shortcut: string }[] = [
-  { mode: "tree", label: "Tree", shortcut: "⌥1" },
-  { mode: "raw", label: "Raw", shortcut: "⌥2" },
-  { mode: "table", label: "Table", shortcut: "⌥3" },
-  { mode: "diff", label: "Diff", shortcut: "⌥4" },
-  { mode: "edit", label: "Edit", shortcut: "⌥5" },
-  { mode: "saved", label: "Saved", shortcut: "⌥6" },
-  { mode: "convert", label: "Convert", shortcut: "⌥7" },
+  { mode: "tree", label: "toolbar.tab.tree", shortcut: "⌥1" },
+  { mode: "raw", label: "toolbar.tab.raw", shortcut: "⌥2" },
+  { mode: "table", label: "toolbar.tab.table", shortcut: "⌥3" },
+  { mode: "diff", label: "toolbar.tab.diff", shortcut: "⌥4" },
+  { mode: "edit", label: "toolbar.tab.edit", shortcut: "⌥5" },
+  { mode: "saved", label: "toolbar.tab.saved", shortcut: "⌥6" },
+  { mode: "convert", label: "toolbar.tab.convert", shortcut: "⌥7" },
 ];
 
 export function Toolbar() {
@@ -40,6 +41,7 @@ export function Toolbar() {
   const toggleSearch = useStore((s) => s.toggleSearch);
   const isSearchOpen = useStore((s) => s.isSearchOpen);
   const setShowShortcutsHelp = useStore((s) => s.setShowShortcutsHelp);
+  const { t } = useI18n();
 
   // Check if all expandable nodes are expanded
   const expandableCount = nodes.filter((n) => n.isExpandable).length;
@@ -56,9 +58,9 @@ export function Toolbar() {
             aria-selected={viewMode === mode}
             className={`${styles.tab} ${viewMode === mode ? styles.active : ""}`}
             onClick={() => setViewMode(mode)}
-            title={`${label} (${shortcut})`}
+            title={`${t(label as any)} (${shortcut})`}
           >
-            {label}
+            {t(label as any)}
           </button>
         ))}
       </nav>
@@ -71,14 +73,14 @@ export function Toolbar() {
             <button
               className={styles.button}
               onClick={isAllExpanded ? collapseAll : expandAll}
-              title={isAllExpanded ? "Collapse all (⌥C)" : "Expand all (⌥E)"}
+              title={isAllExpanded ? t("toolbar.tooltip.collapseAll") : t("toolbar.tooltip.expandAll")}
             >
               <Icon name={isAllExpanded ? "chevron-down" : "chevron-right"} size={14} />
             </button>
             <button
               className={`${styles.button} ${keySortOrder ? styles.active : ""}`}
               onClick={toggleSortedByKeys}
-              title={keySortOrder === null ? "Sort keys A→Z (⌥S)" : keySortOrder === 'asc' ? "Sort keys Z→A (⌥S)" : "Restore original order (⌥S)"}
+              title={keySortOrder === null ? t("toolbar.tooltip.sortKeysAsc") : keySortOrder === 'asc' ? t("toolbar.tooltip.sortKeysDesc") : t("toolbar.tooltip.sortKeysRestore")}
             >
               <Icon name={keySortOrder === 'desc' ? "sort-desc" : "sort-asc"} size={14} />
             </button>
@@ -90,7 +92,7 @@ export function Toolbar() {
           <button
             className={`${styles.button} ${showLineNumbers ? styles.active : ""}`}
             onClick={toggleLineNumbers}
-            title="Toggle line numbers (⌥L)"
+            title={t("toolbar.tooltip.toggleLineNumbers")}
           >
             <Icon name="hash" size={14} />
           </button>
@@ -102,14 +104,14 @@ export function Toolbar() {
             <button
               className={styles.button}
               onClick={prettifyJson}
-              title="Prettify JSON"
+              title={t("toolbar.tooltip.prettifyJson")}
             >
               <Icon name="braces" size={14} />
             </button>
             <button
               className={styles.button}
               onClick={minifyJson}
-              title="Minify JSON"
+              title={t("toolbar.tooltip.minifyJson")}
             >
               <Icon name="braces-compact" size={14} />
             </button>
@@ -121,7 +123,7 @@ export function Toolbar() {
           <button
             className={`${styles.button} ${isSearchOpen ? styles.active : ""}`}
             onClick={toggleSearch}
-            title="Search (⌘F)"
+            title={t("toolbar.tooltip.search")}
           >
             <Icon name="search" size={14} />
           </button>
@@ -132,7 +134,7 @@ export function Toolbar() {
           className={styles.button}
           onClick={undo}
           disabled={undoStack.length === 0}
-          title="Undo (⌘Z)"
+          title={t("toolbar.tooltip.undo")}
         >
           <Icon name="undo" size={14} />
         </button>
@@ -140,7 +142,7 @@ export function Toolbar() {
           className={styles.button}
           onClick={redo}
           disabled={redoStack.length === 0}
-          title="Redo (⌘⇧Z)"
+          title={t("toolbar.tooltip.redo")}
         >
           <Icon name="redo" size={14} />
         </button>
@@ -158,7 +160,7 @@ export function Toolbar() {
         <button
           className={styles.button}
           onClick={() => setShowShortcutsHelp(true)}
-          title="Keyboard shortcuts (?)"
+          title={t("toolbar.tooltip.keyboardShortcuts")}
         >
           <Icon name="help" size={14} />
         </button>
@@ -170,11 +172,12 @@ export function Toolbar() {
 function CopyButton() {
   const rawJson = useStore((s) => s.rawJson);
   const { show: showToast } = useToast();
+  const { t } = useI18n();
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(rawJson);
-      showToast({ message: "JSON copiado", type: "success" });
+      showToast({ message: t("toolbar.toast.jsonCopied"), type: "success" });
     } catch (err) {
       console.error("Failed to copy:", err);
     }
@@ -184,7 +187,7 @@ function CopyButton() {
     <button
       className={styles.button}
       onClick={handleCopy}
-      title="Copy JSON to clipboard"
+      title={t("toolbar.tooltip.copyJson")}
     >
       <Icon name="copy" size={14} />
     </button>
@@ -194,6 +197,7 @@ function CopyButton() {
 function DownloadButton() {
   const rawJson = useStore((s) => s.rawJson);
   const url = useStore((s) => s.url);
+  const { t } = useI18n();
 
   const handleDownload = () => {
     const blob = new Blob([rawJson], { type: "application/json" });
@@ -209,7 +213,7 @@ function DownloadButton() {
     <button
       className={styles.button}
       onClick={handleDownload}
-      title="Download JSON"
+      title={t("toolbar.tooltip.downloadJson")}
     >
       <Icon name="download" size={14} />
     </button>
@@ -222,6 +226,7 @@ function SaveFavoriteButton() {
   const savedJsons = useStore((s) => s.savedJsons);
   const saveCurrentJson = useStore((s) => s.saveCurrentJson);
   const { show: showToast } = useToast();
+  const { t } = useI18n();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Don't show in saved view (already has save form)
@@ -234,10 +239,10 @@ function SaveFavoriteButton() {
   const handleSave = (name: string) => {
     const success = saveCurrentJson(name);
     if (success) {
-      showToast({ message: `"${name}" guardado`, type: "success" });
+      showToast({ message: t("toolbar.toast.savedFavorite", { name }), type: "success" });
       setIsModalOpen(false);
     } else {
-      showToast({ message: "Error al guardar", type: "error" });
+      showToast({ message: t("toolbar.toast.saveError"), type: "error" });
     }
   };
 
@@ -246,7 +251,7 @@ function SaveFavoriteButton() {
       <button
         className={styles.button}
         onClick={() => setIsModalOpen(true)}
-        title="Guardar en favoritos"
+        title={t("toolbar.tooltip.saveToFavorites")}
       >
         <Icon name="star" size={14} />
       </button>

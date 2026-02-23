@@ -94,12 +94,6 @@ src/
 └── shared/           # Shared types
 ```
 
-## Documentation
-
-- [ROADMAP.md](ROADMAP.md) — Feature roadmap & competitive analysis
-- [FASE-REACT.md](FASE-REACT.md) — Detailed implementation docs
-- [PRIVACY.md](PRIVACY.md) — Privacy policy
-
 ## License
 
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.

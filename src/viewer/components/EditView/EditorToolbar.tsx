@@ -3,6 +3,7 @@
  */
 
 import { useStore } from '../../store';
+import { useI18n } from '../../hooks/useI18n';
 import { Icon } from '../Icon';
 import styles from './EditorToolbar.module.css';
 
@@ -19,6 +20,7 @@ export function EditorToolbar({ currentLine, currentColumn, totalLines }: Editor
   const toggleEditorIndent = useStore((s) => s.toggleEditorIndent);
   const toggleEditorWordWrap = useStore((s) => s.toggleEditorWordWrap);
   const setEditorFontSize = useStore((s) => s.setEditorFontSize);
+  const { t } = useI18n();
 
   return (
     <div className={styles.toolbar}>
@@ -26,11 +28,11 @@ export function EditorToolbar({ currentLine, currentColumn, totalLines }: Editor
       <button
         className={`${styles.control} ${styles.active}`}
         onClick={toggleEditorIndent}
-        title={`Indentación: ${editorIndentSize === "tab" ? "Tab" : `${editorIndentSize} espacios`} (click para cambiar)`}
+        title={t("editorToolbar.tooltip.indent", { size: editorIndentSize === "tab" ? t("editorToolbar.label.tab") : t("editorToolbar.label.spaces", { n: editorIndentSize }) })}
       >
         <Icon name="chevron-right" size={12} />
         <span className={styles.label}>
-          {editorIndentSize === "tab" ? "Tab" : `${editorIndentSize}sp`}
+          {editorIndentSize === "tab" ? t("editorToolbar.label.tab") : t("editorToolbar.label.spaces", { n: editorIndentSize })}
         </span>
       </button>
 
@@ -38,10 +40,10 @@ export function EditorToolbar({ currentLine, currentColumn, totalLines }: Editor
       <button
         className={`${styles.control} ${editorWordWrap ? styles.active : ''}`}
         onClick={toggleEditorWordWrap}
-        title={editorWordWrap ? "Word wrap: activado" : "Word wrap: desactivado"}
+        title={editorWordWrap ? t("editorToolbar.tooltip.wordWrapOn") : t("editorToolbar.tooltip.wordWrapOff")}
       >
         <Icon name="chevron-down" size={12} />
-        <span className={styles.label}>Wrap</span>
+        <span className={styles.label}>{t("editorToolbar.label.wrap")}</span>
       </button>
 
       {/* Font size controls */}
@@ -50,7 +52,7 @@ export function EditorToolbar({ currentLine, currentColumn, totalLines }: Editor
           className={styles.fontButton}
           onClick={() => setEditorFontSize(editorFontSize - 1)}
           disabled={editorFontSize <= 10}
-          title="Reducir tamaño de fuente"
+          title={t("editorToolbar.tooltip.decreaseFontSize")}
         >
           A−
         </button>
@@ -59,7 +61,7 @@ export function EditorToolbar({ currentLine, currentColumn, totalLines }: Editor
           className={styles.fontButton}
           onClick={() => setEditorFontSize(editorFontSize + 1)}
           disabled={editorFontSize >= 24}
-          title="Aumentar tamaño de fuente"
+          title={t("editorToolbar.tooltip.increaseFontSize")}
         >
           A+
         </button>
@@ -71,10 +73,10 @@ export function EditorToolbar({ currentLine, currentColumn, totalLines }: Editor
       {/* Cursor position */}
       <div className={styles.info}>
         <span className={styles.position}>
-          Ln {currentLine}, Col {currentColumn}
+          {t("editorToolbar.info.cursorPosition", { line: currentLine, col: currentColumn })}
         </span>
         <span className={styles.separator}>|</span>
-        <span className={styles.lines}>{totalLines} líneas</span>
+        <span className={styles.lines}>{t("editorToolbar.info.totalLines", { count: totalLines })}</span>
         <span className={styles.separator}>|</span>
         <span className={styles.encoding}>UTF-8</span>
         <span className={styles.separator}>|</span>
