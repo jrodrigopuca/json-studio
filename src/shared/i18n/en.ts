@@ -207,4 +207,10 @@ export const en: Translations = {
 	"tableView.column.rowNumber": "#",
 	"tableView.cell.arrayLabel": "[Array: {length}]",
 	"tableView.cell.objectLabel": "{Object}",
+
+	// ─── LargeFileTreeView ────────────────────────────────────────────────────
+	"largeFile.tab": "Large File",
+	"largeFile.banner": "Large file mode — only the tree view is available for best performance.",
+	"largeFile.nodes": "nodes",
+	"largeFile.visible": "visible",
 };

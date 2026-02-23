@@ -6,6 +6,7 @@ import type { StateCreator } from "zustand";
 import type { FlatNode, ParseError } from "../core/parser.types";
 import type { ViewMode, ResolvedTheme, ContentTypeClass } from "@shared/types";
 import type { StoreState } from "./store.types";
+import { LARGE_FILE_THRESHOLD } from "@shared/constants";
 
 export interface JsonSlice {
 	// State
@@ -14,6 +15,7 @@ export interface JsonSlice {
 	parseError: ParseError | null;
 	isValid: boolean;
 	isParsing: boolean;
+	isLargeFile: boolean;
 	viewMode: ViewMode;
 	theme: ResolvedTheme;
 	contentType: ContentTypeClass;
@@ -43,6 +45,7 @@ export const createJsonSlice: StateCreator<StoreState, [], [], JsonSlice> = (
 	parseError: null,
 	isValid: false,
 	isParsing: false,
+	isLargeFile: false,
 	viewMode: "tree",
 	theme: "dark",
 	contentType: "unknown",
@@ -51,15 +54,30 @@ export const createJsonSlice: StateCreator<StoreState, [], [], JsonSlice> = (
 	totalKeys: 0,
 	maxDepth: 0,
 
-	setJson: (json, nodes, metadata) =>
+	setJson: (json, nodes, metadata) => {
+		const fileSize = metadata.fileSize ?? new Blob([json]).size;
+		const isLargeFile = fileSize >= LARGE_FILE_THRESHOLD;
 		set({
 			rawJson: json,
 			nodes,
 			isValid: true,
 			parseError: null,
 			isParsing: false,
+			isLargeFile,
 			...metadata,
-		}),
+		});
+
+		// For large files, collapse to only top-level nodes (depth 0–1)
+		if (isLargeFile) {
+			const expanded = new Set<number>();
+			for (const node of nodes) {
+				if (node.isExpandable && node.depth < 2) {
+					expanded.add(node.id);
+				}
+			}
+			set({ expandedNodes: expanded });
+		}
+	},
 
 	setParseError: (error) =>
 		set({

@@ -19,6 +19,7 @@ export { Icon, type IconName } from "./Icon";
 
 // Views
 export { TreeView } from "./TreeView";
+export { LargeFileTreeView } from "./LargeFileTreeView";
 export { RawView } from "./RawView";
 export { EditView } from "./EditView";
 export { TableView } from "./TableView";

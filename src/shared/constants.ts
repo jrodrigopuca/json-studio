@@ -8,6 +8,9 @@ export const APP_NAME = "JSON Spark";
 /** Size threshold (bytes) for delegating parse to Web Worker. */
 export const WORKER_THRESHOLD = 1_048_576; // 1MB
 
+/** Size threshold (bytes) for activating Large File Mode. */
+export const LARGE_FILE_THRESHOLD = 1_048_576; // 1MB
+
 /** Default indent size for pretty printing. */
 export const DEFAULT_INDENT = 2;
 

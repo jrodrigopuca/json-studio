@@ -200,6 +200,12 @@ export interface Translations {
 	"breadcrumb.ariaLabel": string;
 	"breadcrumb.root": string;
 
+	// ─── LargeFileTreeView ────────────────────────────────────────────────────
+	"largeFile.tab": string;
+	"largeFile.banner": string;
+	"largeFile.nodes": string;
+	"largeFile.visible": string;
+
 	// ─── TableView ────────────────────────────────────────────────────────────
 	"tableView.error.invalidJson": string;
 	"tableView.message.worksWithArrays": string;

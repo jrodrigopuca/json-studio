@@ -18,6 +18,7 @@ import {
   ToastProvider,
   useToast,
   TreeView,
+  LargeFileTreeView,
   RawView,
   EditView,
   TableView,
@@ -43,6 +44,7 @@ function AppContent() {
   const isValid = useStore((s) => s.isValid);
   const parseError = useStore((s) => s.parseError);
   const isParsing = useStore((s) => s.isParsing);
+  const isLargeFile = useStore((s) => s.isLargeFile);
   const pendingViewMode = useStore((s) => s.pendingViewMode);
   const showShortcutsHelp = useStore((s) => s.showShortcutsHelp);
   const setShowShortcutsHelp = useStore((s) => s.setShowShortcutsHelp);
@@ -100,6 +102,11 @@ function AppContent() {
       );
     }
 
+    // Large file mode — only the virtualized tree
+    if (isLargeFile) {
+      return <LargeFileTreeView />;
+    }
+
     switch (viewMode) {
       case "tree":
         return <TreeView />;
@@ -121,12 +128,12 @@ function AppContent() {
   };
 
   return (
-    <div className={styles.app} data-view={viewMode}>
+    <div className={styles.app} data-view={isLargeFile ? "large-file" : viewMode}>
       <Toolbar />
       
-      {viewMode === "tree" && <Breadcrumb />}
+      {!isLargeFile && viewMode === "tree" && <Breadcrumb />}
       
-      <SearchBar />
+      {!isLargeFile && <SearchBar />}
 
       <main className={styles.main}>{renderView()}</main>
 

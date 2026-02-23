@@ -14,6 +14,7 @@ import packageJson from "./fixtures/package-json.json?raw";
 import turboConfig from "./fixtures/turbo-config.json?raw";
 import apiError from "./fixtures/api-error.json?raw";
 import graphqlResponse from "./fixtures/graphql-response.json?raw";
+import largeAnalytics from "./fixtures/large-analytics.json?raw";
 
 const FIXTURES: Record<string, string> = {
 	"stripe-webhook": stripeWebhook,
@@ -24,6 +25,7 @@ const FIXTURES: Record<string, string> = {
 	"turbo-config": turboConfig,
 	"api-error": apiError,
 	"graphql-minified": graphqlResponse,
+	"large-analytics": largeAnalytics,
 };
 
 let cleanup: (() => void) | null = null;

@@ -24,6 +24,7 @@ const VIEW_TABS: { mode: ViewMode; label: string; shortcut: string }[] = [
 export function Toolbar() {
   const viewMode = useStore((s) => s.viewMode);
   const setViewMode = useStore((s) => s.setViewMode);
+  const isLargeFile = useStore((s) => s.isLargeFile);
   const expandAll = useStore((s) => s.expandAll);
   const collapseAll = useStore((s) => s.collapseAll);
   const expandedNodes = useStore((s) => s.expandedNodes);
@@ -46,6 +47,38 @@ export function Toolbar() {
   // Check if all expandable nodes are expanded
   const expandableCount = nodes.filter((n) => n.isExpandable).length;
   const isAllExpanded = expandedNodes.size >= expandableCount;
+
+  // Large file mode — simplified toolbar
+  if (isLargeFile) {
+    return (
+      <header className={styles.toolbar}>
+        <nav className={styles.tabs} role="tablist">
+          <span
+            role="tab"
+            aria-selected
+            className={`${styles.tab} ${styles.active}`}
+          >
+            ⚡ {t("largeFile.tab")}
+          </span>
+        </nav>
+
+        <div className={styles.actions}>
+          {/* Copy */}
+          <CopyButton />
+          {/* Download */}
+          <DownloadButton />
+          {/* Help */}
+          <button
+            className={styles.button}
+            onClick={() => setShowShortcutsHelp(true)}
+            title={t("toolbar.tooltip.keyboardShortcuts")}
+          >
+            <Icon name="help" size={14} />
+          </button>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className={styles.toolbar}>

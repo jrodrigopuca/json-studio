@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { useStore } from "../store";
 import { parseJSON } from "../core/parser";
 import { prettyPrint } from "../core/formatter";
+import { LARGE_FILE_THRESHOLD } from "@shared/constants";
 
 export function useJsonLoader() {
 	const setJson = useStore((s) => s.setJson);
@@ -75,9 +76,13 @@ export function useJsonLoader() {
 				const result = parseJSON(rawJson);
 
 				if (result.ok) {
-					const formatted = prettyPrint(rawJson);
+					// Skip prettyPrint for large files — it's expensive and
+					// the raw view is hidden in large-file mode anyway.
+					const rawSize = new Blob([rawJson]).size;
+					const formatted =
+						rawSize >= LARGE_FILE_THRESHOLD ? rawJson : prettyPrint(rawJson);
 					setJson(formatted, result.nodes, {
-						fileSize: new Blob([formatted]).size,
+						fileSize: rawSize,
 						totalKeys: result.totalKeys,
 						maxDepth: result.maxDepth,
 						url,
