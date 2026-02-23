@@ -6,8 +6,65 @@
 import { useRef, useEffect, useMemo, useCallback, useState } from "react";
 import { useStore } from "../../store";
 import { highlightJson } from "../../core/highlighter";
+import { prettyPrint } from "../../core/formatter";
 import { EditorToolbar } from "./EditorToolbar";
 import styles from "./EditView.module.css";
+
+// Bracket pairs for matching
+const BRACKETS: Record<string, string> = {
+  '{': '}',
+  '[': ']',
+  '}': '{',
+  ']': '[',
+};
+const OPEN_BRACKETS = new Set(['{', '[']);
+const CLOSE_BRACKETS = new Set(['}', ']']);
+
+// Find matching bracket position
+function findMatchingBracket(text: string, pos: number): number | null {
+  const char = text[pos];
+  if (!BRACKETS[char]) return null;
+  
+  const isOpen = OPEN_BRACKETS.has(char);
+  const target = BRACKETS[char];
+  const dir = isOpen ? 1 : -1;
+  let depth = 1;
+  let i = pos + dir;
+  
+  while (i >= 0 && i < text.length) {
+    const c = text[i];
+    if (c === char) depth++;
+    else if (c === target) depth--;
+    if (depth === 0) return i;
+    i += dir;
+  }
+  return null;
+}
+
+// Find all foldable regions (objects/arrays) by starting line
+function findFoldableRegions(text: string): Map<number, { endLine: number; type: '{' | '[' }> {
+  const regions = new Map<number, { endLine: number; type: '{' | '[' }>();
+  const stack: Array<{ line: number; type: '{' | '[' }> = [];
+  const lines = text.split('\n');
+  
+  let pos = 0;
+  for (let lineNum = 0; lineNum < lines.length; lineNum++) {
+    const line = lines[lineNum];
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (char === '{' || char === '[') {
+        stack.push({ line: lineNum + 1, type: char });
+      } else if (char === '}' || char === ']') {
+        const open = stack.pop();
+        if (open && open.line < lineNum + 1) {
+          regions.set(open.line, { endLine: lineNum + 1, type: open.type });
+        }
+      }
+    }
+    pos += line.length + 1;
+  }
+  return regions;
+}
 
 export function EditView() {
   const rawJson = useStore((s) => s.rawJson);
@@ -31,6 +88,12 @@ export function EditView() {
   // Cursor position state
   const [cursorLine, setCursorLine] = useState(1);
   const [cursorColumn, setCursorColumn] = useState(1);
+  
+  // Bracket matching state
+  const [matchingBrackets, setMatchingBrackets] = useState<[number, number] | null>(null);
+  
+  // Fold/unfold state
+  const [foldedLines, setFoldedLines] = useState<Set<number>>(new Set());
 
   // Current match line number
   const currentMatchLine = searchLineMatches[searchCurrentIndex];
@@ -66,7 +129,7 @@ export function EditView() {
     }
   }, []);
 
-  // Calculate cursor position
+  // Calculate cursor position and bracket matching
   const updateCursorPosition = useCallback(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
@@ -79,6 +142,26 @@ export function EditView() {
 
     setCursorLine(line);
     setCursorColumn(column);
+    
+    // Check for bracket matching
+    // Check character at cursor and before cursor
+    let bracketPos: number | null = null;
+    if (pos < editContent.length && BRACKETS[editContent[pos]]) {
+      bracketPos = pos;
+    } else if (pos > 0 && BRACKETS[editContent[pos - 1]]) {
+      bracketPos = pos - 1;
+    }
+    
+    if (bracketPos !== null) {
+      const matchPos = findMatchingBracket(editContent, bracketPos);
+      if (matchPos !== null) {
+        setMatchingBrackets([bracketPos, matchPos]);
+      } else {
+        setMatchingBrackets(null);
+      }
+    } else {
+      setMatchingBrackets(null);
+    }
   }, [editContent]);
 
   // Update cursor position on selection change
@@ -96,6 +179,49 @@ export function EditView() {
       textarea.removeEventListener('keyup', handleSelectionChange);
     };
   }, [updateCursorPosition]);
+
+  // Handle paste with auto-format
+  const handlePaste = useCallback((e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const pastedText = e.clipboardData.getData('text');
+    
+    // Try to parse and format as JSON
+    try {
+      const parsed = JSON.parse(pastedText);
+      const formatted = prettyPrint(pastedText, editorIndentSize);
+      
+      if (formatted !== pastedText) {
+        e.preventDefault();
+        const textarea = e.currentTarget;
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        
+        const newContent = 
+          editContent.substring(0, start) + 
+          formatted + 
+          editContent.substring(end);
+        setEditContent(newContent);
+        
+        requestAnimationFrame(() => {
+          textarea.selectionStart = textarea.selectionEnd = start + formatted.length;
+        });
+      }
+    } catch {
+      // Not valid JSON, paste as-is
+    }
+  }, [editContent, editorIndentSize, setEditContent]);
+  
+  // Toggle fold at line
+  const toggleFold = useCallback((lineNum: number) => {
+    setFoldedLines(prev => {
+      const next = new Set(prev);
+      if (next.has(lineNum)) {
+        next.delete(lineNum);
+      } else {
+        next.add(lineNum);
+      }
+      return next;
+    });
+  }, []);
 
   // Handle Tab key for indentation
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -162,7 +288,46 @@ export function EditView() {
   // Highlight content with line wrapping and search highlighting
   const highlightedLines = useMemo(() => {
     const searchMatchSet = new Set(searchLineMatches);
-    return editContent.split("\n").map((line, idx) => {
+    const foldableRegions = findFoldableRegions(editContent);
+    
+    // Calculate bracket positions by line
+    let bracket1Line: number | null = null;
+    let bracket2Line: number | null = null;
+    if (matchingBrackets) {
+      const [pos1, pos2] = matchingBrackets;
+      const textBefore1 = editContent.substring(0, pos1);
+      const textBefore2 = editContent.substring(0, pos2);
+      bracket1Line = textBefore1.split('\n').length;
+      bracket2Line = textBefore2.split('\n').length;
+    }
+    
+    const lines = editContent.split("\n");
+    const result: Array<{
+      number: number;
+      html: string;
+      isMatch: boolean;
+      isCurrentMatch: boolean;
+      isCurrentLine: boolean;
+      isFoldable: boolean;
+      foldInfo: { endLine: number; type: '{' | '[' } | null;
+      isFolded: boolean;
+      isHidden: boolean;
+      hasBracketMatch: boolean;
+    }> = [];
+    
+    // Track which lines are hidden due to folding
+    const hiddenRanges: Array<[number, number]> = [];
+    for (const [startLine, info] of foldableRegions) {
+      if (foldedLines.has(startLine)) {
+        hiddenRanges.push([startLine + 1, info.endLine]);
+      }
+    }
+    
+    const isLineHidden = (lineNum: number) => 
+      hiddenRanges.some(([start, end]) => lineNum >= start && lineNum <= end);
+    
+    for (let idx = 0; idx < lines.length; idx++) {
+      const line = lines[idx];
       const lineNum = idx + 1;
       let html = highlightJson(line) || " ";
       
@@ -172,15 +337,56 @@ export function EditView() {
         html = html.replace(regex, '<mark class="search-match">$1</mark>');
       }
       
-      return {
+      // Check for bracket matches on this line
+      const hasBracketMatch = lineNum === bracket1Line || lineNum === bracket2Line;
+      if (hasBracketMatch && matchingBrackets) {
+        // Highlight matching brackets
+        const [pos1, pos2] = matchingBrackets;
+        const char1 = editContent[pos1];
+        const char2 = editContent[pos2];
+        if (lineNum === bracket1Line) {
+          html = html.replace(
+            new RegExp(`(\\${char1})`),
+            '<span class="bracket-match">$1</span>'
+          );
+        }
+        if (lineNum === bracket2Line) {
+          html = html.replace(
+            new RegExp(`(\\${char2})`),
+            '<span class="bracket-match">$1</span>'
+          );
+        }
+      }
+      
+      const foldInfo = foldableRegions.get(lineNum) || null;
+      const isFolded = foldedLines.has(lineNum);
+      
+      // Show fold placeholder if folded
+      if (isFolded && foldInfo) {
+        const placeholder = foldInfo.type === '{' ? '{ ... }' : '[ ... ]';
+        // Find the bracket and add placeholder
+        html = html.replace(
+          new RegExp(`(\\${foldInfo.type})`),
+          `<span class="fold-placeholder">${placeholder}</span>`
+        );
+      }
+      
+      result.push({
         number: lineNum,
         html,
         isMatch: searchMatchSet.has(lineNum),
         isCurrentMatch: lineNum === currentMatchLine,
         isCurrentLine: lineNum === cursorLine,
-      };
-    });
-  }, [editContent, searchLineMatches, currentMatchLine, searchQuery, cursorLine]);
+        isFoldable: foldInfo !== null,
+        foldInfo,
+        isFolded,
+        isHidden: isLineHidden(lineNum),
+        hasBracketMatch,
+      });
+    }
+    
+    return result;
+  }, [editContent, searchLineMatches, currentMatchLine, searchQuery, cursorLine, matchingBrackets, foldedLines]);
 
   const totalLines = highlightedLines.length;
 
@@ -206,12 +412,21 @@ export function EditView() {
       <div className={styles.editor}>
         {showLineNumbers && (
           <div className={styles.gutter}>
-            {highlightedLines.map((line) => (
+            {highlightedLines.filter(line => !line.isHidden).map((line) => (
               <div
                 key={line.number}
-                className={`${styles.lineNumber} ${line.isMatch ? styles.matchLineNumber : ""} ${line.isCurrentMatch ? styles.currentMatchLineNumber : ""} ${line.isCurrentLine ? styles.currentLineNumber : ""}`}
+                className={`${styles.lineNumber} ${line.isMatch ? styles.matchLineNumber : ""} ${line.isCurrentMatch ? styles.currentMatchLineNumber : ""} ${line.isCurrentLine ? styles.currentLineNumber : ""} ${line.hasBracketMatch ? styles.bracketMatchLine : ""}`}
               >
-                {line.number}
+                {line.isFoldable && (
+                  <button
+                    className={`${styles.foldButton} ${line.isFolded ? styles.folded : ''}`}
+                    onClick={() => toggleFold(line.number)}
+                    title={line.isFolded ? 'Unfold' : 'Fold'}
+                  >
+                    {line.isFolded ? '▶' : '▼'}
+                  </button>
+                )}
+                <span className={styles.lineNumberText}>{line.number}</span>
               </div>
             ))}
           </div>
@@ -224,7 +439,7 @@ export function EditView() {
             className={styles.highlight}
             aria-hidden="true"
           >
-            {highlightedLines.map((line) => (
+            {highlightedLines.filter(line => !line.isHidden).map((line) => (
               <div
                 key={line.number}
                 ref={(el) => {
@@ -232,7 +447,7 @@ export function EditView() {
                     lineRefs.current.set(line.number, el);
                   }
                 }}
-                className={`${styles.line} ${line.isMatch ? styles.matchLine : ""} ${line.isCurrentMatch ? styles.currentMatchLine : ""} ${line.isCurrentLine ? styles.currentLine : ""}`}
+                className={`${styles.line} ${line.isMatch ? styles.matchLine : ""} ${line.isCurrentMatch ? styles.currentMatchLine : ""} ${line.isCurrentLine ? styles.currentLine : ""} ${line.hasBracketMatch ? styles.bracketMatchLine : ""}`}
                 dangerouslySetInnerHTML={{ __html: line.html }}
               />
             ))}
@@ -246,6 +461,7 @@ export function EditView() {
             onChange={(e) => setEditContent(e.target.value)}
             onScroll={handleScroll}
             onKeyDown={handleKeyDown}
+            onPaste={handlePaste}
             spellCheck={false}
             autoComplete="off"
             autoCorrect="off"

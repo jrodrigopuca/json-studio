@@ -40,6 +40,43 @@
   color: var(--text-secondary);
   font-size: 11px;
   opacity: 0.6;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.lineNumberText {
+  min-width: 24px;
+  text-align: right;
+}
+
+.foldButton {
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 8px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gutter:hover .foldButton {
+  opacity: 0.5;
+}
+
+.foldButton:hover {
+  opacity: 1 !important;
+  color: var(--text-primary);
+}
+
+.foldButton.folded {
+  opacity: 0.7;
 }
 
 .content {
@@ -94,6 +131,28 @@
   color: var(--accent) !important;
   opacity: 1 !important;
   font-weight: bold;
+}
+
+/* Bracket matching */
+.bracketMatchLine {
+  /* Subtle highlight for lines with bracket matches */
+}
+
+:global(.bracket-match) {
+  background: rgba(255, 200, 0, 0.35);
+  border-radius: 2px;
+  font-weight: bold;
+  outline: 1px solid rgba(255, 200, 0, 0.6);
+}
+
+/* Fold placeholder */
+:global(.fold-placeholder) {
+  color: var(--text-secondary);
+  background: var(--surface);
+  padding: 0 4px;
+  border-radius: 3px;
+  font-size: 0.9em;
+  opacity: 0.8;
 }
 
 /* Global search match highlight within text */

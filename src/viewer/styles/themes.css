@@ -6,6 +6,9 @@
 /* ===== Dark theme (default) - Apple HIG System Colors ===== */
 :root,
 [data-theme='dark'] {
+  /* Optimized monospace font stack for JSON rendering */
+  --font-mono: ui-monospace, "Cascadia Code", "JetBrains Mono", "Fira Code", Consolas, "Liberation Mono", Menlo, monospace;
+
   /* iOS System Gray Colors (Dark) */
   --bg: #1c1c1e;                    /* systemGray6 */
   --bg-gradient: none;

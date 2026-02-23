@@ -20,7 +20,7 @@ html,
 body,
 #root {
   height: 100%;
-  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  font-family: var(--font-mono);
   font-size: var(--font-size, 13px);
   background: var(--bg);
   color: var(--text-primary);
