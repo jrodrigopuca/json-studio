@@ -3,6 +3,7 @@
  */
 
 import { useEffect, useCallback, useState, type ReactNode } from "react";
+import { formatSize } from "../../core/formatter";
 import styles from "./Modal.module.css";
 
 interface ModalProps {
@@ -116,11 +117,6 @@ export function SaveJsonModal({
   const isOverSize = currentSize > maxSize;
   const isOverCount = savedCount >= maxCount;
   const canSave = name.trim() && !isOverSize && !isOverCount;
-
-  const formatSize = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`;
-    return `${(bytes / 1024).toFixed(1)} KB`;
-  };
 
   const handleSave = () => {
     if (canSave) {

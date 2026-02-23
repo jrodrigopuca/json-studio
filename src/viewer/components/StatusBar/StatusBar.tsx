@@ -2,8 +2,9 @@
  * Status bar component showing file info.
  */
 
-import { useStore } from "../store";
-import { useTheme } from "../hooks/useTheme";
+import { useStore } from "../../store";
+import { useTheme } from "../../hooks/useTheme";
+import { formatSize } from "../../core/formatter";
 import styles from "./StatusBar.module.css";
 
 export function StatusBar() {
@@ -13,12 +14,6 @@ export function StatusBar() {
   const url = useStore((s) => s.url);
   const hasUnsavedEdits = useStore((s) => s.hasUnsavedEdits);
   const { theme, setTheme } = useTheme();
-
-  const formatSize = (bytes: number): string => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
-  };
 
   const toggleTheme = () => {
     const next = theme === "dark" ? "light" : "dark";

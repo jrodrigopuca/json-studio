@@ -3,8 +3,9 @@
  */
 
 import { useState } from "react";
-import { useStore, type SavedJson } from "../store";
-import { useToast } from "./Toast";
+import { useStore, type SavedJson } from "../../store";
+import { useToast } from "../Toast";
+import { formatSize, formatDate } from "../../core/formatter";
 import styles from "./SavedView.module.css";
 
 const MAX_SIZE_KB = 500;
@@ -64,15 +65,6 @@ export function SavedView() {
       showToast({ message: "Nombre actualizado", type: "success" });
     }
     setEditingId(null);
-  };
-
-  const formatSize = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`;
-    return `${(bytes / 1024).toFixed(1)} KB`;
-  };
-
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString();
   };
 
   return (

@@ -3,7 +3,7 @@
  */
 
 import { useEffect, useRef, useCallback } from "react";
-import { useStore } from "../store";
+import { useStore } from "../../store";
 import styles from "./SearchBar.module.css";
 
 export function SearchBar() {

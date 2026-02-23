@@ -3,9 +3,9 @@
  */
 
 import { useState, useMemo, useCallback, useRef } from "react";
-import { useStore } from "../store";
-import { highlightJson } from "../core/highlighter";
-import { prettyPrint } from "../core/formatter";
+import { useStore } from "../../store";
+import { highlightJson } from "../../core/highlighter";
+import { prettyPrint } from "../../core/formatter";
 import styles from "./DiffView.module.css";
 
 type DiffType = "added" | "removed" | "changed" | "unchanged";

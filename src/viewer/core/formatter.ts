@@ -57,6 +57,16 @@ export function formatNumber(num: number): string {
 }
 
 /**
+ * Formats a timestamp to a localized date/time string.
+ *
+ * @param timestamp - Unix timestamp in milliseconds
+ * @returns Formatted date string
+ */
+export function formatDate(timestamp: number): string {
+	return new Date(timestamp).toLocaleString();
+}
+
+/**
  * Sorts all object keys in a JSON string alphabetically (recursive).
  *
  * @param raw - Raw JSON string

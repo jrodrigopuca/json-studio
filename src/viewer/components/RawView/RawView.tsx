@@ -3,8 +3,8 @@
  */
 
 import { useMemo, useEffect, useRef } from "react";
-import { useStore } from "../store";
-import { highlightJson } from "../core/highlighter";
+import { useStore } from "../../store";
+import { highlightJson } from "../../core/highlighter";
 import styles from "./RawView.module.css";
 
 export function RawView() {

@@ -3,8 +3,8 @@
  */
 
 import { useRef, useEffect, useMemo, useCallback } from "react";
-import { useStore } from "../store";
-import { highlightJson } from "../core/highlighter";
+import { useStore } from "../../store";
+import { highlightJson } from "../../core/highlighter";
 import styles from "./EditView.module.css";
 
 export function EditView() {

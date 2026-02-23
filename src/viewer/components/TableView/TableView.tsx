@@ -3,7 +3,7 @@
  */
 
 import { useMemo } from "react";
-import { useStore } from "../store";
+import { useStore } from "../../store";
 import styles from "./TableView.module.css";
 
 export function TableView() {

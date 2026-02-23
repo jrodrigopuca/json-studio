@@ -3,7 +3,7 @@
  */
 
 import { useMemo } from "react";
-import { useStore } from "../store";
+import { useStore } from "../../store";
 import styles from "./Breadcrumb.module.css";
 
 export function Breadcrumb() {

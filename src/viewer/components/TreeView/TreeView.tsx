@@ -3,8 +3,8 @@
  */
 
 import { useCallback, useMemo, useRef, useEffect } from "react";
-import { useStore, selectVisibleNodes } from "../store";
-import type { FlatNode } from "../core/parser.types";
+import { useStore, selectVisibleNodes } from "../../store";
+import type { FlatNode } from "../../core/parser.types";
 import styles from "./TreeView.module.css";
 
 export function TreeView() {

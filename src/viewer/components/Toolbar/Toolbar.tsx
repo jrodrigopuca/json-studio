@@ -3,9 +3,9 @@
  */
 
 import { useState } from "react";
-import { useStore } from "../store";
-import { useToast } from "./Toast";
-import { SaveJsonModal } from "./Modal";
+import { useStore } from "../../store";
+import { useToast } from "../Toast";
+import { SaveJsonModal } from "../Modal";
 import type { ViewMode } from "@shared/types";
 import styles from "./Toolbar.module.css";
 

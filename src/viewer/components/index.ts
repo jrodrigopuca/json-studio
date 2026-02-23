@@ -8,7 +8,7 @@ export { SearchBar } from "./SearchBar";
 export { Breadcrumb } from "./Breadcrumb";
 export { StatusBar } from "./StatusBar";
 export { Toast, ToastProvider, useToast } from "./Toast";
-export { Modal, UnsavedChangesModal } from "./Modal";
+export { Modal, UnsavedChangesModal, SaveJsonModal } from "./Modal";
 
 // Views
 export { TreeView } from "./TreeView";
