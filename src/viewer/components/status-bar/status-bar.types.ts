@@ -3,8 +3,8 @@
  */
 
 export interface StatusInfo {
-  totalKeys: number;
-  maxDepth: number;
-  fileSize: number;
-  isValid: boolean;
+	totalKeys: number;
+	maxDepth: number;
+	fileSize: number;
+	isValid: boolean;
 }

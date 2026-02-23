@@ -3,8 +3,8 @@
  */
 
 export interface SearchState {
-  query: string;
-  matchCount: number;
-  currentIndex: number;
-  isVisible: boolean;
+	query: string;
+	matchCount: number;
+	currentIndex: number;
+	isVisible: boolean;
 }

@@ -3,7 +3,7 @@
  */
 
 /** Extension name. */
-export const APP_NAME = 'JSON Spark';
+export const APP_NAME = "JSON Spark";
 
 /** Size threshold (bytes) for delegating parse to Web Worker. */
 export const WORKER_THRESHOLD = 1_048_576; // 1MB
@@ -15,16 +15,16 @@ export const DEFAULT_INDENT = 2;
 export const MAX_VISIBLE_NODES = 500;
 
 /** CSS class prefix for scoped styling. */
-export const CSS_PREFIX = 'js';
+export const CSS_PREFIX = "js";
 
 /** JSON content-type patterns for detection. */
 export const JSON_CONTENT_TYPES = [
-  'application/json',
-  'text/json',
-  'application/ld+json',
-  'application/vnd.api+json',
-  'application/hal+json',
-  'application/problem+json',
+	"application/json",
+	"text/json",
+	"application/ld+json",
+	"application/vnd.api+json",
+	"application/hal+json",
+	"application/problem+json",
 ] as const;
 
 /** JSONP callback pattern. */
@@ -35,9 +35,9 @@ export const NODE_HEIGHT = 24;
 
 /** Keyboard shortcut definitions. */
 export const SHORTCUTS = {
-  SEARCH: { key: 'f', ctrl: true },
-  EXPAND_ALL: { key: 'F', ctrl: true, shift: true },
-  COLLAPSE_ALL: { key: 'C', ctrl: true, shift: true },
-  COPY_VALUE: { key: 'c', ctrl: true },
-  COPY_PATH: { key: 'P', ctrl: true, shift: true },
+	SEARCH: { key: "f", ctrl: true },
+	EXPAND_ALL: { key: "F", ctrl: true, shift: true },
+	COLLAPSE_ALL: { key: "C", ctrl: true, shift: true },
+	COPY_VALUE: { key: "c", ctrl: true },
+	COPY_PATH: { key: "P", ctrl: true, shift: true },
 } as const;

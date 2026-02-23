@@ -4,4 +4,4 @@
  */
 
 // Future: load and save settings from chrome.storage.sync
-console.log('JSON Spark options page loaded');
+console.log("JSON Spark options page loaded");

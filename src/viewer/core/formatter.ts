@@ -12,12 +12,12 @@
  * @returns Formatted JSON string
  */
 export function prettyPrint(raw: string, indent: number = 2): string {
-  try {
-    const parsed = JSON.parse(raw);
-    return JSON.stringify(parsed, null, indent);
-  } catch {
-    return raw;
-  }
+	try {
+		const parsed = JSON.parse(raw);
+		return JSON.stringify(parsed, null, indent);
+	} catch {
+		return raw;
+	}
 }
 
 /**
@@ -27,12 +27,12 @@ export function prettyPrint(raw: string, indent: number = 2): string {
  * @returns Minified JSON string
  */
 export function minify(raw: string): string {
-  try {
-    const parsed = JSON.parse(raw);
-    return JSON.stringify(parsed);
-  } catch {
-    return raw;
-  }
+	try {
+		const parsed = JSON.parse(raw);
+		return JSON.stringify(parsed);
+	} catch {
+		return raw;
+	}
 }
 
 /**
@@ -42,15 +42,16 @@ export function minify(raw: string): string {
  * @returns Formatted size string (e.g., "1.5 KB", "3.2 MB")
  */
 export function formatSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+	if (bytes < 1024) return `${bytes} B`;
+	if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+	if (bytes < 1024 * 1024 * 1024)
+		return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+	return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
 }
 
 /**
  * Formats a number with thousands separators.
  */
 export function formatNumber(num: number): string {
-  return num.toLocaleString('en-US');
+	return num.toLocaleString("en-US");
 }
