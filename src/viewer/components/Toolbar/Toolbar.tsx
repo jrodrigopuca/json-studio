@@ -26,9 +26,11 @@ export function Toolbar() {
   const expandedNodes = useStore((s) => s.expandedNodes);
   const nodes = useStore((s) => s.nodes);
   const toggleSortedByKeys = useStore((s) => s.toggleSortedByKeys);
-  const sortedByKeys = useStore((s) => s.sortedByKeys);
+  const keySortOrder = useStore((s) => s.keySortOrder);
   const toggleLineNumbers = useStore((s) => s.toggleLineNumbers);
   const showLineNumbers = useStore((s) => s.showLineNumbers);
+  const prettifyJson = useStore((s) => s.prettifyJson);
+  const minifyJson = useStore((s) => s.minifyJson);
   const undo = useStore((s) => s.undo);
   const redo = useStore((s) => s.redo);
   const undoStack = useStore((s) => s.undoStack);
@@ -71,11 +73,11 @@ export function Toolbar() {
               {isAllExpanded ? "▼" : "▶"}
             </button>
             <button
-              className={`${styles.button} ${sortedByKeys ? styles.active : ""}`}
+              className={`${styles.button} ${keySortOrder ? styles.active : ""}`}
               onClick={toggleSortedByKeys}
-              title="Sort keys alphabetically"
+              title={keySortOrder === null ? "Sort keys A→Z" : keySortOrder === 'asc' ? "Sort keys Z→A" : "Restore original order"}
             >
-              A↓
+              {keySortOrder === 'desc' ? 'Z↓' : 'A↓'}
             </button>
           </>
         )}
@@ -89,6 +91,26 @@ export function Toolbar() {
           >
             #
           </button>
+        )}
+
+        {/* Raw view: Prettify/Minify */}
+        {viewMode === "raw" && (
+          <>
+            <button
+              className={styles.button}
+              onClick={prettifyJson}
+              title="Prettify JSON"
+            >
+              {"{ }"}
+            </button>
+            <button
+              className={styles.button}
+              onClick={minifyJson}
+              title="Minify JSON"
+            >
+              {"{}"}
+            </button>
+          </>
         )}
 
         {/* Search button - available in tree, raw, edit */}

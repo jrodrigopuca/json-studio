@@ -8,7 +8,7 @@ import { subscribeWithSelector, devtools } from "zustand/middleware";
 import type { ViewMode, ResolvedTheme, ContentTypeClass } from "@shared/types";
 import type { FlatNode, ParseError } from "../core/parser.types";
 import { parseJSON } from "../core/parser";
-import { prettyPrint } from "../core/formatter";
+import { prettyPrint, minify, sortJsonByKeys } from "../core/formatter";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -86,7 +86,8 @@ export interface AppState {
 	maxDepth: number;
 
 	// Options
-	sortedByKeys: boolean;
+	keySortOrder: "asc" | "desc" | null;
+	originalJsonForSort: string | null;
 	showLineNumbers: boolean;
 	isEditing: boolean;
 
@@ -153,6 +154,10 @@ export interface AppActions {
 	// Options
 	toggleSortedByKeys: () => void;
 	toggleLineNumbers: () => void;
+
+	// Format actions (Raw view)
+	prettifyJson: () => void;
+	minifyJson: () => void;
 	setIsEditing: (editing: boolean) => void;
 
 	// Bookmarks
@@ -203,7 +208,8 @@ const initialState: AppState = {
 	totalKeys: 0,
 	maxDepth: 0,
 
-	sortedByKeys: false,
+	keySortOrder: null,
+	originalJsonForSort: null,
 	showLineNumbers: true,
 	isEditing: false,
 
@@ -445,10 +451,68 @@ export const useStore = create<AppState & AppActions>()(
 			},
 
 			// ─── Options ─────────────────────────────────────────────────────────
-			toggleSortedByKeys: () => set((s) => ({ sortedByKeys: !s.sortedByKeys })),
+			toggleSortedByKeys: () => {
+				const { keySortOrder, rawJson, originalJsonForSort } = get();
+
+				if (keySortOrder === null) {
+					// null → 'asc': Save original, sort ascending
+					const sorted = sortJsonByKeys(rawJson, "asc");
+					const result = parseJSON(sorted);
+					if (result.ok) {
+						set({
+							keySortOrder: "asc",
+							originalJsonForSort: rawJson,
+							rawJson: sorted,
+							nodes: result.nodes,
+						});
+					}
+				} else if (keySortOrder === "asc") {
+					// 'asc' → 'desc': Sort descending
+					const original = originalJsonForSort || rawJson;
+					const sorted = sortJsonByKeys(original, "desc");
+					const result = parseJSON(sorted);
+					if (result.ok) {
+						set({
+							keySortOrder: "desc",
+							rawJson: sorted,
+							nodes: result.nodes,
+						});
+					}
+				} else {
+					// 'desc' → null: Restore original
+					const original = originalJsonForSort || rawJson;
+					const result = parseJSON(original);
+					if (result.ok) {
+						set({
+							keySortOrder: null,
+							originalJsonForSort: null,
+							rawJson: original,
+							nodes: result.nodes,
+						});
+					} else {
+						set({
+							keySortOrder: null,
+							originalJsonForSort: null,
+						});
+					}
+				}
+			},
 			toggleLineNumbers: () =>
 				set((s) => ({ showLineNumbers: !s.showLineNumbers })),
 			setIsEditing: (editing) => set({ isEditing: editing }),
+
+			// ─── Format Actions (Raw view) ───────────────────────────────────────
+			prettifyJson: () => {
+				const { rawJson } = get();
+				const formatted = prettyPrint(rawJson);
+				set({ rawJson: formatted });
+			},
+
+			minifyJson: () => {
+				const { rawJson } = get();
+				const minified = minify(rawJson);
+				set({ rawJson: minified });
+			},
 
 			// ─── Bookmarks ───────────────────────────────────────────────────────
 			addBookmark: (bookmark) => {

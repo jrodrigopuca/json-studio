@@ -202,15 +202,13 @@ export function DiffView() {
               </div>
               
               <div className={styles.textareaWrapper}>
-                <textarea
-                  className={styles.textarea}
+                <CodeInput
                   value={compareText}
-                  onChange={(e) => {
-                    setCompareText(e.target.value);
+                  onChange={(value) => {
+                    setCompareText(value);
                     setError(null);
                   }}
                   placeholder="Paste or type JSON to compare..."
-                  spellCheck={false}
                 />
               </div>
               
@@ -261,6 +259,73 @@ function DiffPanel({ lines, side }: DiffPanelProps) {
         </div>
       ))}
     </pre>
+  );
+}
+
+// Code input with syntax highlighting and line numbers
+interface CodeInputProps {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+}
+
+function CodeInput({ value, onChange, placeholder }: CodeInputProps) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const preRef = useRef<HTMLPreElement>(null);
+  
+  const lines = useMemo(() => {
+    if (!value) return [];
+    return value.split('\n');
+  }, [value]);
+
+  // Sync scroll between textarea and pre
+  const handleScroll = useCallback(() => {
+    if (textareaRef.current && preRef.current) {
+      preRef.current.scrollTop = textareaRef.current.scrollTop;
+      preRef.current.scrollLeft = textareaRef.current.scrollLeft;
+    }
+  }, []);
+
+  return (
+    <div className={styles.codeInput}>
+      <div className={styles.codeLineNumbers}>
+        {lines.length > 0 ? (
+          lines.map((_, idx) => (
+            <div key={idx} className={styles.codeLineNumber}>{idx + 1}</div>
+          ))
+        ) : (
+          <div className={styles.codeLineNumber}>1</div>
+        )}
+      </div>
+      <div className={styles.codeEditor}>
+        <pre 
+          ref={preRef}
+          className={styles.codeHighlight}
+          aria-hidden="true"
+        >
+          {lines.length > 0 ? (
+            lines.map((line, idx) => (
+              <div 
+                key={idx}
+                className={styles.codeHighlightLine}
+                dangerouslySetInnerHTML={{ __html: highlightJson(line) || " " }}
+              />
+            ))
+          ) : (
+            <div className={styles.codePlaceholder}>{placeholder}</div>
+          )}
+        </pre>
+        <textarea
+          ref={textareaRef}
+          className={styles.codeTextarea}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onScroll={handleScroll}
+          spellCheck={false}
+          placeholder=""
+        />
+      </div>
+    </div>
   );
 }
 

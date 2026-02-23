@@ -70,12 +70,16 @@ export function formatDate(timestamp: number): string {
  * Sorts all object keys in a JSON string alphabetically (recursive).
  *
  * @param raw - Raw JSON string
+ * @param direction - Sort direction ('asc' or 'desc')
  * @returns JSON string with keys sorted, or original if invalid
  */
-export function sortJsonByKeys(raw: string): string {
+export function sortJsonByKeys(
+	raw: string,
+	direction: "asc" | "desc" = "asc",
+): string {
 	try {
 		const parsed = JSON.parse(raw);
-		const sorted = deepSortKeys(parsed);
+		const sorted = deepSortKeys(parsed, direction);
 		return JSON.stringify(sorted, null, 2);
 	} catch {
 		return raw;
@@ -85,18 +89,24 @@ export function sortJsonByKeys(raw: string): string {
 /**
  * Recursively sorts object keys alphabetically.
  */
-function deepSortKeys(value: unknown): unknown {
+function deepSortKeys(value: unknown, direction: "asc" | "desc"): unknown {
 	if (value === null || typeof value !== "object") {
 		return value;
 	}
 
 	if (Array.isArray(value)) {
-		return value.map(deepSortKeys);
+		return value.map((v) => deepSortKeys(v, direction));
 	}
 
 	const sorted: Record<string, unknown> = {};
-	for (const key of Object.keys(value as Record<string, unknown>).sort()) {
-		sorted[key] = deepSortKeys((value as Record<string, unknown>)[key]);
+	const keys = Object.keys(value as Record<string, unknown>).sort();
+	if (direction === "desc") keys.reverse();
+
+	for (const key of keys) {
+		sorted[key] = deepSortKeys(
+			(value as Record<string, unknown>)[key],
+			direction,
+		);
 	}
 	return sorted;
 }
