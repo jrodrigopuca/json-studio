@@ -1,15 +1,16 @@
 /**
- * Raw View component — Displays JSON as syntax-highlighted text.
+ * Raw View component — Displays JSON as syntax-highlighted text with optional line numbers.
  */
 
 import { BaseComponent } from "../../base-component.js";
 import { createElement } from "../../../shared/dom.js";
 import { highlightJson } from "../../core/highlighter.js";
-import { prettyPrint } from "../../core/formatter.js";
 import type { AppState } from "../../core/store.types.js";
 
 export class RawView extends BaseComponent {
 	private codeEl: HTMLElement | null = null;
+	private gutterEl: HTMLElement | null = null;
+	private wrapperEl: HTMLElement | null = null;
 
 	render(container: HTMLElement): void {
 		this.el = createElement("div", {
@@ -21,25 +22,60 @@ export class RawView extends BaseComponent {
 			},
 		});
 
+		this.wrapperEl = createElement("div", {
+			className: "js-raw-view__wrapper",
+		});
+
+		this.gutterEl = createElement("div", {
+			className: "js-raw-view__gutter",
+		});
+
 		this.codeEl = createElement("pre", { className: "js-raw-view__code" });
-		this.el.appendChild(this.codeEl);
+
+		this.wrapperEl.appendChild(this.gutterEl);
+		this.wrapperEl.appendChild(this.codeEl);
+		this.el.appendChild(this.wrapperEl);
 		container.appendChild(this.el);
 
-		this.watch(["rawJson", "isValid", "parseError"], () => this.update({}));
+		this.watch(["rawJson", "isValid", "parseError", "showLineNumbers"], () =>
+			this.update({}),
+		);
 		this.update(this.store.getState());
 	}
 
 	update(_state: Partial<AppState>): void {
-		if (!this.codeEl) return;
+		if (!this.codeEl || !this.gutterEl) return;
 
 		const fullState = this.store.getState();
 
 		if (fullState.isValid) {
-			const formatted = prettyPrint(fullState.rawJson);
-			this.codeEl.innerHTML = highlightJson(formatted);
+			this.codeEl.innerHTML = highlightJson(fullState.rawJson);
+			this.renderLineNumbers(fullState.rawJson, fullState.showLineNumbers);
 		} else {
-			// Show raw content with error line highlighted
 			this.codeEl.textContent = fullState.rawJson;
+			this.renderLineNumbers(fullState.rawJson, fullState.showLineNumbers);
 		}
+	}
+
+	/**
+	 * Renders line numbers in the gutter.
+	 */
+	private renderLineNumbers(text: string, show: boolean): void {
+		if (!this.gutterEl) return;
+
+		if (!show) {
+			this.gutterEl.style.display = "none";
+			return;
+		}
+
+		this.gutterEl.style.display = "block";
+		const lineCount = text.split("\n").length;
+		const lines: string[] = [];
+
+		for (let i = 1; i <= lineCount; i++) {
+			lines.push(`<span class="js-raw-view__line-number">${i}</span>`);
+		}
+
+		this.gutterEl.innerHTML = lines.join("\n");
 	}
 }

@@ -3,7 +3,7 @@
  */
 
 /** Supported view modes for the JSON viewer. */
-export type ViewMode = "tree" | "raw";
+export type ViewMode = "tree" | "raw" | "table";
 
 /** Theme options. */
 export type Theme = "dark" | "light" | "system";

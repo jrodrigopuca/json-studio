@@ -19,7 +19,16 @@
     </p>
     <div class="popup__actions">
       <button id="paste-json" class="popup__button">📋 Paste JSON</button>
+      <button id="toggle-scratchpad" class="popup__button">📝 Scratch Pad</button>
       <a href="options.html" target="_blank" class="popup__link">⚙ Settings</a>
+    </div>
+    <div id="scratchpad" class="popup__scratchpad" style="display: none;">
+      <textarea id="scratchpad-input" class="popup__textarea" placeholder="Paste JSON here..."></textarea>
+      <div class="popup__scratchpad-actions">
+        <button id="scratchpad-prettify" class="popup__button popup__button--sm">{ } Prettify</button>
+        <button id="scratchpad-minify" class="popup__button popup__button--sm">{} Minify</button>
+        <button id="scratchpad-open" class="popup__button popup__button--sm">↗ Open</button>
+      </div>
     </div>
     <footer class="popup__footer">
       <a href="https://github.com/jrodrigopuca/json-studio" target="_blank" rel="noopener noreferrer">

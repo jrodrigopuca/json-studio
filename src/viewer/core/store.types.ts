@@ -45,6 +45,10 @@ export interface AppState {
 	maxDepth: number;
 	/** Whether parsing is in progress (Web Worker). */
 	isParsing: boolean;
+	/** Whether keys are sorted alphabetically. */
+	sortedByKeys: boolean;
+	/** Whether line numbers are shown in raw view. */
+	showLineNumbers: boolean;
 }
 
 /** Keys of AppState for subscription granularity. */

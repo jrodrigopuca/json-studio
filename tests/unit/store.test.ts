@@ -22,6 +22,8 @@ function makeState(overrides?: Partial<AppState>): AppState {
 		totalKeys: 0,
 		maxDepth: 0,
 		isParsing: false,
+		sortedByKeys: false,
+		showLineNumbers: true,
 		...overrides,
 	};
 }

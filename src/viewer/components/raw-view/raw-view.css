@@ -3,21 +3,50 @@
  */
 
 .js-raw-view {
-  padding: var(--gap-md);
+  padding: 0;
   overflow: auto;
   font-family: inherit;
   font-size: var(--font-size);
   line-height: 1.6;
-  white-space: pre-wrap;
-  word-wrap: break-word;
   tab-size: 2;
   color: var(--text-primary);
+}
+
+.js-raw-view__wrapper {
+  display: flex;
+  min-height: 100%;
+}
+
+.js-raw-view__gutter {
+  display: none;
+  flex-shrink: 0;
+  padding: var(--gap-md) var(--gap-sm);
+  background: var(--toolbar-bg);
+  border-right: 1px solid var(--border);
+  text-align: right;
+  user-select: none;
+  white-space: pre;
+  line-height: 1.6;
+  min-width: 40px;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+.js-raw-view__line-number {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 11px;
+  opacity: 0.6;
 }
 
 .js-raw-view__code {
   display: block;
   margin: 0;
-  padding: 0;
+  padding: var(--gap-md);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  flex: 1;
 }
 
 .js-raw-view__error-line {

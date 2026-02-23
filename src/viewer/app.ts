@@ -9,6 +9,7 @@
 
 import { createStore, type Store } from "./core/store.js";
 import { parseJSON } from "./core/parser.js";
+import { sortJsonByKeys, prettyPrint } from "./core/formatter.js";
 import type { AppState } from "./core/store.types.js";
 import type { ResolvedTheme, ContentTypeClass } from "../shared/types.js";
 import { WORKER_THRESHOLD } from "../shared/constants.js";
@@ -17,6 +18,8 @@ import { WORKER_THRESHOLD } from "../shared/constants.js";
 import { Toolbar } from "./components/toolbar/index.js";
 import { TreeView } from "./components/tree-view/index.js";
 import { RawView } from "./components/raw-view/index.js";
+import { TableView } from "./components/table-view/index.js";
+import { Breadcrumb } from "./components/breadcrumb/index.js";
 import { SearchBar } from "./components/search-bar/index.js";
 import { StatusBar } from "./components/status-bar/index.js";
 import { Banner } from "./components/banner/index.js";
@@ -28,6 +31,8 @@ import "./styles/responsive.css";
 import "./components/toolbar/toolbar.css";
 import "./components/tree-view/tree-view.css";
 import "./components/raw-view/raw-view.css";
+import "./components/table-view/table-view.css";
+import "./components/breadcrumb/breadcrumb.css";
 import "./components/search-bar/search-bar.css";
 import "./components/status-bar/status-bar.css";
 import "./components/banner/banner.css";
@@ -53,13 +58,16 @@ export interface ViewerOptions {
 export function initViewer(options: ViewerOptions): () => void {
 	const {
 		container,
-		rawJson,
+		rawJson: inputJson,
 		contentType = "application/json",
 		url = "",
 	} = options;
 
 	// Detect system theme
 	const resolvedTheme = detectSystemTheme();
+
+	// Pretty-print the input JSON so raw view starts formatted
+	const rawJson = prettyPrint(inputJson);
 
 	// Create initial state
 	const initialState: AppState = {
@@ -80,6 +88,8 @@ export function initViewer(options: ViewerOptions): () => void {
 		totalKeys: 0,
 		maxDepth: 0,
 		isParsing: false,
+		sortedByKeys: false,
+		showLineNumbers: true,
 	};
 
 	const store = createStore(initialState);
@@ -91,7 +101,7 @@ export function initViewer(options: ViewerOptions): () => void {
 	});
 
 	// Build DOM structure
-	container.id = "js-app";
+	container.classList.add("js-app");
 	container.innerHTML = "";
 
 	// Create layout containers
@@ -104,13 +114,16 @@ export function initViewer(options: ViewerOptions): () => void {
 	// Instantiate components
 	const banner = new Banner(store);
 	const toolbar = new Toolbar(store);
+	const breadcrumb = new Breadcrumb(store);
 	const searchBar = new SearchBar(store);
 	const treeView = new TreeView(store);
 	const rawView = new RawView(store);
+	const tableView = new TableView(store);
 	const statusBar = new StatusBar(store);
 
 	// Render components in order
 	toolbar.render(mainContainer);
+	breadcrumb.render(mainContainer);
 	banner.render(mainContainer);
 	searchBar.render(mainContainer);
 
@@ -124,6 +137,7 @@ export function initViewer(options: ViewerOptions): () => void {
 
 	treeView.render(viewContainer);
 	rawView.render(viewContainer);
+	tableView.render(viewContainer);
 
 	statusBar.render(mainContainer);
 	container.appendChild(mainContainer);
@@ -132,17 +146,32 @@ export function initViewer(options: ViewerOptions): () => void {
 	const updateViewVisibility = (state: AppState): void => {
 		const treeEl = viewContainer.querySelector(".js-tree-view") as HTMLElement;
 		const rawEl = viewContainer.querySelector(".js-raw-view") as HTMLElement;
+		const tableEl = viewContainer.querySelector(
+			".js-table-view",
+		) as HTMLElement;
 
 		if (treeEl)
 			treeEl.style.display = state.viewMode === "tree" ? "block" : "none";
 		if (rawEl)
 			rawEl.style.display = state.viewMode === "raw" ? "block" : "none";
+		if (tableEl)
+			tableEl.style.display = state.viewMode === "table" ? "block" : "none";
 	};
 
 	store.subscribe(["viewMode"], (state) => updateViewVisibility(state));
 
 	// Parse JSON
 	parseAndSetState(rawJson, store);
+
+	// Sort by keys: re-parse when toggled
+	store.subscribe(["sortedByKeys"], (state) => {
+		if (state.sortedByKeys) {
+			const sorted = sortJsonByKeys(state.rawJson);
+			parseAndSetState(sorted, store);
+		} else {
+			parseAndSetState(rawJson, store);
+		}
+	});
 
 	// Initial view visibility
 	updateViewVisibility(store.getState());
@@ -164,6 +193,7 @@ export function initViewer(options: ViewerOptions): () => void {
 		if (!e.ctrlKey && !e.metaKey && !e.altKey) {
 			if (e.key === "1") store.setState({ viewMode: "tree" });
 			if (e.key === "2") store.setState({ viewMode: "raw" });
+			if (e.key === "3") store.setState({ viewMode: "table" });
 		}
 
 		// Ctrl+Shift+F: Expand all
@@ -187,10 +217,12 @@ export function initViewer(options: ViewerOptions): () => void {
 	// Return cleanup function
 	return () => {
 		toolbar.dispose();
+		breadcrumb.dispose();
 		banner.dispose();
 		searchBar.dispose();
 		treeView.dispose();
 		rawView.dispose();
+		tableView.dispose();
 		statusBar.dispose();
 		store.dispose();
 		themeMediaQuery.removeEventListener("change", onThemeChange);

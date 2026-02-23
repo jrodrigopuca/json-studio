@@ -151,7 +151,7 @@ function isExcludedPage(): boolean {
 	}
 
 	// Skip if json-spark viewer is already active
-	if (document.getElementById("js-app")) {
+	if (document.querySelector(".js-app")) {
 		return true;
 	}
 

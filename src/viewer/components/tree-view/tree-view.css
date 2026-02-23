@@ -105,6 +105,33 @@
   flex-shrink: 0;
 }
 
+/* Indent guide vertical lines */
+.js-tree-view__indent-guide {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.js-tree-view__node:hover .js-tree-view__indent-guide {
+  opacity: 0.7;
+}
+
+.js-tree-view__node {
+  position: relative;
+}
+
+/* Copy path feedback on key click */
+.js-tree-view__key--copied {
+  background: var(--accent);
+  color: var(--bg) !important;
+  border-radius: 2px;
+  transition: background 150ms ease;
+}
+
 /* Context menu */
 .js-tree-view__context-menu {
   position: fixed;

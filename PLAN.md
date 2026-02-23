@@ -788,13 +788,13 @@ Semana 11+:   Comunidad, plugins, cross-browser
 
 ## 12. Progreso de Implementación
 
-> Última actualización: Julio 2025
+> Última actualización: Febrero 2026
 
-### Estado actual: Fase 1 — Scaffold completo ✅
+### Estado actual: Fase 2 — Power Features (Alta y Media prioridad) ✅ + UX Polish
 
-Todo el scaffold del MVP ha sido implementado. TypeScript compila sin errores, el servidor de demo (Vite) funciona en `localhost:5173`, y la estructura sigue al 100% la arquitectura definida en este plan.
+Fase 1 scaffold completo. Fase 2 features de prioridad alta y media implementadas con iteración de UX/diseño. TypeScript compila sin errores, 111 unit tests pasando, y la estructura sigue la arquitectura definida en este plan.
 
-### Archivos implementados (57 archivos)
+### Archivos implementados (65 archivos)
 
 | Área                  | Archivos                                                                                                                         | Estado      |
 | --------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ----------- |
@@ -815,7 +815,9 @@ Todo el scaffold del MVP ha sido implementado. TypeScript compila sin errores, e
 | **Background**        | `service-worker.ts`                                                                                                              | ✅ Completo |
 | **Popup**             | `popup.html`, `popup.ts`, `popup.css`                                                                                            | ✅ Completo |
 | **Options**           | `options.html`, `options.ts`, `options.css`                                                                                      | ✅ Completo |
-| **Demo**              | `index.html`, `demo.ts`, 6 fixtures JSON                                                                                         | ✅ Completo |
+| **Demo**              | `index.html`, `demo.ts`, 7 fixtures JSON (incluye `minified.json`)                                                               | ✅ Completo |
+| **Breadcrumb**        | `breadcrumb.ts`, `breadcrumb.css`, `breadcrumb.types.ts`, `index.ts`                                                             | ✅ Completo |
+| **Table View**        | `table-view.ts`, `table-view.css`, `table-view.types.ts`, `index.ts`                                                             | ✅ Completo |
 
 ### Checklist Fase 1 — MVP (v0.1)
 
@@ -842,9 +844,9 @@ Todo el scaffold del MVP ha sido implementado. TypeScript compila sin errores, e
 #### Componentes UI
 
 - [x] BaseComponent con auto-cleanup (`on`, `watch`, `dispose`)
-- [x] Toolbar (brand, tabs Tree/Raw, botones de acción, menú hamburguesa)
+- [x] Toolbar (brand, tabs Tree/Raw/Table, botones contextuales por vista, menú hamburguesa)
 - [x] Tree View (virtualizado, expand/collapse, keyboard nav, context menu)
-- [x] Raw View (pretty-printed con syntax highlighting)
+- [x] Raw View (syntax highlighting, line numbers, muestra rawJson tal cual para Prettify/Minify)
 - [x] Search Bar (Ctrl+F, debounce, prev/next, contador de matches)
 - [x] Status Bar (keys, profundidad, tamaño, indicador válido/inválido)
 - [x] Banner (info/warning/error, dismissible)
@@ -864,12 +866,48 @@ Todo el scaffold del MVP ha sido implementado. TypeScript compila sin errores, e
 
 #### Testing
 
-- [ ] Unit tests: `parser.test.ts`
-- [ ] Unit tests: `formatter.test.ts`
-- [ ] Unit tests: `store.test.ts`
-- [ ] Unit tests: `highlighter.test.ts`
+- [x] Unit tests: `parser.test.ts`
+- [x] Unit tests: `formatter.test.ts` (incluye `sortJsonByKeys`)
+- [x] Unit tests: `store.test.ts`
+- [x] Unit tests: `highlighter.test.ts`
 - [ ] Fixtures grandes: `large.json` (~5MB), `huge.json` (~50MB) — `scripts/generate-fixtures.ts`
 - [ ] E2E tests con Playwright (detección, tree-view, búsqueda)
+
+### Checklist Fase 2 — Power Features (v0.5)
+
+#### Prioridad Alta ✅
+
+- [x] Breadcrumb navigation — Barra clickeable `$ › users › [0] › address`, actualiza al seleccionar nodos
+- [x] Copy path on click — Click en key copia JSONPath al clipboard con feedback visual
+- [x] Prettify / Minify — Botones contextuales (solo en Raw view) para reformatear el JSON
+- [x] Download JSON — Botón para descargar como archivo `.json`
+- [x] Sort by keys — Ordenar propiedades alfabéticamente (recursivo), toggle en toolbar
+- [x] Indent guides — Líneas visuales de indentación en tree view
+
+#### Prioridad Media ✅
+
+- [x] Table View — Arrays de objetos renderizados como tabla sorteable con columnas auto-detectadas
+- [x] Line numbers — Números de línea opcionales en raw view
+- [x] Scratch Pad — Popup con textarea para pegar, prettify, minify y abrir JSON ad-hoc
+
+#### UX & Design Polish ✅
+
+- [x] Tooltips descriptivos — Todos los botones del toolbar con formato `"Acción — Descripción (atajo)"`
+- [x] Botones contextuales por vista — Cada modo (Tree/Raw/Table) muestra solo los botones relevantes:
+  - **Tree:** Search, Expand/Collapse toggle, Copy, Sort Keys, Download, Theme
+  - **Raw:** Search, Copy, Prettify, Minify, Sort Keys, Download, Theme
+  - **Table:** Search, Copy, Download, Theme
+- [x] Expand/Collapse unificado — Un solo botón toggle `⊞`/`⊟` que refleja el estado actual
+- [x] Separadores visuales — Grupos de botones separados con líneas verticales
+- [x] Reorden de botones — Download junto a Theme (lejos de botones de formato para evitar clicks accidentales)
+- [x] Fix demo fixture loading — Container cacheado, `classList` en vez de `id` para evitar pérdida de referencia
+- [x] Fix Prettify/Minify — Raw view muestra `rawJson` directo (sin auto-prettyPrint), JSON se formatea al inicializar
+- [x] Fixture `minified.json` — Fixture compacto en demo para probar Prettify/Minify
+
+#### Prioridad Baja (diferido a fases posteriores)
+
+- [ ] jq filtering — Barra de queries con jq vía WebAssembly
+- [ ] JSON Lines support — Detectar y renderizar archivos `.jsonl`
 
 #### Publicación
 
@@ -880,11 +918,11 @@ Todo el scaffold del MVP ha sido implementado. TypeScript compila sin errores, e
 
 ### Próximos pasos inmediatos
 
-1. **Unit tests** — Escribir tests para los módulos core (`parser`, `formatter`, `store`, `highlighter`) con Vitest. Objetivo: 80%+ coverage en lógica core.
-2. **Build de producción** — Verificar que `vite build` con `vite.extension.config.ts` genera los bundles correctos para la extensión.
-3. **Prueba en Chrome** — Cargar la extensión como "unpacked" en `chrome://extensions` y verificar detección + rendering en URLs reales con JSON.
-4. **Generar iconos PNG** — Crear `scripts/generate-icons.ts` que convierta el SVG a 16/48/128px.
-5. **Fixtures grandes** — Crear `scripts/generate-fixtures.ts` para generar `large.json` y `huge.json` y validar virtualización + Web Worker.
+1. **Build de producción** — Verificar que `vite build` con `vite.extension.config.ts` genera los bundles correctos para la extensión.
+2. **Prueba en Chrome** — Cargar la extensión como "unpacked" en `chrome://extensions` y verificar detección + rendering en URLs reales con JSON.
+3. **Generar iconos PNG** — Crear `scripts/generate-icons.ts` que convierta el SVG a 16/48/128px.
+4. **Fixtures grandes** — Crear `scripts/generate-fixtures.ts` para generar `large.json` y `huge.json` y validar virtualización + Web Worker.
+5. **E2E tests** — Tests con Playwright para detección, tree-view y búsqueda.
 6. **Polish y bug fixes** — Iterar sobre UX después de testing real en Chrome.
 7. **Chrome Web Store submission** — Preparar screenshots, descripción, y publicar v0.1.
 

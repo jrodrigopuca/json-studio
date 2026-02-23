@@ -96,3 +96,16 @@
 .js-toolbar__menu-btn {
   display: none;
 }
+
+.js-toolbar__button--active {
+  background: var(--surface);
+  color: var(--accent);
+}
+
+.js-toolbar__separator {
+  width: 1px;
+  height: 18px;
+  background: var(--toolbar-border);
+  margin: 0 4px;
+  flex-shrink: 0;
+}

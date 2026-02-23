@@ -55,3 +55,38 @@ export function formatSize(bytes: number): string {
 export function formatNumber(num: number): string {
 	return num.toLocaleString("en-US");
 }
+
+/**
+ * Sorts all object keys in a JSON string alphabetically (recursive).
+ *
+ * @param raw - Raw JSON string
+ * @returns JSON string with keys sorted, or original if invalid
+ */
+export function sortJsonByKeys(raw: string): string {
+	try {
+		const parsed = JSON.parse(raw);
+		const sorted = deepSortKeys(parsed);
+		return JSON.stringify(sorted, null, 2);
+	} catch {
+		return raw;
+	}
+}
+
+/**
+ * Recursively sorts object keys alphabetically.
+ */
+function deepSortKeys(value: unknown): unknown {
+	if (value === null || typeof value !== "object") {
+		return value;
+	}
+
+	if (Array.isArray(value)) {
+		return value.map(deepSortKeys);
+	}
+
+	const sorted: Record<string, unknown> = {};
+	for (const key of Object.keys(value as Record<string, unknown>).sort()) {
+		sorted[key] = deepSortKeys((value as Record<string, unknown>)[key]);
+	}
+	return sorted;
+}

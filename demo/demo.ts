@@ -12,6 +12,7 @@ import nestedDeepJson from "./fixtures/nested-deep.json?raw";
 import arrayOfObjectsJson from "./fixtures/array-of-objects.json?raw";
 import withUrlsJson from "./fixtures/with-urls.json?raw";
 import invalidJson from "./fixtures/invalid.json?raw";
+import minifiedJson from "./fixtures/minified.json?raw";
 
 const FIXTURES: Record<string, string> = {
 	small: smallJson,
@@ -20,12 +21,13 @@ const FIXTURES: Record<string, string> = {
 	"array-of-objects": arrayOfObjectsJson,
 	"with-urls": withUrlsJson,
 	invalid: invalidJson,
+	minified: minifiedJson,
 };
 
 let cleanup: (() => void) | null = null;
+const container = document.getElementById("viewer-root");
 
 function loadFixture(name: string): void {
-	const container = document.getElementById("viewer-root");
 	if (!container) return;
 
 	// Cleanup previous viewer

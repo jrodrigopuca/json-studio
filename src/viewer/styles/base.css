@@ -57,7 +57,7 @@ body {
 }
 
 /* ===== Global layout ===== */
-#js-app {
+.js-app {
   display: flex;
   flex-direction: column;
   height: 100vh;

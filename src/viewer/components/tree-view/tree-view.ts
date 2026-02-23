@@ -186,11 +186,25 @@ export class TreeView extends BaseComponent {
 			row.classList.add("js-tree-view__node--search-current");
 		}
 
-		// Indentation
+		// Indentation with indent guides
 		const indent = createElement("span", {
 			className: "js-tree-view__indent",
 		});
-		indent.style.width = `${node.depth * parseInt(getComputedStyle(document.documentElement).getPropertyValue("--indent") || "20")}px`;
+		const indentPx = parseInt(
+			getComputedStyle(document.documentElement).getPropertyValue("--indent") ||
+				"20",
+		);
+		indent.style.width = `${node.depth * indentPx}px`;
+
+		// Add indent guide lines
+		for (let d = 1; d <= node.depth; d++) {
+			const guide = createElement("span", {
+				className: "js-tree-view__indent-guide",
+			});
+			guide.style.left = `${(d - 1) * indentPx + indentPx / 2 + parseInt(getComputedStyle(document.documentElement).getPropertyValue("--gap-md") || "12")}px`;
+			row.appendChild(guide);
+		}
+
 		row.appendChild(indent);
 
 		// Toggle arrow (expand/collapse)
@@ -282,6 +296,23 @@ export class TreeView extends BaseComponent {
 		row.addEventListener("click", () => {
 			this.store.setState({ selectedNodeId: node.id });
 		});
+
+		// Click on key to copy path
+		const keyEl = row.querySelector(".js-tree-view__key") as HTMLElement | null;
+		if (keyEl) {
+			keyEl.style.cursor = "pointer";
+			keyEl.title = `Click to copy path: ${node.path}`;
+			keyEl.addEventListener("click", (e) => {
+				e.stopPropagation();
+				copyToClipboard(node.path);
+				// Brief visual feedback
+				keyEl.classList.add("js-tree-view__key--copied");
+				setTimeout(
+					() => keyEl.classList.remove("js-tree-view__key--copied"),
+					600,
+				);
+			});
+		}
 
 		// Double-click to copy value
 		row.addEventListener("dblclick", () => {

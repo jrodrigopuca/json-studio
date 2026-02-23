@@ -4,6 +4,7 @@ import {
 	minify,
 	formatSize,
 	formatNumber,
+	sortJsonByKeys,
 } from "../../src/viewer/core/formatter.js";
 
 describe("prettyPrint", () => {
@@ -162,5 +163,64 @@ describe("formatNumber", () => {
 	it("handles negative numbers", () => {
 		const result = formatNumber(-1000);
 		expect(result).toContain("1,000");
+	});
+});
+
+describe("sortJsonByKeys", () => {
+	it("sorts top-level object keys alphabetically", () => {
+		const input = '{"zebra":1,"apple":2,"mango":3}';
+		const result = sortJsonByKeys(input);
+		const parsed = JSON.parse(result);
+		expect(Object.keys(parsed)).toEqual(["apple", "mango", "zebra"]);
+	});
+
+	it("sorts nested object keys recursively", () => {
+		const input = '{"b":{"z":1,"a":2},"a":{"y":3,"x":4}}';
+		const result = sortJsonByKeys(input);
+		const parsed = JSON.parse(result);
+		expect(Object.keys(parsed)).toEqual(["a", "b"]);
+		expect(Object.keys(parsed.a)).toEqual(["x", "y"]);
+		expect(Object.keys(parsed.b)).toEqual(["a", "z"]);
+	});
+
+	it("preserves array order while sorting objects inside arrays", () => {
+		const input = '[{"c":1,"a":2},{"b":3,"a":4}]';
+		const result = sortJsonByKeys(input);
+		const parsed = JSON.parse(result);
+		expect(parsed[0]).toEqual({ a: 2, c: 1 });
+		expect(Object.keys(parsed[0])).toEqual(["a", "c"]);
+		expect(Object.keys(parsed[1])).toEqual(["a", "b"]);
+	});
+
+	it("handles primitive root values", () => {
+		expect(sortJsonByKeys('"hello"')).toBe('"hello"');
+		expect(sortJsonByKeys("42")).toBe("42");
+		expect(sortJsonByKeys("true")).toBe("true");
+		expect(sortJsonByKeys("null")).toBe("null");
+	});
+
+	it("handles empty objects and arrays", () => {
+		expect(sortJsonByKeys("{}")).toBe("{}");
+		expect(sortJsonByKeys("[]")).toBe("[]");
+	});
+
+	it("returns original string for invalid JSON", () => {
+		const invalid = "{not valid json}";
+		expect(sortJsonByKeys(invalid)).toBe(invalid);
+	});
+
+	it("outputs pretty-printed result with 2-space indent", () => {
+		const input = '{"b":1,"a":2}';
+		const result = sortJsonByKeys(input);
+		expect(result).toBe('{\n  "a": 2,\n  "b": 1\n}');
+	});
+
+	it("handles deeply nested mixed structures", () => {
+		const input = '{"z":{"items":[{"c":1,"a":2}],"count":5},"a":true}';
+		const result = sortJsonByKeys(input);
+		const parsed = JSON.parse(result);
+		expect(Object.keys(parsed)).toEqual(["a", "z"]);
+		expect(Object.keys(parsed.z)).toEqual(["count", "items"]);
+		expect(Object.keys(parsed.z.items[0])).toEqual(["a", "c"]);
 	});
 });
