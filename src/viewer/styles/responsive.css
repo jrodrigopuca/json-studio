@@ -1,0 +1,54 @@
+/**
+ * responsive.css — Breakpoints and viewport adaptation.
+ */
+
+/* ===== Narrow viewport: split-screen, tablet, small window ===== */
+@media (max-width: 600px) {
+  .js-toolbar__tabs {
+    display: none;
+  }
+
+  .js-toolbar__menu-btn {
+    display: flex;
+  }
+
+  .js-breadcrumb {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .js-status-bar__secondary {
+    display: none;
+  }
+
+  :root {
+    --indent: 14px;
+    --font-size: 12px;
+  }
+}
+
+/* ===== Very narrow viewport: DevTools side panel, mobile ===== */
+@media (max-width: 400px) {
+  .js-search-bar {
+    flex-direction: column;
+    height: auto;
+  }
+
+  :root {
+    --indent: 10px;
+  }
+}
+
+/* ===== Touch targets ===== */
+@media (pointer: coarse) {
+  :root {
+    --node-height: 32px;
+  }
+
+  .js-toolbar__button,
+  .js-toolbar__tab {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

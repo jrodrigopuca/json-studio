@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JSON Spark — Settings</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <div class="options">
+    <header class="options__header">
+      <span class="options__icon">⚡</span>
+      <h1>JSON Spark Settings</h1>
+    </header>
+
+    <section class="options__section">
+      <h2>Keyboard Shortcuts</h2>
+      <table class="options__shortcuts">
+        <thead>
+          <tr><th>Shortcut</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>Navigate tree nodes</td></tr>
+          <tr><td><kbd>←</kbd></td><td>Collapse node / go to parent</td></tr>
+          <tr><td><kbd>→</kbd></td><td>Expand node / go to first child</td></tr>
+          <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd></td><td>Toggle expand/collapse</td></tr>
+          <tr><td><kbd>Ctrl+F</kbd></td><td>Open search</td></tr>
+          <tr><td><kbd>Ctrl+Shift+F</kbd></td><td>Expand all</td></tr>
+          <tr><td><kbd>Ctrl+Shift+C</kbd></td><td>Collapse all</td></tr>
+          <tr><td><kbd>1</kbd></td><td>Tree view</td></tr>
+          <tr><td><kbd>2</kbd></td><td>Raw view</td></tr>
+          <tr><td><kbd>Escape</kbd></td><td>Close search</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="options__section">
+      <h2>About</h2>
+      <p>Version 0.1.0</p>
+      <p>The JSON tool you can trust. Fast, beautiful, private.</p>
+      <p>
+        <a href="https://github.com/jrodrigopuca/json-studio" target="_blank" rel="noopener noreferrer">
+          GitHub Repository
+        </a>
+      </p>
+      <p>License: GPL-3.0</p>
+    </section>
+  </div>
+  <script type="module" src="options.ts"></script>
+</body>
+</html>

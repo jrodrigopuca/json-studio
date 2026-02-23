@@ -1,0 +1,129 @@
+/**
+ * themes.css — Dark/Light/System theme via CSS custom properties.
+ * Theme is controlled by a data-theme attribute on <html>.
+ */
+
+/* ===== Dark theme (default) ===== */
+:root,
+[data-theme='dark'] {
+  --bg: #1a1a2e;
+  --bg-gradient: linear-gradient(135deg, #1a1a2e, #16213e);
+  --surface: #1e293b;
+  --surface-hover: #263548;
+  --border: #334155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+
+  /* Syntax */
+  --syn-string: #a5d6a7;
+  --syn-number: #90caf9;
+  --syn-boolean: #ffcc80;
+  --syn-null: #ef9a9a;
+  --syn-key: #ce93d8;
+  --syn-bracket: #78909c;
+
+  /* Accent */
+  --accent: #fbbf24;
+  --accent-hover: #f59e0b;
+
+  /* Semantic */
+  --error: #ef4444;
+  --error-bg: #451a1a;
+  --warning: #f59e0b;
+  --warning-bg: #451a00;
+  --success: #22c55e;
+  --info: #3b82f6;
+
+  /* Toolbar */
+  --toolbar-bg: #0f172a;
+  --toolbar-border: #1e293b;
+
+  /* Status bar */
+  --status-bg: #0f172a;
+  --status-border: #1e293b;
+
+  /* Search */
+  --search-bg: #1e293b;
+  --search-border: #475569;
+  --search-match: #fbbf2440;
+  --search-match-current: #fbbf2480;
+}
+
+/* ===== Light theme ===== */
+[data-theme='light'] {
+  --bg: #ffffff;
+  --bg-gradient: none;
+  --surface: #f8fafc;
+  --surface-hover: #f1f5f9;
+  --border: #e2e8f0;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+
+  /* Syntax */
+  --syn-string: #2e7d32;
+  --syn-number: #1565c0;
+  --syn-boolean: #e65100;
+  --syn-null: #c62828;
+  --syn-key: #6a1b9a;
+  --syn-bracket: #546e7a;
+
+  /* Accent */
+  --accent: #f59e0b;
+  --accent-hover: #d97706;
+
+  /* Semantic */
+  --error: #dc2626;
+  --error-bg: #fef2f2;
+  --warning: #d97706;
+  --warning-bg: #fffbeb;
+  --success: #16a34a;
+  --info: #2563eb;
+
+  /* Toolbar */
+  --toolbar-bg: #f8fafc;
+  --toolbar-border: #e2e8f0;
+
+  /* Status bar */
+  --status-bg: #f8fafc;
+  --status-border: #e2e8f0;
+
+  /* Search */
+  --search-bg: #ffffff;
+  --search-border: #cbd5e1;
+  --search-match: #fbbf2440;
+  --search-match-current: #fbbf2480;
+}
+
+/* ===== Syntax highlighting classes ===== */
+.js-syn-string {
+  color: var(--syn-string);
+}
+
+.js-syn-number {
+  color: var(--syn-number);
+}
+
+.js-syn-boolean {
+  color: var(--syn-boolean);
+}
+
+.js-syn-null {
+  color: var(--syn-null);
+  font-style: italic;
+}
+
+.js-syn-key {
+  color: var(--syn-key);
+}
+
+.js-syn-bracket {
+  color: var(--syn-bracket);
+}
+
+.js-syn-colon {
+  color: var(--text-secondary);
+}
+
+.js-syn-comma {
+  color: var(--text-secondary);
+}

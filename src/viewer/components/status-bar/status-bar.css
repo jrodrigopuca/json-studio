@@ -1,0 +1,45 @@
+/**
+ * status-bar.css — Styles for the status bar.
+ */
+
+.js-status-bar {
+  display: flex;
+  align-items: center;
+  height: var(--status-bar-height);
+  padding: 0 var(--gap-md);
+  background: var(--status-bg);
+  border-top: 1px solid var(--status-border);
+  font-size: 11px;
+  color: var(--text-secondary);
+  gap: var(--gap-md);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.js-status-bar__item {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xs);
+  white-space: nowrap;
+}
+
+.js-status-bar__separator {
+  color: var(--border);
+}
+
+.js-status-bar__valid {
+  color: var(--success);
+}
+
+.js-status-bar__invalid {
+  color: var(--error);
+}
+
+.js-status-bar__spacer {
+  flex: 1;
+}
+
+.js-status-bar__secondary {
+  display: flex;
+  gap: var(--gap-md);
+}

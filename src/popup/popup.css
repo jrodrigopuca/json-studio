@@ -1,0 +1,118 @@
+/**
+ * popup.css — Styles for the extension popup.
+ */
+
+:root {
+  --bg: #1a1a2e;
+  --surface: #1e293b;
+  --border: #334155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --accent: #fbbf24;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 280px;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 13px;
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+.popup {
+  padding: 16px;
+}
+
+.popup__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.popup__icon {
+  font-size: 20px;
+}
+
+.popup__title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.popup__version {
+  color: var(--text-secondary);
+  font-size: 11px;
+  margin-left: auto;
+}
+
+.popup__description {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.popup__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.popup__button {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 120ms ease;
+}
+
+.popup__button:hover {
+  background: var(--border);
+}
+
+.popup__link {
+  display: block;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  text-decoration: none;
+  transition: background 120ms ease;
+}
+
+.popup__link:hover {
+  background: var(--border);
+}
+
+.popup__footer {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.popup__footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.popup__footer a:hover {
+  text-decoration: underline;
+}

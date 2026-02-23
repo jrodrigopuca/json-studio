@@ -1,0 +1,27 @@
+/**
+ * raw-view.css — Styles for the raw JSON view.
+ */
+
+.js-raw-view {
+  padding: var(--gap-md);
+  overflow: auto;
+  font-family: inherit;
+  font-size: var(--font-size);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  tab-size: 2;
+  color: var(--text-primary);
+}
+
+.js-raw-view__code {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.js-raw-view__error-line {
+  background: var(--error-bg);
+  display: inline-block;
+  width: 100%;
+}

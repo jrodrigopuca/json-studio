@@ -1,0 +1,38 @@
+{
+  "project": {
+    "name": "JSON Spark",
+    "homepage": "https://github.com/jrodrigopuca/json-studio",
+    "docs": "https://json-spark.dev/docs/getting-started",
+    "api": "https://api.example.com/v2/json-spark",
+    "issues": "https://github.com/jrodrigopuca/json-studio/issues"
+  },
+  "links": [
+    {
+      "label": "Chrome Web Store",
+      "url": "https://chrome.google.com/webstore/detail/json-spark",
+      "type": "store"
+    },
+    {
+      "label": "MDN JSON Reference",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON",
+      "type": "reference"
+    },
+    {
+      "label": "RFC 8259",
+      "url": "https://datatracker.ietf.org/doc/html/rfc8259",
+      "type": "specification"
+    },
+    {
+      "label": "JSONPath Spec",
+      "url": "https://goessner.net/articles/JsonPath/",
+      "type": "specification"
+    }
+  ],
+  "social": {
+    "twitter": "https://twitter.com/jsonspark",
+    "github": "https://github.com/jrodrigopuca",
+    "website": "https://json-spark.dev"
+  },
+  "noUrl": "This string doesn't contain any URL.",
+  "mixed": "Visit https://example.com for more info or check plain text here."
+}

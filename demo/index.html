@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JSON Spark — Demo</title>
+  <style>
+    /* Demo-specific controls (not part of the extension) */
+    .demo-controls {
+      position: fixed;
+      bottom: 40px;
+      right: 16px;
+      z-index: 1000;
+      display: flex;
+      gap: 8px;
+      padding: 8px;
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 8px;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .demo-controls select,
+    .demo-controls button {
+      padding: 4px 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #f1f5f9;
+      font-family: monospace;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .demo-controls select:hover,
+    .demo-controls button:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <!-- Viewer mounts here -->
+  <div id="viewer-root"></div>
+
+  <!-- Demo controls (separate from extension UI) -->
+  <div class="demo-controls">
+    <select id="fixture-select">
+      <option value="small">small.json (~1KB)</option>
+      <option value="medium" selected>medium.json (~10KB)</option>
+      <option value="nested-deep">nested-deep.json</option>
+      <option value="array-of-objects">array-of-objects.json</option>
+      <option value="with-urls">with-urls.json</option>
+      <option value="invalid">invalid.json</option>
+    </select>
+    <button id="reload-btn">Reload</button>
+  </div>
+
+  <script type="module" src="./demo.ts"></script>
+</body>
+</html>

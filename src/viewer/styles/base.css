@@ -1,0 +1,124 @@
+/**
+ * base.css — Reset, typography, variables CSS, global layout.
+ */
+
+/* ===== CSS Reset ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono',
+    'Consolas', 'Monaco', 'Menlo', monospace;
+  font-size: var(--font-size);
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: var(--bg);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* ===== CSS Custom Properties (Defaults) ===== */
+:root {
+  /* Layout */
+  --toolbar-height: 40px;
+  --status-bar-height: 28px;
+  --search-bar-height: 36px;
+  --banner-height: 32px;
+  --node-height: 24px;
+  --font-size: 13px;
+  --indent: 20px;
+
+  /* Spacing */
+  --gap-xs: 4px;
+  --gap-sm: 8px;
+  --gap-md: 12px;
+  --gap-lg: 16px;
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  /* Transitions */
+  --transition-fast: 120ms ease;
+  --transition-normal: 200ms ease;
+}
+
+/* ===== Global layout ===== */
+#js-app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.js-main {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+}
+
+/* ===== Scrollbar styling ===== */
+.js-main::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.js-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.js-main::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+.js-main::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* ===== Link styles ===== */
+a.js-url {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a.js-url:hover {
+  text-decoration: underline;
+}
+
+/* ===== Focus management ===== */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ===== Reduced motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===== Selection ===== */
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
