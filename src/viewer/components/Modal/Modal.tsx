@@ -174,3 +174,96 @@ export function SaveJsonModal({
     </Modal>
   );
 }
+
+// Modal for keyboard shortcuts reference
+interface ShortcutsHelpModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const SHORTCUTS = [
+  {
+    category: "Navegación",
+    items: [
+      { keys: ["⌥", "1"], desc: "Vista Tree" },
+      { keys: ["⌥", "2"], desc: "Vista Raw" },
+      { keys: ["⌥", "3"], desc: "Vista Table" },
+      { keys: ["⌥", "4"], desc: "Vista Diff" },
+      { keys: ["⌥", "5"], desc: "Vista Edit" },
+      { keys: ["⌥", "6"], desc: "Vista Saved" },
+    ],
+  },
+  {
+    category: "Búsqueda",
+    items: [
+      { keys: ["⌘", "F"], desc: "Abrir búsqueda" },
+      { keys: ["⌥", "F"], desc: "Abrir búsqueda (alternativa)" },
+      { keys: ["Esc"], desc: "Cerrar búsqueda" },
+      { keys: ["↑", "↓"], desc: "Resultado anterior/siguiente" },
+      { keys: ["Enter"], desc: "Ir al siguiente resultado" },
+    ],
+  },
+  {
+    category: "Tree View",
+    items: [
+      { keys: ["⌥", "E"], desc: "Expandir todos los nodos" },
+      { keys: ["⌥", "C"], desc: "Colapsar todos los nodos" },
+      { keys: ["⌥", "S"], desc: "Ordenar por keys (ciclo)" },
+    ],
+  },
+  {
+    category: "Raw / Edit View",
+    items: [
+      { keys: ["⌥", "L"], desc: "Toggle números de línea" },
+    ],
+  },
+  {
+    category: "Edición",
+    items: [
+      { keys: ["⌘", "Z"], desc: "Deshacer" },
+      { keys: ["⌘", "⇧", "Z"], desc: "Rehacer" },
+      { keys: ["⌘", "S"], desc: "Guardar cambios (en Edit)" },
+    ],
+  },
+  {
+    category: "General",
+    items: [
+      { keys: ["?"], desc: "Mostrar/ocultar esta ayuda" },
+    ],
+  },
+];
+
+export function ShortcutsHelpModal({ isOpen, onClose }: ShortcutsHelpModalProps) {
+  return (
+    <Modal
+      isOpen={isOpen}
+      title="Atajos de teclado"
+      onClose={onClose}
+      actions={
+        <button className={styles.buttonPrimary} onClick={onClose}>
+          Cerrar
+        </button>
+      }
+    >
+      <div className={styles.shortcutsGrid}>
+        {SHORTCUTS.map((section) => (
+          <div key={section.category} className={styles.shortcutsSection}>
+            <h3 className={styles.shortcutsCategory}>{section.category}</h3>
+            <dl className={styles.shortcutsList}>
+              {section.items.map((item, idx) => (
+                <div key={idx} className={styles.shortcutItem}>
+                  <dt className={styles.shortcutKeys}>
+                    {item.keys.map((k, i) => (
+                      <kbd key={i} className={styles.kbd}>{k}</kbd>
+                    ))}
+                  </dt>
+                  <dd className={styles.shortcutDesc}>{item.desc}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        ))}
+      </div>
+    </Modal>
+  );
+}

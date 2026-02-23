@@ -23,6 +23,7 @@ import {
   DiffView,
   SavedView,
   UnsavedChangesModal,
+  ShortcutsHelpModal,
 } from "./components";
 
 import styles from "./App.module.css";
@@ -41,6 +42,8 @@ function AppContent() {
   const parseError = useStore((s) => s.parseError);
   const isParsing = useStore((s) => s.isParsing);
   const pendingViewMode = useStore((s) => s.pendingViewMode);
+  const showShortcutsHelp = useStore((s) => s.showShortcutsHelp);
+  const setShowShortcutsHelp = useStore((s) => s.setShowShortcutsHelp);
   const confirmViewChange = useStore((s) => s.confirmViewChange);
   const cancelViewChange = useStore((s) => s.cancelViewChange);
   const saveEditContent = useStore((s) => s.saveEditContent);
@@ -130,6 +133,12 @@ function AppContent() {
         onSave={handleSaveAndChange}
         onDiscard={handleDiscardAndChange}
         onCancel={cancelViewChange}
+      />
+
+      {/* Keyboard shortcuts help modal */}
+      <ShortcutsHelpModal
+        isOpen={showShortcutsHelp}
+        onClose={() => setShowShortcutsHelp(false)}
       />
     </div>
   );

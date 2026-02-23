@@ -10,12 +10,12 @@ import type { ViewMode } from "@shared/types";
 import styles from "./Toolbar.module.css";
 
 const VIEW_TABS: { mode: ViewMode; label: string; shortcut: string }[] = [
-  { mode: "tree", label: "Tree", shortcut: "⌘1" },
-  { mode: "raw", label: "Raw", shortcut: "⌘2" },
-  { mode: "table", label: "Table", shortcut: "⌘3" },
-  { mode: "diff", label: "Diff", shortcut: "⌘4" },
-  { mode: "edit", label: "Edit", shortcut: "⌘5" },
-  { mode: "saved", label: "Saved", shortcut: "⌘6" },
+  { mode: "tree", label: "Tree", shortcut: "⌥1" },
+  { mode: "raw", label: "Raw", shortcut: "⌥2" },
+  { mode: "table", label: "Table", shortcut: "⌥3" },
+  { mode: "diff", label: "Diff", shortcut: "⌥4" },
+  { mode: "edit", label: "Edit", shortcut: "⌥5" },
+  { mode: "saved", label: "Saved", shortcut: "⌥6" },
 ];
 
 export function Toolbar() {
@@ -37,6 +37,7 @@ export function Toolbar() {
   const redoStack = useStore((s) => s.redoStack);
   const toggleSearch = useStore((s) => s.toggleSearch);
   const isSearchOpen = useStore((s) => s.isSearchOpen);
+  const setShowShortcutsHelp = useStore((s) => s.setShowShortcutsHelp);
 
   // Check if all expandable nodes are expanded
   const expandableCount = nodes.filter((n) => n.isExpandable).length;
@@ -68,14 +69,14 @@ export function Toolbar() {
             <button
               className={styles.button}
               onClick={isAllExpanded ? collapseAll : expandAll}
-              title={isAllExpanded ? "Collapse all (⌘W)" : "Expand all (⌘E)"}
+              title={isAllExpanded ? "Collapse all (⌥C)" : "Expand all (⌥E)"}
             >
               {isAllExpanded ? "▼" : "▶"}
             </button>
             <button
               className={`${styles.button} ${keySortOrder ? styles.active : ""}`}
               onClick={toggleSortedByKeys}
-              title={keySortOrder === null ? "Sort keys A→Z" : keySortOrder === 'asc' ? "Sort keys Z→A" : "Restore original order"}
+              title={keySortOrder === null ? "Sort keys A→Z (⌥S)" : keySortOrder === 'asc' ? "Sort keys Z→A (⌥S)" : "Restore original order (⌥S)"}
             >
               {keySortOrder === 'desc' ? 'Z↓' : 'A↓'}
             </button>
@@ -87,7 +88,7 @@ export function Toolbar() {
           <button
             className={`${styles.button} ${showLineNumbers ? styles.active : ""}`}
             onClick={toggleLineNumbers}
-            title="Toggle line numbers (⌘L)"
+            title="Toggle line numbers (⌥L)"
           >
             #
           </button>
@@ -150,6 +151,15 @@ export function Toolbar() {
 
         {/* Download */}
         <DownloadButton />
+
+        {/* Help */}
+        <button
+          className={styles.button}
+          onClick={() => setShowShortcutsHelp(true)}
+          title="Keyboard shortcuts (?)"
+        >
+          ?
+        </button>
       </div>
     </header>
   );

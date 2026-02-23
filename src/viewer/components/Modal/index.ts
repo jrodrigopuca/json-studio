@@ -1,1 +1,6 @@
-export { Modal, UnsavedChangesModal, SaveJsonModal } from "./Modal";
+export {
+	Modal,
+	UnsavedChangesModal,
+	SaveJsonModal,
+	ShortcutsHelpModal,
+} from "./Modal";

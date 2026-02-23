@@ -104,6 +104,7 @@ export interface AppState {
 
 	// Modal state
 	pendingViewMode: ViewMode | null;
+	showShortcutsHelp: boolean;
 }
 
 /** Actions for state mutations. */
@@ -176,6 +177,7 @@ export interface AppActions {
 	// Modal actions
 	confirmViewChange: () => void;
 	cancelViewChange: () => void;
+	setShowShortcutsHelp: (show: boolean) => void;
 
 	// Reset
 	reset: () => void;
@@ -222,6 +224,7 @@ const initialState: AppState = {
 	diffJson: null,
 	savedJsons: loadSavedJsons(),
 	pendingViewMode: null,
+	showShortcutsHelp: false,
 };
 
 // ─── Store ───────────────────────────────────────────────────────────────────
@@ -616,6 +619,8 @@ export const useStore = create<AppState & AppActions>()(
 			},
 
 			cancelViewChange: () => set({ pendingViewMode: null }),
+
+			setShowShortcutsHelp: (show) => set({ showShortcutsHelp: show }),
 
 			// ─── Reset ───────────────────────────────────────────────────────────
 			reset: () => set(initialState),
