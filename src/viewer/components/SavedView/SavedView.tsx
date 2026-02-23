@@ -5,6 +5,7 @@
 import { useState } from "react";
 import { useStore, type SavedJson } from "../../store";
 import { useToast } from "../Toast";
+import { Icon } from "../Icon";
 import { formatSize, formatDate } from "../../core/formatter";
 import styles from "./SavedView.module.css";
 
@@ -114,28 +115,28 @@ export function SavedView() {
                       onClick={() => handleLoad(item)}
                       title="Cargar en Tree View"
                     >
-                      📂
+                      <Icon name="folder" size={14} />
                     </button>
                     <button
                       className={styles.actionButton}
                       onClick={() => handleLoadToEdit(item)}
                       title="Abrir en Edit Mode"
                     >
-                      ✍️
+                      <Icon name="edit" size={14} />
                     </button>
                     <button
                       className={styles.actionButton}
                       onClick={() => handleStartRename(item)}
                       title="Renombrar"
                     >
-                      ✏️
+                      <Icon name="pencil" size={14} />
                     </button>
                     <button
                       className={`${styles.actionButton} ${styles.deleteButton}`}
                       onClick={() => handleDelete(item)}
                       title="Eliminar"
                     >
-                      🗑️
+                      <Icon name="trash" size={14} />
                     </button>
                   </div>
                 </li>
@@ -169,7 +170,7 @@ export function SavedView() {
                 : undefined
             }
           >
-            💾 Guardar
+            <Icon name="download" size={14} /> Guardar
           </button>
         </div>
         <div className={styles.saveInfo}>

@@ -5,6 +5,7 @@
 
 import { useEffect, useRef } from "react";
 import type { FlatNode } from "../../core/parser.types";
+import { Icon } from "../Icon";
 import styles from "./ContextMenu.module.css";
 
 export interface ContextMenuPosition {
@@ -105,7 +106,7 @@ export function ContextMenu({
 						role="menuitem"
 						onClick={createHandler(onCopyKey)}
 					>
-						<span className={styles.icon}>🏷️</span>
+						<span className={styles.icon}><Icon name="hash" size={14} /></span>
 						Copy Key
 					</button>
 				)}
@@ -114,7 +115,7 @@ export function ContextMenu({
 					role="menuitem"
 					onClick={createHandler(onCopyPath)}
 				>
-					<span className={styles.icon}>📍</span>
+					<span className={styles.icon}><Icon name="document" size={14} /></span>
 					Copy Path
 				</button>
 				<button
@@ -122,7 +123,7 @@ export function ContextMenu({
 					role="menuitem"
 					onClick={createHandler(onCopyValue)}
 				>
-					<span className={styles.icon}>📋</span>
+					<span className={styles.icon}><Icon name="copy" size={14} /></span>
 					Copy Value
 				</button>
 				<button
@@ -130,7 +131,7 @@ export function ContextMenu({
 					role="menuitem"
 					onClick={createHandler(onCopyFormattedJson)}
 				>
-					<span className={styles.icon}>✨</span>
+					<span className={styles.icon}><Icon name="star" size={14} /></span>
 					Copy Formatted JSON
 				</button>
 
@@ -144,7 +145,7 @@ export function ContextMenu({
 								role="menuitem"
 								onClick={createHandler(onCollapseChildren)}
 							>
-								<span className={styles.icon}>📁</span>
+								<span className={styles.icon}><Icon name="folder" size={14} /></span>
 								Collapse Children
 							</button>
 						) : (
@@ -153,7 +154,7 @@ export function ContextMenu({
 								role="menuitem"
 								onClick={createHandler(onExpandChildren)}
 							>
-								<span className={styles.icon}>📂</span>
+								<span className={styles.icon}><Icon name="folder" size={14} /></span>
 								Expand Children
 							</button>
 						)}
@@ -162,7 +163,7 @@ export function ContextMenu({
 							role="menuitem"
 							onClick={createHandler(onFocusNode)}
 						>
-							<span className={styles.icon}>🎯</span>
+							<span className={styles.icon}><Icon name="search" size={14} /></span>
 							Filter to This
 						</button>
 					</>

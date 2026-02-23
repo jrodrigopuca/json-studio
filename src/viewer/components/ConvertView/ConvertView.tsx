@@ -6,6 +6,7 @@ import { useState, useMemo } from 'react';
 import { useStore } from '../../store';
 import { convertJson, CONVERT_FORMATS, type ConvertFormat } from '../../core/converters';
 import { useToast } from '../Toast';
+import { Icon } from '../Icon';
 import styles from './ConvertView.module.css';
 
 export function ConvertView() {
@@ -82,7 +83,7 @@ export function ConvertView() {
               title="Copiar al portapapeles"
               disabled={!!error}
             >
-              📋
+              <Icon name="copy" size={14} />
             </button>
             <button
               className={styles.actionButton}
@@ -90,7 +91,7 @@ export function ConvertView() {
               title="Descargar archivo"
               disabled={!!error}
             >
-              ⬇️
+              <Icon name="download" size={14} />
             </button>
           </div>
         </div>

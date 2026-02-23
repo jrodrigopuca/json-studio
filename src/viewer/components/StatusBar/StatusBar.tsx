@@ -5,6 +5,7 @@
 import { useStore } from "../../store";
 import { useTheme } from "../../hooks/useTheme";
 import { formatSize } from "../../core/formatter";
+import { Icon } from "../Icon";
 import styles from "./StatusBar.module.css";
 
 export function StatusBar() {
@@ -31,7 +32,7 @@ export function StatusBar() {
         )}
         {url && (
           <span className={styles.item} title={url}>
-            📄 {new URL(url).pathname.split("/").pop() || "data.json"}
+            <Icon name="document" size={12} /> {new URL(url).pathname.split("/").pop() || "data.json"}
           </span>
         )}
       </div>
@@ -51,7 +52,7 @@ export function StatusBar() {
           onClick={toggleTheme}
           title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
         >
-          {theme === "dark" ? "🌙" : "☀️"}
+          <Icon name={theme === "dark" ? "moon" : "sun"} size={14} />
         </button>
       </div>
     </footer>

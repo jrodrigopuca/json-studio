@@ -6,6 +6,7 @@ import { useState, useMemo, useCallback, useRef } from "react";
 import { useStore } from "../../store";
 import { highlightJson } from "../../core/highlighter";
 import { prettyPrint } from "../../core/formatter";
+import { Icon } from "../Icon";
 import styles from "./DiffView.module.css";
 
 type DiffType = "added" | "removed" | "changed" | "unchanged";
@@ -187,10 +188,10 @@ export function DiffView() {
             <div className={styles.inputPanel}>
               <div className={styles.inputActions}>
                 <button className={styles.actionButton} onClick={handleFileOpen}>
-                  📁 Open File
+                  <Icon name="folder" size={14} /> Open File
                 </button>
                 <button className={styles.actionButton} onClick={handlePaste}>
-                  📋 Paste from Clipboard
+                  <Icon name="clipboard" size={14} /> Paste from Clipboard
                 </button>
                 <input
                   ref={fileInputRef}

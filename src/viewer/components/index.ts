@@ -15,6 +15,7 @@ export {
 	ShortcutsHelpModal,
 } from "./Modal";
 export { ContextMenu } from "./ContextMenu";
+export { Icon, type IconName } from "./Icon";
 
 // Views
 export { TreeView } from "./TreeView";

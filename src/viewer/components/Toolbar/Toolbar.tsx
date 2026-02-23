@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useStore } from "../../store";
 import { useToast } from "../Toast";
 import { SaveJsonModal } from "../Modal";
+import { Icon } from "../Icon";
 import type { ViewMode } from "@shared/types";
 import styles from "./Toolbar.module.css";
 
@@ -72,14 +73,14 @@ export function Toolbar() {
               onClick={isAllExpanded ? collapseAll : expandAll}
               title={isAllExpanded ? "Collapse all (⌥C)" : "Expand all (⌥E)"}
             >
-              {isAllExpanded ? "▼" : "▶"}
+              <Icon name={isAllExpanded ? "chevron-down" : "chevron-right"} size={14} />
             </button>
             <button
               className={`${styles.button} ${keySortOrder ? styles.active : ""}`}
               onClick={toggleSortedByKeys}
               title={keySortOrder === null ? "Sort keys A→Z (⌥S)" : keySortOrder === 'asc' ? "Sort keys Z→A (⌥S)" : "Restore original order (⌥S)"}
             >
-              {keySortOrder === 'desc' ? 'Z↓' : 'A↓'}
+              <Icon name={keySortOrder === 'desc' ? "sort-desc" : "sort-asc"} size={14} />
             </button>
           </>
         )}
@@ -91,7 +92,7 @@ export function Toolbar() {
             onClick={toggleLineNumbers}
             title="Toggle line numbers (⌥L)"
           >
-            #
+            <Icon name="hash" size={14} />
           </button>
         )}
 
@@ -103,14 +104,14 @@ export function Toolbar() {
               onClick={prettifyJson}
               title="Prettify JSON"
             >
-              {"{ }"}
+              <Icon name="braces" size={14} />
             </button>
             <button
               className={styles.button}
               onClick={minifyJson}
               title="Minify JSON"
             >
-              {"{}"}
+              <Icon name="braces-compact" size={14} />
             </button>
           </>
         )}
@@ -122,7 +123,7 @@ export function Toolbar() {
             onClick={toggleSearch}
             title="Search (⌘F)"
           >
-            🔍
+            <Icon name="search" size={14} />
           </button>
         )}
 
@@ -133,7 +134,7 @@ export function Toolbar() {
           disabled={undoStack.length === 0}
           title="Undo (⌘Z)"
         >
-          ↩
+          <Icon name="undo" size={14} />
         </button>
         <button
           className={styles.button}
@@ -141,7 +142,7 @@ export function Toolbar() {
           disabled={redoStack.length === 0}
           title="Redo (⌘⇧Z)"
         >
-          ↪
+          <Icon name="redo" size={14} />
         </button>
 
         {/* Copy */}
@@ -159,7 +160,7 @@ export function Toolbar() {
           onClick={() => setShowShortcutsHelp(true)}
           title="Keyboard shortcuts (?)"
         >
-          ?
+          <Icon name="help" size={14} />
         </button>
       </div>
     </header>
@@ -185,7 +186,7 @@ function CopyButton() {
       onClick={handleCopy}
       title="Copy JSON to clipboard"
     >
-      📋
+      <Icon name="copy" size={14} />
     </button>
   );
 }
@@ -210,7 +211,7 @@ function DownloadButton() {
       onClick={handleDownload}
       title="Download JSON"
     >
-      ⬇
+      <Icon name="download" size={14} />
     </button>
   );
 }
@@ -247,7 +248,7 @@ function SaveFavoriteButton() {
         onClick={() => setIsModalOpen(true)}
         title="Guardar en favoritos"
       >
-        ⭐
+        <Icon name="star" size={14} />
       </button>
       <SaveJsonModal
         isOpen={isModalOpen}
