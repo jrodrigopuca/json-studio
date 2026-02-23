@@ -77,49 +77,6 @@ export function SavedView() {
 
   return (
     <div className={styles.savedView}>
-      {/* Save current JSON */}
-      <section className={styles.saveSection}>
-        <h3>Guardar JSON actual</h3>
-        <div className={styles.saveForm}>
-          <input
-            type="text"
-            className={styles.input}
-            placeholder="Nombre del guardado..."
-            value={saveName}
-            onChange={(e) => setSaveName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSave()}
-            disabled={!rawJson}
-          />
-          <button
-            className={styles.saveButton}
-            onClick={handleSave}
-            disabled={!canSave}
-            title={
-              isOverSize
-                ? `El JSON excede el límite de ${MAX_SIZE_KB}KB`
-                : savedJsons.length >= 10
-                ? "Límite de 10 guardados alcanzado"
-                : undefined
-            }
-          >
-            💾 Guardar
-          </button>
-        </div>
-        {rawJson && (
-          <p className={styles.sizeInfo}>
-            Tamaño actual: {formatSize(currentSize)}
-            {isOverSize && (
-              <span className={styles.sizeWarning}>
-                {" "}(máx: {MAX_SIZE_KB}KB)
-              </span>
-            )}
-          </p>
-        )}
-        <p className={styles.limitInfo}>
-          {savedJsons.length}/10 guardados
-        </p>
-      </section>
-
       {/* Saved list */}
       <section className={styles.listSection}>
         <h3>JSONs guardados</h3>
@@ -193,6 +150,51 @@ export function SavedView() {
               ))}
           </ul>
         )}
+      </section>
+
+      {/* Save current JSON - sticky footer */}
+      <section className={styles.saveSection}>
+        <h3>Guardar JSON actual</h3>
+        <div className={styles.saveForm}>
+          <input
+            type="text"
+            className={styles.input}
+            placeholder="Nombre del guardado..."
+            value={saveName}
+            onChange={(e) => setSaveName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSave()}
+            disabled={!rawJson}
+          />
+          <button
+            className={styles.saveButton}
+            onClick={handleSave}
+            disabled={!canSave}
+            title={
+              isOverSize
+                ? `El JSON excede el límite de ${MAX_SIZE_KB}KB`
+                : savedJsons.length >= 10
+                ? "Límite de 10 guardados alcanzado"
+                : undefined
+            }
+          >
+            💾 Guardar
+          </button>
+        </div>
+        <div className={styles.saveInfo}>
+          {rawJson && (
+            <span className={styles.sizeInfo}>
+              Tamaño: {formatSize(currentSize)}
+              {isOverSize && (
+                <span className={styles.sizeWarning}>
+                  {" "}(máx: {MAX_SIZE_KB}KB)
+                </span>
+              )}
+            </span>
+          )}
+          <span className={styles.limitInfo}>
+            {savedJsons.length}/10 guardados
+          </span>
+        </div>
       </section>
     </div>
   );

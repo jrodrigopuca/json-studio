@@ -2,13 +2,10 @@
  * EditView component - editable JSON with syntax highlighting.
  */
 
-import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { useRef, useEffect, useMemo, useCallback } from "react";
 import { useStore } from "../store";
-import { useToast } from "./Toast";
 import { highlightJson } from "../core/highlighter";
 import styles from "./EditView.module.css";
-
-const MAX_SIZE_KB = 500;
 
 export function EditView() {
   const rawJson = useStore((s) => s.rawJson);
@@ -16,14 +13,10 @@ export function EditView() {
   const editContent = useStore((s) => s.editContent);
   const setEditContent = useStore((s) => s.setEditContent);
   const saveEditContent = useStore((s) => s.saveEditContent);
-  const saveCurrentJson = useStore((s) => s.saveCurrentJson);
-  const savedJsons = useStore((s) => s.savedJsons);
   const searchLineMatches = useStore((s) => s.searchLineMatches);
   const searchCurrentIndex = useStore((s) => s.searchCurrentIndex);
   const searchQuery = useStore((s) => s.searchQuery);
-  const { show: showToast } = useToast();
 
-  const [favoriteName, setFavoriteName] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const highlightRef = useRef<HTMLPreElement>(null);
   const lineRefs = useRef<Map<number, HTMLDivElement>>(new Map());
@@ -67,22 +60,6 @@ export function EditView() {
     if (error) return;
     saveEditContent();
   }, [error, saveEditContent]);
-
-  // Save as favorite
-  const currentSize = new Blob([editContent]).size;
-  const isOverSize = currentSize > MAX_SIZE_KB * 1024;
-  const canSaveFavorite = editContent && favoriteName.trim() && !isOverSize && savedJsons.length < 10 && !error;
-
-  const handleSaveFavorite = useCallback(() => {
-    if (!canSaveFavorite) return;
-    const success = saveCurrentJson(favoriteName.trim());
-    if (success) {
-      showToast({ message: `"${favoriteName}" guardado en favoritos`, type: "success" });
-      setFavoriteName("");
-    } else {
-      showToast({ message: "Error al guardar", type: "error" });
-    }
-  }, [canSaveFavorite, saveCurrentJson, favoriteName, showToast]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -193,35 +170,6 @@ export function EditView() {
         >
           Discard
         </button>
-
-        <div className={styles.favoriteSection}>
-          <input
-            type="text"
-            className={styles.favoriteInput}
-            placeholder="Guardar como favorito..."
-            value={favoriteName}
-            onChange={(e) => setFavoriteName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && canSaveFavorite) {
-                handleSaveFavorite();
-              }
-            }}
-          />
-          <button
-            className={styles.favoriteButton}
-            onClick={handleSaveFavorite}
-            disabled={!canSaveFavorite}
-            title={
-              isOverSize
-                ? `El JSON excede el límite de ${MAX_SIZE_KB}KB`
-                : savedJsons.length >= 10
-                ? "Límite de 10 guardados alcanzado"
-                : "Guardar como favorito"
-            }
-          >
-            ⭐
-          </button>
-        </div>
       </div>
     </div>
   );

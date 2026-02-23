@@ -2,7 +2,7 @@
  * Modal component for confirmations and dialogs.
  */
 
-import { useEffect, useCallback, type ReactNode } from "react";
+import { useEffect, useCallback, useState, type ReactNode } from "react";
 import styles from "./Modal.module.css";
 
 interface ModalProps {
@@ -88,6 +88,93 @@ export function UnsavedChangesModal({
       }
     >
       <p>Tienes cambios sin guardar en el editor. ¿Qué deseas hacer?</p>
+    </Modal>
+  );
+}
+
+// Modal for saving current JSON to favorites
+interface SaveJsonModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (name: string) => void;
+  currentSize: number;
+  savedCount: number;
+  maxSize?: number;
+  maxCount?: number;
+}
+
+export function SaveJsonModal({
+  isOpen,
+  onClose,
+  onSave,
+  currentSize,
+  savedCount,
+  maxSize = 500 * 1024,
+  maxCount = 10,
+}: SaveJsonModalProps) {
+  const [name, setName] = useState("");
+  const isOverSize = currentSize > maxSize;
+  const isOverCount = savedCount >= maxCount;
+  const canSave = name.trim() && !isOverSize && !isOverCount;
+
+  const formatSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    return `${(bytes / 1024).toFixed(1)} KB`;
+  };
+
+  const handleSave = () => {
+    if (canSave) {
+      onSave(name.trim());
+      setName("");
+    }
+  };
+
+  const handleClose = () => {
+    setName("");
+    onClose();
+  };
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      title="Guardar JSON"
+      onClose={handleClose}
+      actions={
+        <>
+          <button className={styles.buttonSecondary} onClick={handleClose}>
+            Cancelar
+          </button>
+          <button
+            className={styles.buttonPrimary}
+            onClick={handleSave}
+            disabled={!canSave}
+          >
+            Guardar
+          </button>
+        </>
+      }
+    >
+      <div className={styles.saveForm}>
+        <input
+          type="text"
+          className={styles.input}
+          placeholder="Nombre del guardado..."
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSave()}
+          autoFocus
+        />
+        <p className={styles.saveInfo}>
+          Tamaño: {formatSize(currentSize)}
+          {isOverSize && (
+            <span className={styles.warning}> (máx: {formatSize(maxSize)})</span>
+          )}
+        </p>
+        <p className={styles.saveInfo}>
+          {savedCount}/{maxCount} guardados
+          {isOverCount && <span className={styles.warning}> (límite alcanzado)</span>}
+        </p>
+      </div>
     </Modal>
   );
 }

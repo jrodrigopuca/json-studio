@@ -2,7 +2,10 @@
  * Toolbar component with view tabs and action buttons.
  */
 
+import { useState } from "react";
 import { useStore } from "../store";
+import { useToast } from "./Toast";
+import { SaveJsonModal } from "./Modal";
 import type { ViewMode } from "@shared/types";
 import styles from "./Toolbar.module.css";
 
@@ -120,6 +123,9 @@ export function Toolbar() {
         {/* Copy */}
         <CopyButton />
 
+        {/* Save to favorites */}
+        <SaveFavoriteButton />
+
         {/* Download */}
         <DownloadButton />
       </div>
@@ -129,11 +135,12 @@ export function Toolbar() {
 
 function CopyButton() {
   const rawJson = useStore((s) => s.rawJson);
+  const { show: showToast } = useToast();
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(rawJson);
-      // TODO: Show toast
+      showToast({ message: "JSON copiado", type: "success" });
     } catch (err) {
       console.error("Failed to copy:", err);
     }
@@ -172,5 +179,50 @@ function DownloadButton() {
     >
       ⬇
     </button>
+  );
+}
+
+function SaveFavoriteButton() {
+  const rawJson = useStore((s) => s.rawJson);
+  const viewMode = useStore((s) => s.viewMode);
+  const savedJsons = useStore((s) => s.savedJsons);
+  const saveCurrentJson = useStore((s) => s.saveCurrentJson);
+  const { show: showToast } = useToast();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Don't show in saved view (already has save form)
+  if (viewMode === "saved" || !rawJson) {
+    return null;
+  }
+
+  const currentSize = new Blob([rawJson]).size;
+
+  const handleSave = (name: string) => {
+    const success = saveCurrentJson(name);
+    if (success) {
+      showToast({ message: `"${name}" guardado`, type: "success" });
+      setIsModalOpen(false);
+    } else {
+      showToast({ message: "Error al guardar", type: "error" });
+    }
+  };
+
+  return (
+    <>
+      <button
+        className={styles.button}
+        onClick={() => setIsModalOpen(true)}
+        title="Guardar en favoritos"
+      >
+        ⭐
+      </button>
+      <SaveJsonModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSave}
+        currentSize={currentSize}
+        savedCount={savedJsons.length}
+      />
+    </>
   );
 }

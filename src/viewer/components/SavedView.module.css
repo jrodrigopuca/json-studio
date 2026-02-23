@@ -3,18 +3,35 @@
  */
 
 .savedView {
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   max-width: 600px;
   margin: 0 auto;
+  padding: 20px;
+  padding-bottom: 0;
 }
 
-.saveSection,
 .listSection {
+  flex: 1;
+  overflow-y: auto;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+}
+
+.saveSection {
+  flex-shrink: 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px 8px 0 0;
+  border-bottom: none;
+  padding: 16px;
+  margin: 0 -20px;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 .saveSection h3,
@@ -70,8 +87,13 @@
   cursor: not-allowed;
 }
 
+.saveInfo {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
 .sizeInfo {
-  margin: 8px 0 0;
   font-size: 12px;
   color: var(--text-secondary);
 }
@@ -81,7 +103,6 @@
 }
 
 .limitInfo {
-  margin: 4px 0 0;
   font-size: 12px;
   color: var(--text-muted);
 }

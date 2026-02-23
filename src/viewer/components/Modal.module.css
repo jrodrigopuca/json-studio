@@ -106,3 +106,40 @@
   background: var(--bg-hover);
   color: var(--text-primary);
 }
+
+.buttonPrimary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Save JSON Modal */
+.saveForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--accent-color);
+}
+
+.saveInfo {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.warning {
+  color: var(--error-color);
+}
