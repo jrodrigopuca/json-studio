@@ -1,0 +1,212 @@
+/**
+ * EditView styles (CSS Module)
+ */
+
+.editView {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.error {
+  padding: 8px 12px;
+  background: var(--error-bg);
+  color: var(--error);
+  font-size: 13px;
+  border-bottom: 1px solid var(--error);
+}
+
+.editor {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: var(--font-size, 13px);
+  line-height: 1.6;
+}
+
+.gutter {
+  flex-shrink: 0;
+  padding: 12px 8px;
+  background: var(--toolbar-bg);
+  border-right: 1px solid var(--border);
+  text-align: right;
+  user-select: none;
+  min-width: 40px;
+  overflow: hidden;
+}
+
+.lineNumber {
+  color: var(--text-secondary);
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.content {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.highlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 12px;
+  pointer-events: none;
+  overflow: auto;
+  background: transparent;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.line {
+  min-height: 1.6em;
+}
+
+.matchLine {
+  background: rgba(var(--search-match-rgb, 255, 200, 0), 0.15);
+}
+
+.currentMatchLine {
+  background: rgba(var(--search-match-rgb, 255, 200, 0), 0.35);
+}
+
+.matchLineNumber {
+  color: var(--accent) !important;
+  opacity: 1 !important;
+}
+
+.currentMatchLineNumber {
+  color: var(--accent) !important;
+  opacity: 1 !important;
+  font-weight: bold;
+}
+
+/* Global search match highlight within text */
+:global(.search-match) {
+  background: rgba(255, 200, 0, 0.4);
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+.textarea {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 12px;
+  border: none;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--text-primary);
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  resize: none;
+  outline: none;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.textarea::selection {
+  background: rgba(100, 150, 255, 0.3);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--toolbar-bg);
+  border-top: 1px solid var(--border);
+}
+
+.saveButton,
+.discardButton {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.saveButton {
+  background: var(--accent);
+  color: #1a1a1a;
+}
+
+.saveButton:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.saveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.discardButton {
+  background: var(--surface);
+  color: var(--text-secondary);
+}
+
+.discardButton:hover:not(:disabled) {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.discardButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.favoriteSection {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.favoriteInput {
+  padding: 6px 10px;
+  font-size: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  width: 160px;
+  outline: none;
+}
+
+.favoriteInput:focus {
+  border-color: var(--accent);
+}
+
+.favoriteInput::placeholder {
+  color: var(--text-muted);
+}
+
+.favoriteButton {
+  padding: 6px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.favoriteButton:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+}
+
+.favoriteButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

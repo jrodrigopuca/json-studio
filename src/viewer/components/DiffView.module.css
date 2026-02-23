@@ -1,0 +1,327 @@
+/**
+ * DiffView styles (CSS Module) - Side-by-side comparison
+ */
+
+.diffView {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  background: var(--toolbar-bg);
+  border-bottom: 1px solid var(--border);
+  min-height: 40px;
+}
+
+.headerLeft,
+.headerRight {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+}
+
+.headerRight {
+  justify-content: space-between;
+  border-left: 1px solid var(--border);
+}
+
+.headerCenter {
+  padding: 8px 16px;
+}
+
+.headerTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stats {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.statAdded {
+  color: var(--success);
+}
+
+.statRemoved {
+  color: var(--error);
+}
+
+.statChanged {
+  color: var(--warning);
+}
+
+.clearButton {
+  padding: 4px 12px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.clearButton:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+/* Main content - side by side */
+.content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.panel + .panel {
+  border-left: 1px solid var(--border);
+}
+
+.panelContent {
+  flex: 1;
+  overflow: auto;
+}
+
+/* JSON preview (when no diff) */
+.jsonPreview {
+  margin: 0;
+  padding: 8px 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.line {
+  display: flex;
+  min-height: 1.5em;
+}
+
+.lineNumber {
+  flex-shrink: 0;
+  width: 40px;
+  padding-right: 8px;
+  text-align: right;
+  color: var(--text-secondary);
+  opacity: 0.5;
+  user-select: none;
+  font-size: 11px;
+}
+
+.lineContent {
+  flex: 1;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Input panel (right side when no diff) */
+.inputPanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px;
+  gap: 12px;
+}
+
+.inputActions {
+  display: flex;
+  gap: 8px;
+}
+
+.actionButton {
+  padding: 8px 16px;
+  background: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.actionButton:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+}
+
+.textareaWrapper {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.textarea {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  resize: none;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.textarea::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.error {
+  padding: 8px 12px;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error);
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.compareButton {
+  padding: 10px 24px;
+  background: var(--accent);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  align-self: flex-start;
+}
+
+.compareButton:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.compareButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Diff panel */
+.diffPanel {
+  margin: 0;
+  padding: 8px 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.diffLine {
+  display: flex;
+  min-height: 1.5em;
+}
+
+.diffLine .lineNumber {
+  flex-shrink: 0;
+  width: 32px;
+  padding-right: 4px;
+  text-align: right;
+  color: var(--text-secondary);
+  opacity: 0.5;
+  user-select: none;
+  font-size: 11px;
+}
+
+.diffMarker {
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+  font-weight: bold;
+  user-select: none;
+}
+
+.diffLine .lineContent {
+  flex: 1;
+  white-space: pre-wrap;
+  word-break: break-all;
+  padding-right: 8px;
+}
+
+/* Diff line types */
+.diffLine.added {
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.diffLine.added .diffMarker {
+  color: var(--success);
+}
+
+.diffLine.added.left {
+  background: rgba(34, 197, 94, 0.05);
+}
+
+.diffLine.removed {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.diffLine.removed .diffMarker {
+  color: var(--error);
+}
+
+.diffLine.removed.right {
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.diffLine.changed {
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.diffLine.changed .diffMarker {
+  color: var(--warning);
+}
+
+.diffLine.unchanged {
+  opacity: 0.7;
+}
+
+.diffLine.unchanged .diffMarker {
+  color: transparent;
+}
+
+/* Syntax highlighting (from highlighter) */
+:global(.json-key) {
+  color: var(--syn-key);
+}
+
+:global(.json-string) {
+  color: var(--syn-string);
+}
+
+:global(.json-number) {
+  color: var(--syn-number);
+}
+
+:global(.json-boolean) {
+  color: var(--syn-boolean);
+}
+
+:global(.json-null) {
+  color: var(--syn-null);
+}
+
+:global(.json-bracket) {
+  color: var(--syn-bracket);
+}

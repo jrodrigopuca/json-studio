@@ -1,0 +1,32 @@
+/**
+ * Main stylesheet that imports all base styles.
+ * Component-specific styles use CSS Modules.
+ */
+
+@import "./themes.css";
+@import "./base.css";
+@import "./responsive.css";
+
+/* Global reset and base */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  font-size: var(--font-size, 13px);
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+}

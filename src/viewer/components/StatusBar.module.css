@@ -1,0 +1,48 @@
+/**
+ * StatusBar styles (CSS Module)
+ */
+
+.statusBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  height: 28px;
+  background: var(--status-bg);
+  border-top: 1px solid var(--status-border);
+  font-size: 11px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.left,
+.right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.unsaved {
+  color: var(--warning);
+  font-size: 14px;
+}
+
+.themeButton {
+  padding: 2px 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.themeButton:hover {
+  background: var(--surface-hover);
+}

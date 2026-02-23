@@ -171,7 +171,7 @@ async function activateViewer(
 	contentType: ContentTypeClass,
 ): Promise<void> {
 	// Dynamically import the viewer (lazy loaded)
-	const { initViewer } = await import("../viewer/app.js");
+	const { initViewer } = await import("../viewer/viewer-init.js");
 
 	// Replace page content
 	document.title = `JSON Spark — ${document.title || window.location.pathname}`;

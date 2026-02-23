@@ -18,12 +18,16 @@
     "sourceMap": true,
     "isolatedModules": true,
     "esModuleInterop": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
+      "@/*": ["src/*"],
       "@viewer/*": ["src/viewer/*"],
       "@shared/*": ["src/shared/*"]
     }
   },
-  "include": ["src/**/*.ts", "demo/**/*.ts", "tests/**/*.ts", "vite.*.config.ts", "vitest.config.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "demo/**/*.ts", "tests/**/*.ts", "vite.config.ts", "vitest.config.ts"],
   "exclude": ["node_modules", "dist"]
 }

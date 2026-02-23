@@ -1,0 +1,96 @@
+/**
+ * RawView styles (CSS Module)
+ */
+
+.rawView {
+  display: flex;
+  height: 100%;
+  font-family: var(--font-mono);
+  font-size: var(--font-size, 13px);
+  line-height: 1.6;
+  overflow: auto;
+}
+
+.gutter {
+  flex-shrink: 0;
+  padding: 12px 8px;
+  background: var(--toolbar-bg);
+  border-right: 1px solid var(--border);
+  text-align: right;
+  user-select: none;
+  min-width: 40px;
+  position: sticky;
+  left: 0;
+}
+
+.lineNumber {
+  color: var(--text-secondary);
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.matchLineNumber {
+  color: var(--accent) !important;
+  opacity: 1 !important;
+}
+
+.currentMatchLineNumber {
+  color: var(--accent) !important;
+  opacity: 1 !important;
+  font-weight: bold;
+}
+
+.code {
+  flex: 1;
+  margin: 0;
+  padding: 12px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.line {
+  display: block;
+  min-height: 1.6em;
+}
+
+.line.match {
+  background: var(--search-match);
+  border-left: 2px solid var(--accent);
+  margin-left: -2px;
+}
+
+.line.currentMatch {
+  background: var(--search-match-current);
+}
+
+/* Syntax highlighting classes (from highlighter) */
+:global(.json-key) {
+  color: var(--syn-key);
+}
+
+:global(.json-string) {
+  color: var(--syn-string);
+}
+
+:global(.json-number) {
+  color: var(--syn-number);
+}
+
+:global(.json-boolean) {
+  color: var(--syn-boolean);
+}
+
+:global(.json-null) {
+  color: var(--syn-null);
+}
+
+:global(.json-bracket) {
+  color: var(--syn-bracket);
+}
+
+/* Search match inline highlight */
+:global(.search-match) {
+  background: rgba(255, 200, 0, 0.4);
+  border-radius: 2px;
+  padding: 0 1px;
+}

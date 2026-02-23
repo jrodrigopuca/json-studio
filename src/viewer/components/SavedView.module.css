@@ -1,0 +1,176 @@
+/**
+ * SavedView styles.
+ */
+
+.savedView {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.saveSection,
+.listSection {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.saveSection h3,
+.listSection h3 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.saveForm {
+  display: flex;
+  gap: 8px;
+}
+
+.input {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 13px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--accent-color);
+}
+
+.input:disabled {
+  opacity: 0.5;
+}
+
+.saveButton {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.saveButton:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.saveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sizeInfo {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.sizeWarning {
+  color: var(--error-color);
+}
+
+.limitInfo {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.emptyMessage {
+  color: var(--text-muted);
+  font-style: italic;
+  margin: 0;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.1s;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.item:hover {
+  background: var(--bg-hover);
+}
+
+.itemInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemName {
+  display: block;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.itemMeta {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.renameInput {
+  width: 100%;
+  padding: 4px 8px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--bg-primary);
+  border: 1px solid var(--accent-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.itemActions {
+  display: flex;
+  gap: 4px;
+  margin-left: 12px;
+}
+
+.actionButton {
+  padding: 4px 8px;
+  font-size: 14px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.actionButton:hover {
+  background: var(--bg-hover);
+  border-color: var(--text-secondary);
+}
+
+.deleteButton:hover {
+  background: var(--error-bg);
+  border-color: var(--error-color);
+}

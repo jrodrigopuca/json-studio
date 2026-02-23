@@ -1,10 +1,12 @@
 {
   "name": "json-studio",
-  "version": "1.0.0",
-  "description": "Chrome Extension",
-  "main": "index.js",
+  "version": "2.0.0",
+  "description": "Chrome Extension - JSON Viewer",
+  "type": "module",
   "scripts": {
-    "build": "tsc",
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -12,17 +14,24 @@
     "type": "git",
     "url": "git+https://jrodrigopuca@github.com/jrodrigopuca/json-studio.git"
   },
-  "keywords": [],
+  "keywords": ["json", "viewer", "chrome-extension"],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/jrodrigopuca/json-studio/issues"
   },
   "homepage": "https://github.com/jrodrigopuca/json-studio#readme",
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zustand": "^5.0.0"
+  },
   "devDependencies": {
     "@types/chrome": "^0.1.37",
     "@types/node": "^25.3.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.4.0",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vitest": "^4.0.18"

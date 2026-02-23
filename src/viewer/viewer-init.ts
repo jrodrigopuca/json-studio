@@ -19,31 +19,31 @@ import type {
 import { WORKER_THRESHOLD } from "../shared/constants.js";
 
 // Components
-import { Toolbar } from "./components/toolbar/index.js";
-import { TreeView } from "./components/tree-view/index.js";
-import { RawView } from "./components/raw-view/index.js";
-import { TableView } from "./components/table-view/index.js";
-import { DiffView } from "./components/diff-view/index.js";
-import { EditView } from "./components/edit-view/index.js";
-import { Breadcrumb } from "./components/breadcrumb/index.js";
-import { SearchBar } from "./components/search-bar/index.js";
-import { StatusBar } from "./components/status-bar/index.js";
-import { Banner } from "./components/banner/index.js";
+import { Toolbar } from "./components-old/toolbar/index.js";
+import { TreeView } from "./components-old/tree-view/index.js";
+import { RawView } from "./components-old/raw-view/index.js";
+import { TableView } from "./components-old/table-view/index.js";
+import { DiffView } from "./components-old/diff-view/index.js";
+import { EditView } from "./components-old/edit-view/index.js";
+import { Breadcrumb } from "./components-old/breadcrumb/index.js";
+import { SearchBar } from "./components-old/search-bar/index.js";
+import { StatusBar } from "./components-old/status-bar/index.js";
+import { Banner } from "./components-old/banner/index.js";
 
 // Styles
 import "./styles/base.css";
 import "./styles/themes.css";
 import "./styles/responsive.css";
-import "./components/toolbar/toolbar.css";
-import "./components/tree-view/tree-view.css";
-import "./components/raw-view/raw-view.css";
-import "./components/table-view/table-view.css";
-import "./components/diff-view/diff-view.css";
-import "./components/edit-view/edit-view.css";
-import "./components/breadcrumb/breadcrumb.css";
-import "./components/search-bar/search-bar.css";
-import "./components/status-bar/status-bar.css";
-import "./components/banner/banner.css";
+import "./components-old/toolbar/toolbar.css";
+import "./components-old/tree-view/tree-view.css";
+import "./components-old/raw-view/raw-view.css";
+import "./components-old/table-view/table-view.css";
+import "./components-old/diff-view/diff-view.css";
+import "./components-old/edit-view/edit-view.css";
+import "./components-old/breadcrumb/breadcrumb.css";
+import "./components-old/search-bar/search-bar.css";
+import "./components-old/status-bar/status-bar.css";
+import "./components-old/banner/banner.css";
 
 /** Options for initialising the viewer. */
 export interface ViewerOptions {

@@ -1,0 +1,80 @@
+/**
+ * TableView styles (CSS Module)
+ */
+
+.tableContainer {
+  height: 100%;
+  overflow: auto;
+  padding: 12px;
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 8px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.th,
+.td {
+  padding: 8px 12px;
+  text-align: left;
+  border: 1px solid var(--border);
+}
+
+.th {
+  background: var(--toolbar-bg);
+  color: var(--text-primary);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.tr:hover {
+  background: var(--surface-hover);
+}
+
+.td {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Value types */
+.string {
+  color: var(--syn-string);
+}
+
+.number {
+  color: var(--syn-number);
+}
+
+.boolean {
+  color: var(--syn-boolean);
+}
+
+.null {
+  color: var(--syn-null);
+  font-style: italic;
+}
+
+.undefined {
+  color: var(--text-secondary);
+}
+
+.complex {
+  color: var(--text-secondary);
+  font-style: italic;
+}

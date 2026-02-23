@@ -1,0 +1,56 @@
+/**
+ * Toast notification styles (CSS Module)
+ */
+
+.toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  padding: 12px 20px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 1000;
+  font-size: 14px;
+  max-width: 400px;
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.message {
+  flex: 1;
+}
+
+/* Types */
+.info {
+  background: var(--info);
+  color: white;
+}
+
+.success {
+  background: var(--success);
+  color: white;
+}
+
+.warning {
+  background: var(--warning);
+  color: #1a1a1a;
+}
+
+.error {
+  background: var(--error);
+  color: white;
+}

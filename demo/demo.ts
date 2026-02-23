@@ -3,7 +3,7 @@
  * This file is only used during development, NOT part of the extension.
  */
 
-import { initViewer } from "../src/viewer/app.js";
+import { initViewer } from "../src/viewer/viewer-init.js";
 
 // Fixture imports (bundled for demo convenience)
 import smallJson from "./fixtures/small.json?raw";
