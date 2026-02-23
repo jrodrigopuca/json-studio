@@ -5,6 +5,14 @@
 import type { FlatNode } from "./parser.types";
 
 /**
+ * Gets just the key name of a node.
+ * Returns null for root or array items without explicit keys.
+ */
+export function getNodeKey(node: FlatNode): string | null {
+	return node.key;
+}
+
+/**
  * Reconstructs the JSON value for a node (including all children).
  * Returns the value as a formatted JSON string.
  */
@@ -69,6 +77,24 @@ function getDirectChildren(nodes: FlatNode[], parent: FlatNode): FlatNode[] {
 	}
 
 	return children;
+}
+
+/**
+ * Copies text to clipboard and returns success status.
+ */
+/**
+ * Gets formatted JSON value (always with indentation).
+ * Useful for "Copy as Formatted JSON" option.
+ */
+export function getFormattedNodeValue(
+	nodes: FlatNode[],
+	nodeId: number,
+): string {
+	const node = nodes.find((n) => n.id === nodeId);
+	if (!node) return "";
+
+	const value = node.isExpandable ? reconstructValue(nodes, node) : node.value;
+	return JSON.stringify(value, null, 2);
 }
 
 /**

@@ -72,6 +72,7 @@ export interface AppState {
 	// Tree navigation
 	expandedNodes: Set<number>;
 	selectedNodeId: number | null;
+	focusedNodeId: number | null; // For "Filter to this" feature
 
 	// Search
 	searchQuery: string;
@@ -129,7 +130,10 @@ export interface AppActions {
 	expandAll: () => void;
 	collapseAll: () => void;
 	expandToLevel: (level: number) => void;
+	expandChildren: (nodeId: number) => void;
+	collapseChildren: (nodeId: number) => void;
 	selectNode: (nodeId: number | null) => void;
+	setFocusedNode: (nodeId: number | null) => void;
 
 	// Search operations
 	setSearchQuery: (query: string) => void;
@@ -200,6 +204,7 @@ const initialState: AppState = {
 
 	expandedNodes: new Set([0]),
 	selectedNodeId: null,
+	focusedNodeId: null,
 
 	searchQuery: "",
 	searchMatches: [],
@@ -320,7 +325,51 @@ export const useStore = create<AppState & AppActions>()(
 				set({ expandedNodes: expanded });
 			},
 
+			expandChildren: (nodeId) => {
+				const { nodes, expandedNodes } = get();
+				const node = nodes.find((n) => n.id === nodeId);
+				if (!node || !node.isExpandable || !node.childrenRange) return;
+
+				const next = new Set(expandedNodes);
+				next.add(nodeId);
+
+				// Recursively expand all descendants
+				const expandDescendants = (parentId: number) => {
+					for (const n of nodes) {
+						if (n.parentId === parentId && n.isExpandable) {
+							next.add(n.id);
+							expandDescendants(n.id);
+						}
+					}
+				};
+				expandDescendants(nodeId);
+				set({ expandedNodes: next });
+			},
+
+			collapseChildren: (nodeId) => {
+				const { nodes, expandedNodes } = get();
+				const node = nodes.find((n) => n.id === nodeId);
+				if (!node || !node.isExpandable) return;
+
+				const next = new Set(expandedNodes);
+				next.delete(nodeId);
+
+				// Recursively collapse all descendants
+				const collapseDescendants = (parentId: number) => {
+					for (const n of nodes) {
+						if (n.parentId === parentId && n.isExpandable) {
+							next.delete(n.id);
+							collapseDescendants(n.id);
+						}
+					}
+				};
+				collapseDescendants(nodeId);
+				set({ expandedNodes: next });
+			},
+
 			selectNode: (nodeId) => set({ selectedNodeId: nodeId }),
+
+			setFocusedNode: (nodeId) => set({ focusedNodeId: nodeId }),
 
 			// ─── Search Operations ───────────────────────────────────────────────
 			setSearchQuery: (query) => set({ searchQuery: query }),
@@ -644,18 +693,58 @@ export const useStore = create<AppState & AppActions>()(
 // ─── Selectors ───────────────────────────────────────────────────────────────
 
 export const selectVisibleNodes = (state: AppState) => {
-	const { nodes, expandedNodes } = state;
+	const { nodes, expandedNodes, focusedNodeId } = state;
 	const result: FlatNode[] = [];
 	const hiddenParents = new Set<number>();
 
+	// If focused on a specific node, find its descendants
+	let focusedNode: FlatNode | undefined;
+	let focusedDescendants: Set<number> | null = null;
+
+	if (focusedNodeId !== null) {
+		focusedNode = nodes.find((n) => n.id === focusedNodeId);
+		if (focusedNode) {
+			focusedDescendants = new Set<number>([focusedNodeId]);
+			// Collect all descendants
+			const collectDescendants = (parentId: number) => {
+				for (const n of nodes) {
+					if (n.parentId === parentId) {
+						focusedDescendants!.add(n.id);
+						if (n.isExpandable) {
+							collectDescendants(n.id);
+						}
+					}
+				}
+			};
+			collectDescendants(focusedNodeId);
+		}
+	}
+
 	for (const node of nodes) {
+		// Skip if we're focused and this node is not in the focused subtree
+		if (focusedDescendants && !focusedDescendants.has(node.id)) {
+			continue;
+		}
+
 		// Skip if any ancestor is collapsed
 		if (node.parentId !== -1 && hiddenParents.has(node.parentId)) {
 			if (node.isExpandable) hiddenParents.add(node.id);
 			continue;
 		}
 
-		result.push(node);
+		// For focused mode, adjust depth relative to focused node
+		if (focusedNode && node.id !== focusedNodeId) {
+			const adjustedNode = {
+				...node,
+				depth: node.depth - focusedNode.depth,
+			};
+			result.push(adjustedNode);
+		} else if (focusedNode && node.id === focusedNodeId) {
+			// Focused node becomes root (depth 0)
+			result.push({ ...node, depth: 0 });
+		} else {
+			result.push(node);
+		}
 
 		// If this node is expandable but not expanded, hide its children
 		if (node.isExpandable && !expandedNodes.has(node.id)) {

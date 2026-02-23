@@ -9,12 +9,19 @@ import styles from "./TreeViewHeader.module.css";
 export function TreeViewHeader() {
 	const nodes = useStore((s) => s.nodes);
 	const maxDepth = useStore((s) => s.maxDepth);
+	const focusedNodeId = useStore((s) => s.focusedNodeId);
 	const expandAll = useStore((s) => s.expandAll);
 	const collapseAll = useStore((s) => s.collapseAll);
 	const expandToLevel = useStore((s) => s.expandToLevel);
+	const setFocusedNode = useStore((s) => s.setFocusedNode);
 
 	// Calculate node count
 	const nodeCount = nodes.length;
+
+	// Get focused node info
+	const focusedNode = focusedNodeId !== null
+		? nodes.find((n) => n.id === focusedNodeId)
+		: null;
 
 	// Generate level options (1 to min(maxDepth, 5))
 	const levelOptions = useMemo(() => {
@@ -35,45 +42,65 @@ export function TreeViewHeader() {
 		}
 	};
 
+	const handleClearFilter = () => {
+		setFocusedNode(null);
+	};
+
 	return (
 		<div className={styles.header}>
 			<div className={styles.controls}>
-				<button
-					className={styles.button}
-					onClick={expandAll}
-					title="Expand All (⌥E)"
-					type="button"
-				>
-					<span className={styles.icon}>▼</span>
-					Expand
-				</button>
-				<button
-					className={styles.button}
-					onClick={collapseAll}
-					title="Collapse All (⌥C)"
-					type="button"
-				>
-					<span className={styles.icon}>▶</span>
-					Collapse
-				</button>
-				
-				{levelOptions.length > 1 && (
-					<div className={styles.levelControl}>
-						<label className={styles.levelLabel}>Level:</label>
-						<select
-							className={styles.levelSelect}
-							onChange={handleLevelChange}
-							title="Expand to specific depth level"
+				{focusedNode ? (
+					<button
+						className={styles.clearFilter}
+						onClick={handleClearFilter}
+						title="Clear filter and show all nodes"
+						type="button"
+					>
+						<span className={styles.icon}>✕</span>
+						<span className={styles.filterPath}>
+							{focusedNode.path}
+						</span>
+					</button>
+				) : (
+					<>
+						<button
+							className={styles.button}
+							onClick={expandAll}
+							title="Expand All (⌥E)"
+							type="button"
 						>
-							<option value="">—</option>
-							{levelOptions.map((level) => (
-								<option key={level} value={level}>
-									{level}
-								</option>
-							))}
-							<option value="all">All</option>
-						</select>
-					</div>
+							<span className={styles.icon}>▼</span>
+							Expand
+						</button>
+						<button
+							className={styles.button}
+							onClick={collapseAll}
+							title="Collapse All (⌥C)"
+							type="button"
+						>
+							<span className={styles.icon}>▶</span>
+							Collapse
+						</button>
+						
+						{levelOptions.length > 1 && (
+							<div className={styles.levelControl}>
+								<label className={styles.levelLabel}>Level:</label>
+								<select
+									className={styles.levelSelect}
+									onChange={handleLevelChange}
+									title="Expand to specific depth level"
+								>
+									<option value="">—</option>
+									{levelOptions.map((level) => (
+										<option key={level} value={level}>
+											{level}
+										</option>
+									))}
+									<option value="all">All</option>
+								</select>
+							</div>
+						)}
+					</>
 				)}
 			</div>
 

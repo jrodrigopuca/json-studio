@@ -1,9 +1,10 @@
 /**
  * ContextMenu component for tree nodes.
- * Shows copy options on right-click.
+ * Shows copy options and tree manipulation on right-click.
  */
 
 import { useEffect, useRef } from "react";
+import type { FlatNode } from "../../core/parser.types";
 import styles from "./ContextMenu.module.css";
 
 export interface ContextMenuPosition {
@@ -13,15 +14,29 @@ export interface ContextMenuPosition {
 
 export interface ContextMenuProps {
 	position: ContextMenuPosition;
+	node: FlatNode;
+	isExpanded: boolean;
+	onCopyKey: () => void;
 	onCopyPath: () => void;
 	onCopyValue: () => void;
+	onCopyFormattedJson: () => void;
+	onExpandChildren: () => void;
+	onCollapseChildren: () => void;
+	onFocusNode: () => void;
 	onClose: () => void;
 }
 
 export function ContextMenu({
 	position,
+	node,
+	isExpanded,
+	onCopyKey,
 	onCopyPath,
 	onCopyValue,
+	onCopyFormattedJson,
+	onExpandChildren,
+	onCollapseChildren,
+	onFocusNode,
 	onClose,
 }: ContextMenuProps) {
 	const menuRef = useRef<HTMLDivElement>(null);
@@ -64,15 +79,13 @@ export function ContextMenu({
 		return () => window.removeEventListener("keydown", handleKeyDown);
 	}, [onClose]);
 
-	const handleCopyPath = () => {
-		onCopyPath();
+	const createHandler = (action: () => void) => () => {
+		action();
 		onClose();
 	};
 
-	const handleCopyValue = () => {
-		onCopyValue();
-		onClose();
-	};
+	const hasKey = node.key !== null;
+	const isExpandable = node.isExpandable;
 
 	return (
 		<>
@@ -85,10 +98,21 @@ export function ContextMenu({
 				role="menu"
 				style={{ left: position.x, top: position.y }}
 			>
+				{/* Copy Section */}
+				{hasKey && (
+					<button
+						className={styles.item}
+						role="menuitem"
+						onClick={createHandler(onCopyKey)}
+					>
+						<span className={styles.icon}>🏷️</span>
+						Copy Key
+					</button>
+				)}
 				<button
 					className={styles.item}
 					role="menuitem"
-					onClick={handleCopyPath}
+					onClick={createHandler(onCopyPath)}
 				>
 					<span className={styles.icon}>📍</span>
 					Copy Path
@@ -96,11 +120,53 @@ export function ContextMenu({
 				<button
 					className={styles.item}
 					role="menuitem"
-					onClick={handleCopyValue}
+					onClick={createHandler(onCopyValue)}
 				>
 					<span className={styles.icon}>📋</span>
 					Copy Value
 				</button>
+				<button
+					className={styles.item}
+					role="menuitem"
+					onClick={createHandler(onCopyFormattedJson)}
+				>
+					<span className={styles.icon}>✨</span>
+					Copy Formatted JSON
+				</button>
+
+				{/* Expand/Collapse Section (only for expandable nodes) */}
+				{isExpandable && (
+					<>
+						<div className={styles.separator} />
+						{isExpanded ? (
+							<button
+								className={styles.item}
+								role="menuitem"
+								onClick={createHandler(onCollapseChildren)}
+							>
+								<span className={styles.icon}>📁</span>
+								Collapse Children
+							</button>
+						) : (
+							<button
+								className={styles.item}
+								role="menuitem"
+								onClick={createHandler(onExpandChildren)}
+							>
+								<span className={styles.icon}>📂</span>
+								Expand Children
+							</button>
+						)}
+						<button
+							className={styles.item}
+							role="menuitem"
+							onClick={createHandler(onFocusNode)}
+						>
+							<span className={styles.icon}>🎯</span>
+							Filter to This
+						</button>
+					</>
+				)}
 			</div>
 		</>
 	);

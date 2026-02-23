@@ -4,7 +4,7 @@
 
 import { useCallback, useMemo, useRef, useEffect, useState } from "react";
 import { useStore, selectVisibleNodes } from "../../store";
-import { getNodeValue, copyToClipboard } from "../../core/clipboard";
+import { getNodeValue, getFormattedNodeValue, copyToClipboard } from "../../core/clipboard";
 import { ContextMenu, type ContextMenuPosition } from "../ContextMenu";
 import { useToast } from "../Toast";
 import { TreeViewHeader } from "./TreeViewHeader";
@@ -14,11 +14,15 @@ import styles from "./TreeView.module.css";
 export function TreeView() {
   const nodes = useStore((s) => s.nodes);
   const expandedNodes = useStore((s) => s.expandedNodes);
+  const focusedNodeId = useStore((s) => s.focusedNodeId);
   const selectedNodeId = useStore((s) => s.selectedNodeId);
   const searchMatches = useStore((s) => s.searchMatches);
   const searchCurrentIndex = useStore((s) => s.searchCurrentIndex);
   const toggleNode = useStore((s) => s.toggleNode);
   const selectNode = useStore((s) => s.selectNode);
+  const expandChildren = useStore((s) => s.expandChildren);
+  const collapseChildren = useStore((s) => s.collapseChildren);
+  const setFocusedNode = useStore((s) => s.setFocusedNode);
   const { show: showToast } = useToast();
 
   // Context menu state
@@ -27,10 +31,10 @@ export function TreeView() {
     nodeId: number;
   } | null>(null);
 
-  // Get visible nodes (respecting collapsed state)
+  // Get visible nodes (respecting collapsed state and focus)
   const visibleNodes = useMemo(() => {
-    return selectVisibleNodes({ nodes, expandedNodes } as any);
-  }, [nodes, expandedNodes]);
+    return selectVisibleNodes({ nodes, expandedNodes, focusedNodeId } as any);
+  }, [nodes, expandedNodes, focusedNodeId]);
 
   // Current search match
   const currentMatch = searchMatches[searchCurrentIndex];
@@ -56,6 +60,17 @@ export function TreeView() {
     });
   }, []);
 
+  // Get the node for context menu (for conditional rendering)
+  const contextMenuNode = contextMenu
+    ? nodes.find((n) => n.id === contextMenu.nodeId)
+    : null;
+
+  const handleCopyKey = useCallback(async () => {
+    if (!contextMenu || !contextMenuNode?.key) return;
+    await copyToClipboard(contextMenuNode.key);
+    showToast({ message: `Copied: ${contextMenuNode.key}`, type: "success" });
+  }, [contextMenu, contextMenuNode, showToast]);
+
   const handleCopyPath = useCallback(async () => {
     if (!contextMenu) return;
     const node = nodes.find((n) => n.id === contextMenu.nodeId);
@@ -71,6 +86,30 @@ export function TreeView() {
     await copyToClipboard(value);
     showToast({ message: "Value copied to clipboard", type: "success" });
   }, [contextMenu, nodes, showToast]);
+
+  const handleCopyFormattedJson = useCallback(async () => {
+    if (!contextMenu) return;
+    const value = getFormattedNodeValue(nodes, contextMenu.nodeId);
+    await copyToClipboard(value);
+    showToast({ message: "Formatted JSON copied", type: "success" });
+  }, [contextMenu, nodes, showToast]);
+
+  const handleExpandChildren = useCallback(() => {
+    if (!contextMenu) return;
+    expandChildren(contextMenu.nodeId);
+  }, [contextMenu, expandChildren]);
+
+  const handleCollapseChildren = useCallback(() => {
+    if (!contextMenu) return;
+    collapseChildren(contextMenu.nodeId);
+  }, [contextMenu, collapseChildren]);
+
+  const handleFocusNode = useCallback(() => {
+    if (!contextMenu) return;
+    setFocusedNode(contextMenu.nodeId);
+    // Expand the focused node so we can see its content
+    expandChildren(contextMenu.nodeId);
+  }, [contextMenu, setFocusedNode, expandChildren]);
 
   const handleCloseContextMenu = useCallback(() => {
     setContextMenu(null);
@@ -95,11 +134,18 @@ export function TreeView() {
         ))}
 
         {/* Context Menu */}
-        {contextMenu && (
+        {contextMenu && contextMenuNode && (
           <ContextMenu
             position={contextMenu.position}
+            node={contextMenuNode}
+            isExpanded={expandedNodes.has(contextMenu.nodeId)}
+            onCopyKey={handleCopyKey}
             onCopyPath={handleCopyPath}
             onCopyValue={handleCopyValue}
+            onCopyFormattedJson={handleCopyFormattedJson}
+            onExpandChildren={handleExpandChildren}
+            onCollapseChildren={handleCollapseChildren}
+            onFocusNode={handleFocusNode}
             onClose={handleCloseContextMenu}
           />
         )}
