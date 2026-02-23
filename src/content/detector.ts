@@ -2,7 +2,7 @@
  * Content script — Detects JSON content and activates the viewer.
  *
  * Runs on every page at document_end. Checks if the page contains raw JSON
- * and if so, replaces the page content with the JSON Studio viewer.
+ * and if so, replaces the page content with the JSON Spark viewer.
  *
  * @module detector
  */
@@ -164,7 +164,7 @@ function isExcludedPage(): boolean {
 }
 
 /**
- * Replaces the page content with the JSON Studio viewer.
+ * Replaces the page content with the JSON Spark viewer.
  */
 async function activateViewer(
 	rawJson: string,
@@ -174,7 +174,7 @@ async function activateViewer(
 	const { initViewer } = await import("../viewer/init.js");
 
 	// Replace page content
-	document.title = `JSON Studio — ${document.title || window.location.pathname}`;
+	document.title = `JSON Spark — ${document.title || window.location.pathname}`;
 
 	// Clear the body and create the viewer container
 	const container = document.createElement("div");

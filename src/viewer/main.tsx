@@ -1,5 +1,5 @@
 /**
- * React entry point for JSON Studio viewer.
+ * React entry point for JSON Spark viewer.
  */
 
 import { StrictMode } from "react";

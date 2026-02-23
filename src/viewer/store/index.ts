@@ -1,5 +1,5 @@
 /**
- * Zustand store for JSON Studio viewer.
+ * Zustand store for JSON Spark viewer.
  * Centralized state management with React 19 support.
  */
 

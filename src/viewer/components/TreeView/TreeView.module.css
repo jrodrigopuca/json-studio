@@ -74,6 +74,12 @@
   font-style: italic;
 }
 
+.countInline {
+  color: var(--text-secondary);
+  font-size: 11px;
+  margin-left: 4px;
+}
+
 /* Value types */
 .string {
   color: var(--syn-string);
@@ -94,4 +100,16 @@
 
 .value {
   color: var(--text-primary);
+}
+
+.link {
+  color: var(--syn-string);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+}
+
+.link:hover {
+  text-decoration-style: solid;
+  opacity: 0.85;
 }

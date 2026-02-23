@@ -1,4 +1,4 @@
-# JSON Studio — Fase 5: Migración a React 19
+# JSON Spark — Fase 5: Migración a React 19
 
 > Documentación del trabajo realizado en la migración del viewer de Vanilla TypeScript a React 19 + Zustand.
 
@@ -6,7 +6,7 @@
 
 ## Resumen Ejecutivo
 
-Se migró completamente el viewer de JSON Studio desde una arquitectura Vanilla TypeScript a **React 19** con **Zustand 5** para gestión de estado. Esta migración permitió mejor mantenibilidad, componentes reutilizables y una base sólida para funcionalidades futuras.
+Se migró completamente el viewer de JSON Spark desde una arquitectura Vanilla TypeScript a **React 19** con **Zustand 5** para gestión de estado. Esta migración permitió mejor mantenibilidad, componentes reutilizables y una base sólida para funcionalidades futuras.
 
 ### Stack Actualizado
 

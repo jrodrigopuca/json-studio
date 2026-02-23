@@ -2,8 +2,11 @@
  * TreeView component - hierarchical JSON visualization.
  */
 
-import { useCallback, useMemo, useRef, useEffect } from "react";
+import { useCallback, useMemo, useRef, useEffect, useState } from "react";
 import { useStore, selectVisibleNodes } from "../../store";
+import { getNodeValue, copyToClipboard } from "../../core/clipboard";
+import { ContextMenu, type ContextMenuPosition } from "../ContextMenu";
+import { useToast } from "../Toast";
 import type { FlatNode } from "../../core/parser.types";
 import styles from "./TreeView.module.css";
 
@@ -15,6 +18,13 @@ export function TreeView() {
   const searchCurrentIndex = useStore((s) => s.searchCurrentIndex);
   const toggleNode = useStore((s) => s.toggleNode);
   const selectNode = useStore((s) => s.selectNode);
+  const { show: showToast } = useToast();
+
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState<{
+    position: ContextMenuPosition;
+    nodeId: number;
+  } | null>(null);
 
   // Get visible nodes (respecting collapsed state)
   const visibleNodes = useMemo(() => {
@@ -36,6 +46,35 @@ export function TreeView() {
     }
   }, [currentMatch]);
 
+  // Context menu handlers
+  const handleContextMenu = useCallback((e: React.MouseEvent, nodeId: number) => {
+    e.preventDefault();
+    setContextMenu({
+      position: { x: e.clientX, y: e.clientY },
+      nodeId,
+    });
+  }, []);
+
+  const handleCopyPath = useCallback(async () => {
+    if (!contextMenu) return;
+    const node = nodes.find((n) => n.id === contextMenu.nodeId);
+    if (node) {
+      await copyToClipboard(node.path);
+      showToast({ message: `Copied: ${node.path}`, type: "success" });
+    }
+  }, [contextMenu, nodes, showToast]);
+
+  const handleCopyValue = useCallback(async () => {
+    if (!contextMenu) return;
+    const value = getNodeValue(nodes, contextMenu.nodeId);
+    await copyToClipboard(value);
+    showToast({ message: "Value copied to clipboard", type: "success" });
+  }, [contextMenu, nodes, showToast]);
+
+  const handleCloseContextMenu = useCallback(() => {
+    setContextMenu(null);
+  }, []);
+
   return (
     <div className={styles.tree} ref={containerRef} role="tree">
       {visibleNodes.map((node) => (
@@ -48,8 +87,19 @@ export function TreeView() {
           isCurrentMatch={currentMatch === node.id}
           onToggle={toggleNode}
           onSelect={selectNode}
+          onContextMenu={handleContextMenu}
         />
       ))}
+
+      {/* Context Menu */}
+      {contextMenu && (
+        <ContextMenu
+          position={contextMenu.position}
+          onCopyPath={handleCopyPath}
+          onCopyValue={handleCopyValue}
+          onClose={handleCloseContextMenu}
+        />
+      )}
     </div>
   );
 }
@@ -62,6 +112,7 @@ interface TreeNodeProps {
   isCurrentMatch: boolean;
   onToggle: (id: number) => void;
   onSelect: (id: number) => void;
+  onContextMenu: (e: React.MouseEvent, nodeId: number) => void;
 }
 
 function TreeNode({
@@ -72,6 +123,7 @@ function TreeNode({
   isCurrentMatch,
   onToggle,
   onSelect,
+  onContextMenu,
 }: TreeNodeProps) {
   const handleClick = useCallback(() => {
     onSelect(node.id);
@@ -88,6 +140,13 @@ function TreeNode({
       }
     },
     [handleClick]
+  );
+
+  const handleContextMenu = useCallback(
+    (e: React.MouseEvent) => {
+      onContextMenu(e, node.id);
+    },
+    [node.id, onContextMenu]
   );
 
   // Build class names
@@ -111,6 +170,7 @@ function TreeNode({
       tabIndex={0}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
+      onContextMenu={handleContextMenu}
     >
       {/* Expand/collapse toggle */}
       {node.isExpandable && (
@@ -139,15 +199,16 @@ function TreeNode({
 
 function ExpandableValue({ node, isExpanded }: { node: FlatNode; isExpanded: boolean }) {
   const bracket = node.type === "array" ? ["[", "]"] : ["{", "}"];
+  const countLabel = `${node.childCount} ${node.childCount === 1 ? "item" : "items"}`;
   
   return (
     <span className={styles.expandable}>
       <span className={styles.bracket}>{bracket[0]}</span>
-      {!isExpanded && (
+      {isExpanded ? (
+        <span className={styles.countInline}>{countLabel}</span>
+      ) : (
         <>
-          <span className={styles.preview}>
-            {node.childCount} {node.childCount === 1 ? "item" : "items"}
-          </span>
+          <span className={styles.preview}>{countLabel}</span>
           <span className={styles.bracket}>{bracket[1]}</span>
         </>
       )}
@@ -155,15 +216,64 @@ function ExpandableValue({ node, isExpanded }: { node: FlatNode; isExpanded: boo
   );
 }
 
+// URL and email detection patterns
+const URL_PATTERN = /^(https?:\/\/|www\.)[^\s]+$/i;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function isUrl(value: string): boolean {
+  return URL_PATTERN.test(value);
+}
+
+function isEmail(value: string): boolean {
+  return EMAIL_PATTERN.test(value);
+}
+
 function PrimitiveValue({ node }: { node: FlatNode }) {
   let className = styles.value;
-  let content = String(node.value);
+  let content: React.ReactNode = String(node.value);
 
   switch (node.type) {
-    case "string":
+    case "string": {
       className = styles.string;
-      content = `"${node.value}"`;
+      const str = String(node.value);
+      
+      // Check for clickable URLs or emails
+      if (isUrl(str)) {
+        const href = str.startsWith("www.") ? `https://${str}` : str;
+        content = (
+          <>
+            "
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.link}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {str}
+            </a>
+            "
+          </>
+        );
+      } else if (isEmail(str)) {
+        content = (
+          <>
+            "
+            <a
+              href={`mailto:${str}`}
+              className={styles.link}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {str}
+            </a>
+            "
+          </>
+        );
+      } else {
+        content = `"${str}"`;
+      }
       break;
+    }
     case "number":
       className = styles.number;
       break;

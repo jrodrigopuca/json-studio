@@ -24,7 +24,7 @@ export interface ViewerOptions {
 let root: Root | null = null;
 
 /**
- * Initializes and mounts the JSON Studio React viewer.
+ * Initializes and mounts the JSON Spark React viewer.
  *
  * @param options - Viewer configuration
  * @returns Cleanup function to unmount

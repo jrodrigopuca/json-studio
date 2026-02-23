@@ -1,5 +1,5 @@
 /**
- * Main App component for JSON Studio viewer.
+ * Main App component for JSON Spark viewer.
  */
 
 import { useCallback } from "react";

@@ -49,7 +49,7 @@ export function useJsonLoader() {
 						// Demo data
 						rawJson = JSON.stringify(
 							{
-								message: "Welcome to JSON Studio!",
+								message: "Welcome to JSON Spark!",
 								features: [
 									"Tree View",
 									"Raw View",

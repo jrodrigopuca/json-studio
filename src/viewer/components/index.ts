@@ -14,6 +14,7 @@ export {
 	SaveJsonModal,
 	ShortcutsHelpModal,
 } from "./Modal";
+export { ContextMenu } from "./ContextMenu";
 
 // Views
 export { TreeView } from "./TreeView";

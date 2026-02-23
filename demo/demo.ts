@@ -1,5 +1,5 @@
 /**
- * Demo entrypoint — Loads the JSON Studio viewer with sample data.
+ * Demo entrypoint — Loads the JSON Spark viewer with sample data.
  * This file is only used during development, NOT part of the extension.
  */
 
