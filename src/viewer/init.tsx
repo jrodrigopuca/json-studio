@@ -65,7 +65,7 @@ export function initViewer(options: ViewerOptions): () => void {
       contentType,
     });
   } else {
-    store.setParseError(result.error);
+    store.setParseError(result.error, rawJson);
   }
 
   // Create React root and render

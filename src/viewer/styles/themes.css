@@ -56,6 +56,9 @@
   /* Indent guides */
   --indent-guide: #3a3a3c;
   --indent-guide-active: #48484a;
+
+  /* Editor */
+  --editor-current-line: rgba(255, 255, 255, 0.06);
 }
 
 /* ===== Light theme - Apple HIG System Colors ===== */
@@ -107,6 +110,9 @@
   /* Indent guides */
   --indent-guide: #e5e5ea;
   --indent-guide-active: #d1d1d6;
+
+  /* Editor */
+  --editor-current-line: rgba(0, 0, 0, 0.04);
 }
 
 /* ===== Syntax highlighting classes ===== */

@@ -1,12 +1,102 @@
 /**
  * Hook to load and parse JSON from URL or Chrome extension message.
+ *
+ * For files >= WORKER_THRESHOLD (1 MB) the heavy work (JSON.parse + flatten +
+ * prettyPrint) is delegated to a Web Worker so the main thread stays
+ * responsive and the loading spinner keeps animating.
  */
 
 import { useEffect } from "react";
 import { useStore } from "../store";
 import { parseJSON } from "../core/parser";
 import { prettyPrint } from "../core/formatter";
-import { LARGE_FILE_THRESHOLD } from "@shared/constants";
+import { LARGE_FILE_THRESHOLD, WORKER_THRESHOLD } from "@shared/constants";
+import type {
+	WorkerRequest,
+	WorkerResponse,
+} from "../core/parser.worker.types";
+
+/**
+ * Parse + format on the main thread (small files).
+ */
+function parseOnMainThread(
+	rawJson: string,
+	rawSize: number,
+	url: string,
+	setJson: ReturnType<typeof useStore.getState>["setJson"],
+	setParseError: ReturnType<typeof useStore.getState>["setParseError"],
+) {
+	const result = parseJSON(rawJson);
+
+	if (result.ok) {
+		const formatted =
+			rawSize >= LARGE_FILE_THRESHOLD ? rawJson : prettyPrint(rawJson);
+		setJson(formatted, result.nodes, {
+			fileSize: rawSize,
+			totalKeys: result.totalKeys,
+			maxDepth: result.maxDepth,
+			url,
+		});
+	} else {
+		setParseError(result.error, rawJson);
+	}
+}
+
+/**
+ * Delegate parse + format to a Web Worker (large files).
+ * Returns a cleanup function that terminates the worker.
+ */
+function parseInWorker(
+	rawJson: string,
+	rawSize: number,
+	url: string,
+	setJson: ReturnType<typeof useStore.getState>["setJson"],
+	setParseError: ReturnType<typeof useStore.getState>["setParseError"],
+): () => void {
+	const worker = new Worker(
+		new URL("../core/parser.worker.ts", import.meta.url),
+		{ type: "module" },
+	);
+
+	worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
+		const result = event.data;
+
+		if (result.ok) {
+			setJson(result.formatted, result.nodes, {
+				fileSize: rawSize,
+				totalKeys: result.totalKeys,
+				maxDepth: result.maxDepth,
+				url,
+			});
+		} else {
+			setParseError(result.error, rawJson);
+		}
+
+		worker.terminate();
+	};
+
+	worker.onerror = (err) => {
+		setParseError(
+			{
+				message: err.message || "Worker error",
+				line: 0,
+				column: 0,
+				position: 0,
+			},
+			rawJson,
+		);
+		worker.terminate();
+	};
+
+	const request: WorkerRequest = {
+		rawJson,
+		skipFormat: rawSize >= LARGE_FILE_THRESHOLD,
+	};
+
+	worker.postMessage(request);
+
+	return () => worker.terminate();
+}
 
 export function useJsonLoader() {
 	const setJson = useStore((s) => s.setJson);
@@ -19,6 +109,8 @@ export function useJsonLoader() {
 		if (hasData) {
 			return;
 		}
+
+		let workerCleanup: (() => void) | null = null;
 
 		const loadJson = async () => {
 			setIsParsing(true);
@@ -72,23 +164,20 @@ export function useJsonLoader() {
 					}
 				}
 
-				// Parse the JSON
-				const result = parseJSON(rawJson);
+				const rawSize = new Blob([rawJson]).size;
 
-				if (result.ok) {
-					// Skip prettyPrint for large files — it's expensive and
-					// the raw view is hidden in large-file mode anyway.
-					const rawSize = new Blob([rawJson]).size;
-					const formatted =
-						rawSize >= LARGE_FILE_THRESHOLD ? rawJson : prettyPrint(rawJson);
-					setJson(formatted, result.nodes, {
-						fileSize: rawSize,
-						totalKeys: result.totalKeys,
-						maxDepth: result.maxDepth,
+				if (rawSize >= WORKER_THRESHOLD) {
+					// Large file → off-main-thread parsing
+					workerCleanup = parseInWorker(
+						rawJson,
+						rawSize,
 						url,
-					});
+						setJson,
+						setParseError,
+					);
 				} else {
-					setParseError(result.error);
+					// Small file → parse synchronously on main thread
+					parseOnMainThread(rawJson, rawSize, url, setJson, setParseError);
 				}
 			} catch (error) {
 				setParseError({
@@ -102,5 +191,10 @@ export function useJsonLoader() {
 		};
 
 		loadJson();
+
+		// Cleanup: terminate worker if component unmounts mid-parse
+		return () => {
+			workerCleanup?.();
+		};
 	}, [setJson, setParseError, setIsParsing, hasData]);
 }

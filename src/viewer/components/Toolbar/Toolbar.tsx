@@ -25,6 +25,8 @@ export function Toolbar() {
   const viewMode = useStore((s) => s.viewMode);
   const setViewMode = useStore((s) => s.setViewMode);
   const isLargeFile = useStore((s) => s.isLargeFile);
+  const parseError = useStore((s) => s.parseError);
+  const isValid = useStore((s) => s.isValid);
   const expandAll = useStore((s) => s.expandAll);
   const collapseAll = useStore((s) => s.collapseAll);
   const expandedNodes = useStore((s) => s.expandedNodes);
@@ -84,18 +86,23 @@ export function Toolbar() {
     <header className={styles.toolbar}>
       {/* View tabs */}
       <nav className={styles.tabs} role="tablist">
-        {VIEW_TABS.map(({ mode, label, shortcut }) => (
-          <button
-            key={mode}
-            role="tab"
-            aria-selected={viewMode === mode}
-            className={`${styles.tab} ${viewMode === mode ? styles.active : ""}`}
-            onClick={() => setViewMode(mode)}
-            title={`${t(label as any)} (${shortcut})`}
-          >
-            {t(label as any)}
-          </button>
-        ))}
+        {VIEW_TABS.map(({ mode, label, shortcut }) => {
+          // Only Edit tab is available when there's a parse error
+          const disabledByError = !isValid && parseError !== null && mode !== "edit";
+          return (
+            <button
+              key={mode}
+              role="tab"
+              aria-selected={viewMode === mode}
+              className={`${styles.tab} ${viewMode === mode ? styles.active : ""}`}
+              onClick={() => setViewMode(mode)}
+              title={`${t(label as any)} (${shortcut})`}
+              disabled={disabledByError}
+            >
+              {t(label as any)}
+            </button>
+          );
+        })}
       </nav>
 
       {/* Actions */}

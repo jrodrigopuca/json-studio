@@ -36,6 +36,9 @@ export const JSON_CONTENT_TYPES = [
 /** JSONP callback pattern. */
 export const JSONP_PATTERN = /^[\w$.]+\s*\(\s*([\s\S]*?)\s*\);?\s*$/;
 
+/** Rows per page in TableView pagination. */
+export const TABLE_PAGE_SIZE = 100;
+
 /** Node height in pixels (for tree virtualisation). */
 export const NODE_HEIGHT = 24;
 

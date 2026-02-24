@@ -30,7 +30,7 @@ export interface JsonSlice {
 		nodes: FlatNode[],
 		metadata: Partial<JsonSlice>,
 	) => void;
-	setParseError: (error: ParseError) => void;
+	setParseError: (error: ParseError, rawJson?: string) => void;
 	setIsParsing: (parsing: boolean) => void;
 	setViewMode: (mode: ViewMode) => void;
 	setTheme: (theme: ResolvedTheme) => void;
@@ -79,13 +79,19 @@ export const createJsonSlice: StateCreator<StoreState, [], [], JsonSlice> = (
 		}
 	},
 
-	setParseError: (error) =>
-		set({
+	setParseError: (error, rawJson) => {
+		const update: Partial<StoreState> = {
 			parseError: error,
 			isValid: false,
 			nodes: [],
 			isParsing: false,
-		}),
+		};
+		if (rawJson !== undefined) {
+			update.rawJson = rawJson;
+			update.fileSize = new Blob([rawJson]).size;
+		}
+		set(update);
+	},
 
 	setIsParsing: (parsing) => set({ isParsing: parsing }),
 

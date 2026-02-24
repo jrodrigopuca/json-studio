@@ -78,3 +78,56 @@
   color: var(--text-secondary);
   font-style: italic;
 }
+
+/* ─── Pagination ─────────────────────────────────────────────────────── */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-top: 1px solid var(--border);
+  background: var(--toolbar-bg);
+  position: sticky;
+  bottom: 0;
+  font-size: 13px;
+  gap: 12px;
+}
+
+.paginationInfo {
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.paginationControls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.paginationBtn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  transition: background 0.15s;
+}
+
+.paginationBtn:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+.paginationBtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.paginationPage {
+  color: var(--text-secondary);
+  padding: 0 8px;
+  white-space: nowrap;
+}

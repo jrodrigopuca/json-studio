@@ -60,3 +60,20 @@
 .error p {
   color: var(--text-secondary);
 }
+
+.errorEditButton {
+  margin-top: 12px;
+  padding: 8px 20px;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.errorEditButton:hover {
+  opacity: 0.85;
+}

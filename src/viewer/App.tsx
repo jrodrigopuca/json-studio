@@ -50,6 +50,7 @@ function AppContent() {
   const pendingSizeWarning = useStore((s) => s.pendingSizeWarning);
   const fileSize = useStore((s) => s.fileSize);
   const showShortcutsHelp = useStore((s) => s.showShortcutsHelp);
+  const setViewMode = useStore((s) => s.setViewMode);
   const setShowShortcutsHelp = useStore((s) => s.setShowShortcutsHelp);
   const confirmViewChange = useStore((s) => s.confirmViewChange);
   const cancelViewChange = useStore((s) => s.cancelViewChange);
@@ -96,6 +97,10 @@ function AppContent() {
     }
 
     if (!isValid && parseError) {
+      // Allow Edit mode even with parse errors so the user can fix the JSON
+      if (viewMode === "edit") {
+        return <EditView />;
+      }
       return (
         <div className={styles.error}>
           <h2>{t("app.error.parseErrorTitle")}</h2>
@@ -103,6 +108,12 @@ function AppContent() {
           <p>
             {t("app.error.parseErrorLocation", { line: parseError.line, column: parseError.column })}
           </p>
+          <button
+            className={styles.errorEditButton}
+            onClick={() => setViewMode("edit")}
+          >
+            {t("app.error.editToFix")}
+          </button>
         </div>
       );
     }

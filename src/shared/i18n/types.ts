@@ -12,6 +12,7 @@ export interface Translations {
 	"app.loading.parsingJson": string;
 	"app.error.parseErrorTitle": string;
 	"app.error.parseErrorLocation": string; // {line}, {column}
+	"app.error.editToFix": string;
 
 	// ─── Toolbar ──────────────────────────────────────────────────────────────
 	"toolbar.tab.tree": string;
@@ -83,8 +84,9 @@ export interface Translations {
 	"editView.ariaLabel.jsonEditor": string;
 	"editView.button.save": string;
 	"editView.button.discard": string;
-	"editView.tooltip.unfold": string;
-	"editView.tooltip.fold": string;
+	"editView.largeFile.banner": string; // {size}
+	"editView.largeFile.noHighlight": string;
+	"editView.largeFile.noBracketMatch": string;
 
 	// ─── EditorToolbar ────────────────────────────────────────────────────────
 	"editorToolbar.tooltip.indent": string; // {size}
@@ -223,6 +225,12 @@ export interface Translations {
 	"tableView.column.rowNumber": string;
 	"tableView.cell.arrayLabel": string; // {length}
 	"tableView.cell.objectLabel": string;
+	"tableView.pagination.showing": string; // {start}, {end}, {total}
+	"tableView.pagination.page": string; // {page}, {totalPages}
+	"tableView.pagination.first": string;
+	"tableView.pagination.previous": string;
+	"tableView.pagination.next": string;
+	"tableView.pagination.last": string;
 }
 
 export type TranslationKey = keyof Translations;

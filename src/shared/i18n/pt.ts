@@ -7,6 +7,7 @@ export const pt: Translations = {
 	"app.loading.parsingJson": "Analisando JSON...",
 	"app.error.parseErrorTitle": "Erro de análise",
 	"app.error.parseErrorLocation": "Linha {line}, Coluna {column}",
+	"app.error.editToFix": "Editar para corrigir",
 
 	// ─── Toolbar ────────────────────────────────────────────────
 	"toolbar.tab.tree": "Árvore",
@@ -79,8 +80,11 @@ export const pt: Translations = {
 	"editView.ariaLabel.jsonEditor": "Editor JSON",
 	"editView.button.save": "Salvar (⌘S)",
 	"editView.button.discard": "Descartar",
-	"editView.tooltip.unfold": "Desdobrar",
-	"editView.tooltip.fold": "Dobrar",
+	"editView.largeFile.banner":
+		"Arquivo grande ({size}) — algumas funcionalidades do editor foram desativadas por desempenho.",
+	"editView.largeFile.noHighlight": "Destaque de sintaxe desativado",
+	"editView.largeFile.noBracketMatch":
+		"Correspondência de colchetes desativada",
 
 	// ─── EditorToolbar ──────────────────────────────────────────
 	"editorToolbar.tooltip.indent": "Indentação: {size} (clique para alterar)",
@@ -219,6 +223,12 @@ export const pt: Translations = {
 	"tableView.column.rowNumber": "#",
 	"tableView.cell.arrayLabel": "[Array: {length}]",
 	"tableView.cell.objectLabel": "{Object}",
+	"tableView.pagination.showing": "{start}–{end} de {total}",
+	"tableView.pagination.page": "Página {page} de {totalPages}",
+	"tableView.pagination.first": "Primeira",
+	"tableView.pagination.previous": "Anterior",
+	"tableView.pagination.next": "Próxima",
+	"tableView.pagination.last": "Última",
 
 	// ─── LargeFileTreeView ────────────────────────────────────────────────────
 	"largeFile.tab": "Arquivo grande",

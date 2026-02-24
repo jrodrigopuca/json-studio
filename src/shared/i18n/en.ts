@@ -7,6 +7,7 @@ export const en: Translations = {
 	"app.loading.parsingJson": "Parsing JSON...",
 	"app.error.parseErrorTitle": "Parse Error",
 	"app.error.parseErrorLocation": "Line {line}, Column {column}",
+	"app.error.editToFix": "Edit to fix",
 
 	// ─── Toolbar ────────────────────────────────────────────────
 	"toolbar.tab.tree": "Tree",
@@ -78,8 +79,10 @@ export const en: Translations = {
 	"editView.ariaLabel.jsonEditor": "JSON editor",
 	"editView.button.save": "Save (⌘S)",
 	"editView.button.discard": "Discard",
-	"editView.tooltip.unfold": "Unfold",
-	"editView.tooltip.fold": "Fold",
+	"editView.largeFile.banner":
+		"Large file ({size}) — some editor features are disabled for performance.",
+	"editView.largeFile.noHighlight": "Syntax highlighting disabled",
+	"editView.largeFile.noBracketMatch": "Bracket matching disabled",
 
 	// ─── EditorToolbar ──────────────────────────────────────────
 	"editorToolbar.tooltip.indent": "Indent: {size} (click to change)",
@@ -216,6 +219,12 @@ export const en: Translations = {
 	"tableView.column.rowNumber": "#",
 	"tableView.cell.arrayLabel": "[Array: {length}]",
 	"tableView.cell.objectLabel": "{Object}",
+	"tableView.pagination.showing": "{start}–{end} of {total}",
+	"tableView.pagination.page": "Page {page} of {totalPages}",
+	"tableView.pagination.first": "First",
+	"tableView.pagination.previous": "Previous",
+	"tableView.pagination.next": "Next",
+	"tableView.pagination.last": "Last",
 
 	// ─── LargeFileTreeView ────────────────────────────────────────────────────
 	"largeFile.tab": "Large File",
