@@ -1,32 +1,52 @@
 /**
- * RawView styles (CSS Module)
+ * RawView styles (CSS Module) — virtual-scrolling layout.
  */
 
 .rawView {
-  display: flex;
   height: 100%;
+  overflow: auto;
   font-family: var(--font-mono);
   font-size: var(--font-size, 13px);
-  line-height: 1.6;
-  overflow: auto;
+  line-height: 1;
 }
 
-.gutter {
-  flex-shrink: 0;
-  padding: 12px 8px;
-  background: var(--toolbar-bg);
-  border-right: 1px solid var(--border);
-  text-align: right;
-  user-select: none;
-  min-width: 40px;
-  position: sticky;
+/* Sentinel — sets scrollable height */
+.scrollContent {
+  position: relative;
+  width: 100%;
+}
+
+/* Each line row: absolutely positioned */
+.lineRow {
+  position: absolute;
   left: 0;
+  right: 0;
+  height: 21px;
+  line-height: 21px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  white-space: pre;
+  box-sizing: border-box;
+}
+
+.lineRow.match {
+  background: var(--search-match);
+  border-left: 2px solid var(--accent);
+}
+
+.lineRow.currentMatch {
+  background: var(--search-match-current);
 }
 
 .lineNumber {
+  flex-shrink: 0;
+  text-align: right;
+  padding-right: 12px;
   color: var(--text-secondary);
   font-size: 11px;
   opacity: 0.6;
+  user-select: none;
 }
 
 .matchLineNumber {
@@ -40,27 +60,10 @@
   font-weight: bold;
 }
 
-.code {
+.lineContent {
   flex: 1;
-  margin: 0;
-  padding: 12px;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-.line {
-  display: block;
-  min-height: 1.6em;
-}
-
-.line.match {
-  background: var(--search-match);
-  border-left: 2px solid var(--accent);
-  margin-left: -2px;
-}
-
-.line.currentMatch {
-  background: var(--search-match-current);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Syntax highlighting classes (from highlighter) */

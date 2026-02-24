@@ -6,7 +6,7 @@ import type { StateCreator } from "zustand";
 import type { FlatNode, ParseError } from "../core/parser.types";
 import type { ViewMode, ResolvedTheme, ContentTypeClass } from "@shared/types";
 import type { StoreState } from "./store.types";
-import { LARGE_FILE_THRESHOLD } from "@shared/constants";
+import { LARGE_FILE_THRESHOLD, HEAVY_VIEW_THRESHOLD } from "@shared/constants";
 
 export interface JsonSlice {
 	// State
@@ -91,8 +91,17 @@ export const createJsonSlice: StateCreator<StoreState, [], [], JsonSlice> = (
 
 	setViewMode: (mode) => {
 		const state = get();
+		// Warn about unsaved edits when leaving edit mode
 		if (state.viewMode === "edit" && mode !== "edit" && state.hasUnsavedEdits) {
 			set({ pendingViewMode: mode });
+			return;
+		}
+		// Warn about performance when switching to heavy views with large content
+		if (
+			(mode === "edit" || mode === "diff") &&
+			state.fileSize >= HEAVY_VIEW_THRESHOLD
+		) {
+			set({ pendingSizeWarning: mode });
 			return;
 		}
 		set({ viewMode: mode });

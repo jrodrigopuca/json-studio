@@ -11,6 +11,7 @@ export { Toast, ToastProvider, useToast } from "./Toast";
 export {
 	Modal,
 	UnsavedChangesModal,
+	LargeContentWarningModal,
 	SaveJsonModal,
 	ShortcutsHelpModal,
 } from "./Modal";

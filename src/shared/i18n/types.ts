@@ -158,6 +158,13 @@ export interface Translations {
 	"modal.saveJson.savedCount": string; // {count}, {max}
 	"modal.saveJson.limitReached": string;
 
+	// ─── Modal — Large Content Warning ────────────────────────────────────────
+	"modal.largeContent.title": string;
+	"modal.largeContent.message": string; // {size}, {view}
+	"modal.largeContent.warning": string;
+	"modal.largeContent.continue": string;
+	"modal.largeContent.cancel": string;
+
 	// ─── Modal — Shortcuts ────────────────────────────────────────────────────
 	"modal.shortcuts.title": string;
 	"modal.shortcuts.close": string;

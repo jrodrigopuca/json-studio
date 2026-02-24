@@ -11,6 +11,9 @@ export const WORKER_THRESHOLD = 1_048_576; // 1MB
 /** Size threshold (bytes) for activating Large File Mode. */
 export const LARGE_FILE_THRESHOLD = 1_048_576; // 1MB
 
+/** Size threshold (bytes) for warning before opening Edit/Diff views. */
+export const HEAVY_VIEW_THRESHOLD = 204_800; // 200KB
+
 /** Default indent size for pretty printing. */
 export const DEFAULT_INDENT = 2;
 
@@ -33,8 +36,11 @@ export const JSON_CONTENT_TYPES = [
 /** JSONP callback pattern. */
 export const JSONP_PATTERN = /^[\w$.]+\s*\(\s*([\s\S]*?)\s*\);?\s*$/;
 
-/** Node height in pixels (for virtualisation). */
+/** Node height in pixels (for tree virtualisation). */
 export const NODE_HEIGHT = 24;
+
+/** Line height in pixels (for raw-view virtualisation). */
+export const RAW_LINE_HEIGHT = 21;
 
 /** Keyboard shortcut definitions. */
 export const SHORTCUTS = {

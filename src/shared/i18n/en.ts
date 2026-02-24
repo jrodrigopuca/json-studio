@@ -154,6 +154,15 @@ export const en: Translations = {
 	"modal.saveJson.savedCount": "{count}/{max} saved",
 	"modal.saveJson.limitReached": "(limit reached)",
 
+	// ─── Modal — Large Content Warning ──────────────────────────
+	"modal.largeContent.title": "Large content warning",
+	"modal.largeContent.message":
+		"The current JSON is {size}. Opening the {view} view with large content may cause the browser to slow down or become unresponsive.",
+	"modal.largeContent.warning":
+		"Consider using Tree or Raw view for better performance.",
+	"modal.largeContent.continue": "Open anyway",
+	"modal.largeContent.cancel": "Cancel",
+
 	// ─── Modal — Shortcuts ──────────────────────────────────────
 	"modal.shortcuts.title": "Keyboard shortcuts",
 	"modal.shortcuts.close": "Close",

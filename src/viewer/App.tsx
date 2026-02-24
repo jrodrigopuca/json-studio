@@ -26,6 +26,7 @@ import {
   SavedView,
   ConvertView,
   UnsavedChangesModal,
+  LargeContentWarningModal,
   ShortcutsHelpModal,
 } from "./components";
 
@@ -46,10 +47,14 @@ function AppContent() {
   const isParsing = useStore((s) => s.isParsing);
   const isLargeFile = useStore((s) => s.isLargeFile);
   const pendingViewMode = useStore((s) => s.pendingViewMode);
+  const pendingSizeWarning = useStore((s) => s.pendingSizeWarning);
+  const fileSize = useStore((s) => s.fileSize);
   const showShortcutsHelp = useStore((s) => s.showShortcutsHelp);
   const setShowShortcutsHelp = useStore((s) => s.setShowShortcutsHelp);
   const confirmViewChange = useStore((s) => s.confirmViewChange);
   const cancelViewChange = useStore((s) => s.cancelViewChange);
+  const confirmSizeWarning = useStore((s) => s.confirmSizeWarning);
+  const cancelSizeWarning = useStore((s) => s.cancelSizeWarning);
   const saveEditContent = useStore((s) => s.saveEditContent);
   const { show: showToast } = useToast();
   const { t } = useI18n();
@@ -145,6 +150,15 @@ function AppContent() {
         onSave={handleSaveAndChange}
         onDiscard={handleDiscardAndChange}
         onCancel={cancelViewChange}
+      />
+
+      {/* Large content warning modal */}
+      <LargeContentWarningModal
+        isOpen={pendingSizeWarning !== null}
+        fileSize={fileSize}
+        viewName={pendingSizeWarning === "edit" ? "Edit" : "Diff"}
+        onContinue={confirmSizeWarning}
+        onCancel={cancelSizeWarning}
       />
 
       {/* Keyboard shortcuts help modal */}

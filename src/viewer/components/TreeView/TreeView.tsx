@@ -1,5 +1,9 @@
 /**
- * TreeView component - hierarchical JSON visualization.
+ * TreeView component - hierarchical JSON visualization with virtual scrolling.
+ *
+ * Only the nodes visible in the viewport (plus an overscan buffer) are
+ * rendered as real DOM elements.  Each node is absolutely positioned inside
+ * a tall sentinel div whose height equals visibleNodes.length * NODE_HEIGHT.
  */
 
 import { useCallback, useMemo, useRef, useEffect, useState } from "react";
@@ -9,8 +13,12 @@ import { getNodeValue, getFormattedNodeValue, copyToClipboard } from "../../core
 import { ContextMenu, type ContextMenuPosition } from "../ContextMenu";
 import { useToast } from "../Toast";
 import { TreeViewHeader } from "./TreeViewHeader";
+import { NODE_HEIGHT } from "@shared/constants";
 import type { FlatNode } from "../../core/parser.types";
 import styles from "./TreeView.module.css";
+
+/** Extra rows rendered above/below the viewport for smoother scrolling. */
+const OVERSCAN = 15;
 
 export function TreeView() {
   const nodes = useStore((s) => s.nodes);
@@ -27,33 +35,72 @@ export function TreeView() {
   const { show: showToast } = useToast();
   const { t } = useI18n();
 
-  // Context menu state
+  // ── Virtual-scroll state ────────────────────────────────────────────────
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const [scrollTop, setScrollTop] = useState(0);
+  const [viewportHeight, setViewportHeight] = useState(600);
+
+  // Track viewport size
+  useEffect(() => {
+    const el = viewportRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) setViewportHeight(entry.contentRect.height);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const handleScroll = useCallback(() => {
+    const el = viewportRef.current;
+    if (el) setScrollTop(el.scrollTop);
+  }, []);
+
+  // ── Context menu state ──────────────────────────────────────────────────
   const [contextMenu, setContextMenu] = useState<{
     position: ContextMenuPosition;
     nodeId: number;
   } | null>(null);
 
-  // Get visible nodes (respecting collapsed state and focus)
+  // ── Visible nodes (collapsed subtrees hidden, focus applied) ────────────
   const visibleNodes = useMemo(() => {
     return selectVisibleNodes({ nodes, expandedNodes, focusedNodeId } as any);
   }, [nodes, expandedNodes, focusedNodeId]);
 
+  // Build a Set for O(1) search-match lookup
+  const searchMatchSet = useMemo(() => new Set(searchMatches), [searchMatches]);
+
   // Current search match
   const currentMatch = searchMatches[searchCurrentIndex];
 
-  // Scroll to current match
-  const containerRef = useRef<HTMLDivElement>(null);
-  
+  // ── Scroll to current search match ──────────────────────────────────────
   useEffect(() => {
-    if (currentMatch !== undefined) {
-      const element = containerRef.current?.querySelector(
-        `[data-node-id="${currentMatch}"]`
-      );
-      element?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-  }, [currentMatch]);
+    if (currentMatch === undefined) return;
+    const idx = visibleNodes.findIndex((n) => n.id === currentMatch);
+    if (idx === -1) return;
+    const el = viewportRef.current;
+    if (!el) return;
 
-  // Context menu handlers
+    const targetTop = idx * NODE_HEIGHT;
+    const targetBottom = targetTop + NODE_HEIGHT;
+
+    // Only scroll if the match is outside the visible area
+    if (targetTop < el.scrollTop || targetBottom > el.scrollTop + viewportHeight) {
+      el.scrollTop = targetTop - viewportHeight / 2 + NODE_HEIGHT / 2;
+    }
+  }, [currentMatch, visibleNodes, viewportHeight]);
+
+  // ── Windowed slice ──────────────────────────────────────────────────────
+  const totalHeight = visibleNodes.length * NODE_HEIGHT;
+  const startIndex = Math.max(0, Math.floor(scrollTop / NODE_HEIGHT) - OVERSCAN);
+  const endIndex = Math.min(
+    visibleNodes.length,
+    Math.ceil((scrollTop + viewportHeight) / NODE_HEIGHT) + OVERSCAN,
+  );
+  const windowedNodes = visibleNodes.slice(startIndex, endIndex);
+
+  // ── Context menu handlers ───────────────────────────────────────────────
   const handleContextMenu = useCallback((e: React.MouseEvent, nodeId: number) => {
     e.preventDefault();
     setContextMenu({
@@ -62,7 +109,6 @@ export function TreeView() {
     });
   }, []);
 
-  // Get the node for context menu (for conditional rendering)
   const contextMenuNode = contextMenu
     ? nodes.find((n) => n.id === contextMenu.nodeId)
     : null;
@@ -109,7 +155,6 @@ export function TreeView() {
   const handleFocusNode = useCallback(() => {
     if (!contextMenu) return;
     setFocusedNode(contextMenu.nodeId);
-    // Expand the focused node so we can see its content
     expandChildren(contextMenu.nodeId);
   }, [contextMenu, setFocusedNode, expandChildren]);
 
@@ -120,20 +165,31 @@ export function TreeView() {
   return (
     <div className={styles.container}>
       <TreeViewHeader />
-      <div className={styles.tree} ref={containerRef} role="tree">
-        {visibleNodes.map((node) => (
-          <TreeNode
-            key={node.id}
-            node={node}
-            isExpanded={expandedNodes.has(node.id)}
-            isSelected={selectedNodeId === node.id}
-            isMatch={searchMatches.includes(node.id)}
-            isCurrentMatch={currentMatch === node.id}
-            onToggle={toggleNode}
-            onSelect={selectNode}
-            onContextMenu={handleContextMenu}
-          />
-        ))}
+      <div
+        className={styles.tree}
+        ref={viewportRef}
+        role="tree"
+        onScroll={handleScroll}
+      >
+        <div className={styles.scrollContent} style={{ height: totalHeight }}>
+          {windowedNodes.map((node, i) => {
+            const index = startIndex + i;
+            return (
+              <TreeNode
+                key={node.id}
+                node={node}
+                top={index * NODE_HEIGHT}
+                isExpanded={expandedNodes.has(node.id)}
+                isSelected={selectedNodeId === node.id}
+                isMatch={searchMatchSet.has(node.id)}
+                isCurrentMatch={currentMatch === node.id}
+                onToggle={toggleNode}
+                onSelect={selectNode}
+                onContextMenu={handleContextMenu}
+              />
+            );
+          })}
+        </div>
 
         {/* Context Menu */}
         {contextMenu && contextMenuNode && (
@@ -156,8 +212,11 @@ export function TreeView() {
   );
 }
 
+// ─── TreeNode ─────────────────────────────────────────────────────────────────
+
 interface TreeNodeProps {
   node: FlatNode;
+  top: number;
   isExpanded: boolean;
   isSelected: boolean;
   isMatch: boolean;
@@ -169,6 +228,7 @@ interface TreeNodeProps {
 
 function TreeNode({
   node,
+  top,
   isExpanded,
   isSelected,
   isMatch,
@@ -201,7 +261,6 @@ function TreeNode({
     [node.id, onContextMenu]
   );
 
-  // Build class names
   const classNames = [
     styles.node,
     isSelected && styles.selected,
@@ -214,7 +273,7 @@ function TreeNode({
   return (
     <div
       className={classNames}
-      style={{ paddingLeft: `${node.depth * 20 + 8}px` }}
+      style={{ top, paddingLeft: node.depth * 20 + 8 }}
       data-node-id={node.id}
       role="treeitem"
       aria-expanded={node.isExpandable ? isExpanded : undefined}
@@ -224,14 +283,12 @@ function TreeNode({
       onKeyDown={handleKeyDown}
       onContextMenu={handleContextMenu}
     >
-      {/* Expand/collapse toggle */}
       {node.isExpandable && (
         <span className={styles.toggle}>
           {isExpanded ? "▼" : "▶"}
         </span>
       )}
 
-      {/* Key */}
       {node.key !== null && (
         <>
           <span className={styles.key}>"{node.key}"</span>
@@ -239,7 +296,6 @@ function TreeNode({
         </>
       )}
 
-      {/* Value */}
       {node.isExpandable ? (
         <ExpandableValue node={node} isExpanded={isExpanded} />
       ) : (

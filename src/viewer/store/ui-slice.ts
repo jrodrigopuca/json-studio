@@ -22,6 +22,7 @@ export interface UiSlice {
 	// State
 	bookmarks: Bookmark[];
 	pendingViewMode: ViewMode | null;
+	pendingSizeWarning: ViewMode | null;
 	showShortcutsHelp: boolean;
 
 	// Actions
@@ -29,6 +30,8 @@ export interface UiSlice {
 	removeBookmark: (id: string) => void;
 	confirmViewChange: () => void;
 	cancelViewChange: () => void;
+	confirmSizeWarning: () => void;
+	cancelSizeWarning: () => void;
 	setShowShortcutsHelp: (show: boolean) => void;
 	reset: () => void;
 }
@@ -39,6 +42,7 @@ export const createUiSlice: StateCreator<StoreState, [], [], UiSlice> = (
 ) => ({
 	bookmarks: [],
 	pendingViewMode: null,
+	pendingSizeWarning: null,
 	showShortcutsHelp: false,
 
 	addBookmark: (bookmark) => {
@@ -64,6 +68,15 @@ export const createUiSlice: StateCreator<StoreState, [], [], UiSlice> = (
 	},
 
 	cancelViewChange: () => set({ pendingViewMode: null }),
+
+	confirmSizeWarning: () => {
+		const { pendingSizeWarning } = get();
+		if (pendingSizeWarning) {
+			set({ viewMode: pendingSizeWarning, pendingSizeWarning: null });
+		}
+	},
+
+	cancelSizeWarning: () => set({ pendingSizeWarning: null }),
 
 	setShowShortcutsHelp: (show) => set({ showShortcutsHelp: show }),
 
@@ -110,6 +123,7 @@ export const createUiSlice: StateCreator<StoreState, [], [], UiSlice> = (
 			bookmarks: [],
 			diffJson: null,
 			pendingViewMode: null,
+			pendingSizeWarning: null,
 			showShortcutsHelp: false,
 		} as Partial<StoreState>),
 });

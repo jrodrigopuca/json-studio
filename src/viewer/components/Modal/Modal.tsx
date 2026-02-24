@@ -100,6 +100,52 @@ export function UnsavedChangesModal({
   );
 }
 
+// Warning modal when opening Edit/Diff with large content
+interface LargeContentWarningModalProps {
+  isOpen: boolean;
+  fileSize: number;
+  viewName: string;
+  onContinue: () => void;
+  onCancel: () => void;
+}
+
+export function LargeContentWarningModal({
+  isOpen,
+  fileSize,
+  viewName,
+  onContinue,
+  onCancel,
+}: LargeContentWarningModalProps) {
+  const { t } = useI18n();
+  return (
+    <Modal
+      isOpen={isOpen}
+      title={t("modal.largeContent.title")}
+      onClose={onCancel}
+      actions={
+        <>
+          <button className={styles.buttonSecondary} onClick={onCancel}>
+            {t("modal.largeContent.cancel")}
+          </button>
+          <button className={styles.buttonPrimary} onClick={onContinue}>
+            {t("modal.largeContent.continue")}
+          </button>
+        </>
+      }
+    >
+      <p>
+        {t("modal.largeContent.message", {
+          size: formatSize(fileSize),
+          view: viewName,
+        })}
+      </p>
+      <p>
+        <strong>{t("modal.largeContent.warning")}</strong>
+      </p>
+    </Modal>
+  );
+}
+
 // Modal for saving current JSON to favorites
 interface SaveJsonModalProps {
   isOpen: boolean;
