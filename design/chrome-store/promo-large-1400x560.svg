@@ -1,0 +1,130 @@
+<svg width="1400" height="560" viewBox="0 0 1400 560" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1400" height="560" fill="#1a1a2e"/>
+  
+  <!-- Decorative gradient background -->
+  <defs>
+    <radialGradient id="glow-large" cx="30%" cy="50%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#1a1a2e;stop-opacity:0"/>
+    </radialGradient>
+    <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:0.05"/>
+      <stop offset="100%" style="stop-color:#1a1a2e;stop-opacity:0"/>
+    </linearGradient>
+  </defs>
+  <circle cx="400" cy="280" r="350" fill="url(#glow-large)"/>
+  <rect width="1400" height="560" fill="url(#shine)"/>
+  
+  <!-- Left side: Branding -->
+  <g id="branding">
+    <!-- Energy Ring Logo (larger) -->
+    <g transform="translate(280, 200)">
+      <circle cx="0" cy="0" r="60" fill="none" stroke="#fbbf24" stroke-width="4" opacity="0.3"/>
+      <circle cx="0" cy="0" r="48" fill="none" stroke="#fbbf24" stroke-width="3.5"/>
+      <path d="M -14,-20 L -14,20 L 14,0 Z" fill="#fbbf24"/>
+      <circle cx="0" cy="0" r="32" fill="none" stroke="#fbbf24" stroke-width="3" opacity="0.5"/>
+    </g>
+    
+    <!-- Title -->
+    <text x="280" y="305" font-family="system-ui, -apple-system, sans-serif" font-size="56" font-weight="700" fill="#f1f5f9" text-anchor="middle">
+      JSON Spark
+    </text>
+    
+    <!-- Tagline -->
+    <text x="280" y="345" font-family="system-ui, -apple-system, sans-serif" font-size="22" fill="#fbbf24" text-anchor="middle">
+      The Modern JSON Viewer
+    </text>
+    
+    <!-- Features list -->
+    <g transform="translate(100, 390)">
+      <!-- Feature 1 -->
+      <circle cx="0" cy="0" r="4" fill="#fbbf24"/>
+      <text x="15" y="5" font-family="system-ui, -apple-system, sans-serif" font-size="16" fill="#f1f5f9">
+        ✓ Interactive tree navigation
+      </text>
+      
+      <!-- Feature 2 -->
+      <circle cx="0" cy="35" r="4" fill="#fbbf24"/>
+      <text x="15" y="40" font-family="system-ui, -apple-system, sans-serif" font-size="16" fill="#f1f5f9">
+        ✓ Powerful search &amp; filter
+      </text>
+      
+      <!-- Feature 3 -->
+      <circle cx="0" cy="70" r="4" fill="#fbbf24"/>
+      <text x="15" y="75" font-family="system-ui, -apple-system, sans-serif" font-size="16" fill="#f1f5f9">
+        ✓ Multiple view modes
+      </text>
+      
+      <!-- Feature 4 -->
+      <circle cx="0" cy="105" r="4" fill="#fbbf24"/>
+      <text x="15" y="110" font-family="system-ui, -apple-system, sans-serif" font-size="16" fill="#f1f5f9">
+        ✓ Lightning fast performance
+      </text>
+    </g>
+  </g>
+  
+  <!-- Right side: Mock screenshot/interface -->
+  <g id="mockup" transform="translate(650, 80)">
+    <!-- Browser window mockup -->
+    <rect width="680" height="400" rx="8" fill="#0f0f1a" stroke="#fbbf24" stroke-width="2" opacity="0.8"/>
+    
+    <!-- Browser chrome -->
+    <rect width="680" height="40" rx="8" fill="#16162a"/>
+    <circle cx="20" cy="20" r="6" fill="#ff5f56"/>
+    <circle cx="40" cy="20" r="6" fill="#ffbd2e"/>
+    <circle cx="60" cy="20" r="6" fill="#27c93f"/>
+    
+    <!-- URL bar -->
+    <rect x="90" y="12" width="500" height="16" rx="8" fill="#1a1a2e"/>
+    <text x="100" y="23" font-family="'Courier New', monospace" font-size="10" fill="#fbbf24" opacity="0.7">
+      chrome-extension://json-spark/viewer
+    </text>
+    
+    <!-- JSON content mockup -->
+    <g transform="translate(20, 60)">
+      <!-- Tree structure -->
+      <text x="0" y="20" font-family="'Courier New', monospace" font-size="13" fill="#fbbf24">▼</text>
+      <text x="20" y="20" font-family="'Courier New', monospace" font-size="13" fill="#f1f5f9">user</text>
+      <text x="60" y="20" font-family="'Courier New', monospace" font-size="13" fill="#94a3b8">Object</text>
+      
+      <text x="20" y="45" font-family="'Courier New', monospace" font-size="13" fill="#fbbf24">▼</text>
+      <text x="40" y="45" font-family="'Courier New', monospace" font-size="13" fill="#f1f5f9">profile</text>
+      <text x="100" y="45" font-family="'Courier New', monospace" font-size="13" fill="#94a3b8">Object</text>
+      
+      <text x="40" y="70" font-family="'Courier New', monospace" font-size="13" fill="#f1f5f9">name</text>
+      <text x="90" y="70" font-family="'Courier New', monospace" font-size="13" fill="#10b981">"John Doe"</text>
+      
+      <text x="40" y="95" font-family="'Courier New', monospace" font-size="13" fill="#f1f5f9">email</text>
+      <text x="90" y="95" font-family="'Courier New', monospace" font-size="13" fill="#10b981">"john@example.com"</text>
+      
+      <text x="20" y="120" font-family="'Courier New', monospace" font-size="13" fill="#fbbf24">▶</text>
+      <text x="40" y="120" font-family="'Courier New', monospace" font-size="13" fill="#f1f5f9">settings</text>
+      <text x="120" y="120" font-family="'Courier New', monospace" font-size="13" fill="#94a3b8">Object</text>
+      
+      <text x="0" y="145" font-family="'Courier New', monospace" font-size="13" fill="#fbbf24">▼</text>
+      <text x="20" y="145" font-family="'Courier New', monospace" font-size="13" fill="#f1f5f9">data</text>
+      <text x="70" y="145" font-family="'Courier New', monospace" font-size="13" fill="#94a3b8">Array[3]</text>
+      
+      <!-- Highlight box -->
+      <rect x="-5" y="55" width="640" height="50" rx="4" fill="#fbbf24" stroke="#fbbf24" stroke-width="1" opacity="0.1"/>
+    </g>
+    
+    <!-- Status bar -->
+    <rect y="360" width="680" height="40" fill="#16162a" opacity="0.8"/>
+    <text x="20" y="385" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#94a3b8">
+      5 objects • 12 properties • 2.4 KB
+    </text>
+    <text x="580" y="385" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#fbbf24">
+      Tree View ▼
+    </text>
+  </g>
+  
+  <!-- Decorative code brackets -->
+  <text x="50" y="300" font-family="'Courier New', monospace" font-size="120" fill="#fbbf24" opacity="0.05" font-weight="300">
+    {
+  </text>
+  <text x="1320" y="300" font-family="'Courier New', monospace" font-size="120" fill="#fbbf24" opacity="0.05" font-weight="300">
+    }
+  </text>
+</svg>
