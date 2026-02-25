@@ -127,13 +127,26 @@ export function useJsonLoader() {
 
 				// Check for temp storage from popup first
 				if (tempKey && typeof chrome !== "undefined" && chrome.storage) {
+					console.log("🟢 Attempting to load from storage:", tempKey);
 					try {
 						const result = await chrome.storage.session.get(tempKey);
-						const storedValue = result[tempKey];
+						const storedValue = result[tempKey] as string | undefined;
+						console.log("🟢 Storage result:", {
+							key: tempKey,
+							hasValue: !!storedValue,
+							valueType: typeof storedValue,
+							valueLength: storedValue?.length,
+						});
+
 						if (storedValue && typeof storedValue === "string") {
 							try {
 								// Try parsing as JSON object with {content, url}
 								const parsed = JSON.parse(storedValue);
+								console.log("🟢 Parsed storage data:", {
+									hasContent: !!parsed.content,
+									url: parsed.url,
+									contentLength: parsed.content?.length,
+								});
 								if (parsed.content) {
 									rawJson = parsed.content;
 									url = parsed.url || "extension://from-page";
@@ -142,13 +155,23 @@ export function useJsonLoader() {
 									rawJson = storedValue;
 									url = "extension://from-page";
 								}
-							} catch {
+							} catch (parseError) {
+								console.log(
+									"🟢 Failed to parse as structured data, using raw:",
+									parseError,
+								);
 								// Not structured, treat as raw JSON
 								rawJson = storedValue;
 								url = "extension://from-page";
 							}
 							// Clear from storage
 							chrome.storage.session.remove(tempKey);
+							console.log(
+								"🟢 Successfully loaded JSON from storage, length:",
+								rawJson.length,
+							);
+						} else {
+							console.warn("🟢 No stored value found for key:", tempKey);
 						}
 					} catch (error) {
 						console.error("Failed to load from storage:", error);

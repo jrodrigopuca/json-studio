@@ -104,16 +104,35 @@ chrome.action.onClicked.addListener(async (tab) => {
 			// Found JSON! Store it in session and open viewer
 			const tempKey = `json-spark-temp-${Date.now()}`;
 
+			const storageData = JSON.stringify({
+				content: jsonData.json,
+				url: jsonData.url,
+			});
+
+			console.log("🔵 Storing JSON in session:", {
+				key: tempKey,
+				urlOrigin: jsonData.url,
+				jsonLength: jsonData.json.length,
+				storageDataLength: storageData.length,
+			});
+
 			await chrome.storage.session.set({
-				[tempKey]: JSON.stringify({
-					content: jsonData.json,
-					url: jsonData.url,
-				}),
+				[tempKey]: storageData,
+			});
+
+			// Verify it was stored
+			const verify = await chrome.storage.session.get(tempKey);
+			const verifyData = verify[tempKey] as string | undefined;
+			console.log("🔵 Verified storage:", {
+				key: tempKey,
+				hasData: !!verifyData,
+				dataLength: verifyData?.length,
 			});
 
 			const viewerUrl = chrome.runtime.getURL(
 				`viewer/index.html?temp=${tempKey}`,
 			);
+			console.log("🔵 Opening viewer:", viewerUrl);
 			chrome.tabs.create({ url: viewerUrl });
 		} else if (
 			tab.url &&
