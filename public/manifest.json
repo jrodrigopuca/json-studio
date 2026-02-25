@@ -9,7 +9,7 @@
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
   },
-  "permissions": ["activeTab", "clipboardWrite", "contextMenus"],
+  "permissions": ["activeTab", "clipboardWrite", "contextMenus", "storage"],
   "background": {
     "service_worker": "background/service-worker.js",
     "type": "module"
@@ -22,7 +22,6 @@
     }
   ],
   "action": {
-    "default_popup": "popup/popup.html",
     "default_icon": "icons/icon-48.png"
   },
   "web_accessible_resources": [
@@ -30,5 +29,6 @@
       "resources": ["viewer/*", "chunks/*", "assets/*"],
       "matches": ["<all_urls>"]
     }
-  ]
+  ],
+  "options_page": "options/options.html"
 }

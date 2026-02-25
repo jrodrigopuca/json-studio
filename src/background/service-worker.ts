@@ -24,6 +24,14 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 /**
+ * Handle extension icon clicks — open viewer in new tab.
+ */
+chrome.action.onClicked.addListener(() => {
+	const viewerUrl = chrome.runtime.getURL("viewer/index.html");
+	chrome.tabs.create({ url: viewerUrl });
+});
+
+/**
  * Handle context menu clicks.
  */
 chrome.contextMenus.onClicked.addListener((info, tab) => {

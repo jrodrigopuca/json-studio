@@ -78,15 +78,10 @@ function mergeCssPlugin(): Plugin {
 }
 
 /**
- * Vite plugin that relocates HTML files from dist/src/xxx/ to dist/xxx/
- * after the build, and removes the viewer HTML (build-only artifact).
+ * Vite plugin that removes build artifacts and handles HTML relocation if needed.
  *
- * Vite places HTML inputs relative to the project root, so
- * src/popup/popup.html ends up at dist/src/popup/popup.html.
- * Chrome extensions need them at dist/popup/popup.html.
- *
- * The viewer HTML (init.html) is only needed to make Vite extract
- * CSS Modules correctly — it is NOT part of the extension output.
+ * - Removes viewer/init.html (build-only artifact for CSS Module extraction)
+ * - Relocates HTML files from dist/src/ to dist/ if Vite places them there
  */
 function chromeExtensionHtmlPlugin(): Plugin {
 	return {
@@ -95,34 +90,61 @@ function chromeExtensionHtmlPlugin(): Plugin {
 		closeBundle() {
 			const dist = resolve(__dirname, "dist");
 			const srcDir = resolve(dist, "src");
-			if (!existsSync(srcDir)) return;
 
-			const moves: [string, string][] = [
-				[
-					resolve(srcDir, "popup/popup.html"),
-					resolve(dist, "popup/popup.html"),
-				],
-				[
-					resolve(srcDir, "options/options.html"),
-					resolve(dist, "options/options.html"),
-				],
-			];
+			console.log("\n🔍 chromeExtensionHtmlPlugin running...");
 
-			for (const [from, to] of moves) {
-				if (existsSync(from)) {
-					mkdirSync(resolve(to, ".."), { recursive: true });
-					renameSync(from, to);
+			// Check if Vite generated HTML files in dist/src/ (older Vite behavior)
+			if (existsSync(srcDir)) {
+				console.log("   📁 Found dist/src/ - relocating HTML files...");
+
+				const moves: [string, string][] = [
+					[
+						resolve(srcDir, "viewer/index.html"),
+						resolve(dist, "viewer/index.html"),
+					],
+					[
+						resolve(srcDir, "options/options.html"),
+						resolve(dist, "options/options.html"),
+					],
+				];
+
+				for (const [from, to] of moves) {
+					if (existsSync(from)) {
+						console.log(`   ✅ Moving: ${from} -> ${to}`);
+						mkdirSync(resolve(to, ".."), { recursive: true });
+						renameSync(from, to);
+					}
 				}
+
+				// Remove init.html from dist/src/viewer/
+				const initInSrc = resolve(srcDir, "viewer/init.html");
+				if (existsSync(initInSrc)) {
+					console.log(`   🗑️  Removing: ${initInSrc}`);
+					unlinkSync(initInSrc);
+				}
+
+				// Clean up empty dist/src/
+				rmSync(srcDir, { recursive: true, force: true });
 			}
 
-			// Remove viewer init.html (build-only artifact)
-			const viewerHtml = resolve(srcDir, "viewer/init.html");
-			if (existsSync(viewerHtml)) {
-				unlinkSync(viewerHtml);
+			// Remove init.html if it was generated directly in dist/viewer/
+			const initInDist = resolve(dist, "viewer/init.html");
+			if (existsSync(initInDist)) {
+				console.log(`   🗑️  Removing build artifact: ${initInDist}`);
+				unlinkSync(initInDist);
 			}
 
-			// Clean up the empty dist/src/ directory
-			rmSync(srcDir, { recursive: true, force: true });
+			// Log final state
+			console.log("\n   📊 Final HTML files:");
+			const viewerIndexHtml = resolve(dist, "viewer/index.html");
+			const optionsHtml = resolve(dist, "options/options.html");
+			console.log(
+				`   ${existsSync(viewerIndexHtml) ? "✅" : "❌"} viewer/index.html`,
+			);
+			console.log(
+				`   ${existsSync(optionsHtml) ? "✅" : "❌"} options/options.html`,
+			);
+			console.log("✅ chromeExtensionHtmlPlugin done\n");
 		},
 	};
 }
@@ -131,6 +153,9 @@ function chromeExtensionHtmlPlugin(): Plugin {
  * Vite config for building the Chrome extension.
  *
  * Build with: npm run build:ext
+ *
+ * Note: publicDir is disabled. The build script (scripts/build-ext.js) manually
+ * copies manifest.json and icons/ from public/ to dist/ after Vite builds.
  *
  * The viewer uses an HTML entry (init.html) instead of a direct JS entry.
  * This is required because Vite 7 silently drops CSS Module class name
@@ -148,10 +173,9 @@ function chromeExtensionHtmlPlugin(): Plugin {
  *   ├── content/
  *   │   └── detector.js        (self-contained, no top-level imports)
  *   ├── viewer/
+ *   │   ├── index.html         (main viewer page, opened on icon click)
+ *   │   ├── index.js           (standalone viewer bundle)
  *   │   └── init.js            (ES module, loaded dynamically by content script)
- *   ├── popup/
- *   │   ├── popup.html
- *   │   └── popup.js
  *   ├── options/
  *   │   ├── options.html
  *   │   └── options.js
@@ -162,6 +186,7 @@ function chromeExtensionHtmlPlugin(): Plugin {
  */
 export default defineConfig({
 	plugins: [react(), mergeCssPlugin(), chromeExtensionHtmlPlugin()],
+	publicDir: false, // Don't copy public/ automatically; we do it manually in build script
 	resolve: {
 		alias: {
 			"@": resolve(__dirname, "src"),
@@ -184,11 +209,11 @@ export default defineConfig({
 				),
 				// Content script (self-contained — no top-level imports)
 				"content/detector": resolve(__dirname, "src/content/detector.ts"),
-				// Viewer React app — HTML entry to preserve CSS Module extraction.
-				// The HTML is discarded after build; only init.js matters.
+				// Viewer standalone page (opened when clicking extension icon)
+				"viewer/index": resolve(__dirname, "src/viewer/index.html"),
+				// Viewer init entry — HTML artifact to preserve CSS Module extraction.
+				// The HTML is discarded after build; only init.js matters for content script.
 				"viewer/init": resolve(__dirname, "src/viewer/init.html"),
-				// Popup page (HTML entry)
-				"popup/popup": resolve(__dirname, "src/popup/popup.html"),
 				// Options page (HTML entry)
 				"options/options": resolve(__dirname, "src/options/options.html"),
 			},

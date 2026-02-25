@@ -67,10 +67,20 @@ openBtn?.addEventListener("click", () => {
 });
 
 /**
- * Opens JSON text in a new tab via blob URL.
+ * Opens JSON text in the viewer by storing it and opening the viewer page.
  */
-function openJsonInNewTab(text: string): void {
-	const blob = new Blob([text], { type: "application/json" });
-	const url = URL.createObjectURL(blob);
-	chrome.tabs.create({ url });
+async function openJsonInNewTab(text: string): Promise<void> {
+	// Store the JSON temporarily using chrome.storage.session (available in MV3)
+	const key = `json-spark-temp-${Date.now()}`;
+
+	try {
+		await chrome.storage.session.set({ [key]: text });
+
+		// Open the viewer page with the key in the URL
+		const viewerUrl = chrome.runtime.getURL(`viewer/index.html?temp=${key}`);
+		await chrome.tabs.create({ url: viewerUrl });
+	} catch (error) {
+		console.error("Failed to store JSON:", error);
+		alert("Could not open viewer. Please try again.");
+	}
 }

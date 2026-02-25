@@ -120,11 +120,28 @@ export function useJsonLoader() {
 				const params = new URLSearchParams(window.location.search);
 				const jsonUrl = params.get("url");
 				const jsonData = params.get("data");
+				const tempKey = params.get("temp");
 
 				let rawJson = "";
 				let url = "";
 
-				if (jsonUrl) {
+				// Check for temp storage from popup first
+				if (tempKey && typeof chrome !== "undefined" && chrome.storage) {
+					try {
+						const result = await chrome.storage.session.get(tempKey);
+						const storedValue = result[tempKey];
+						if (storedValue && typeof storedValue === "string") {
+							rawJson = storedValue;
+							url = "extension://popup";
+							// Clear from storage
+							chrome.storage.session.remove(tempKey);
+						}
+					} catch (error) {
+						console.error("Failed to load from storage:", error);
+					}
+				}
+
+				if (!rawJson && jsonUrl) {
 					// Fetch from URL
 					const response = await fetch(jsonUrl);
 					rawJson = await response.text();
