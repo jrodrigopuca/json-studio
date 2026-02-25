@@ -92,11 +92,27 @@ jobs:
           body: |
             ## JSON Spark Extension Release
             
-            ### 📦 Installation Instructions
+            ### 📦 Download Instructions
             
-            **IMPORTANT**: Download `json-spark-${{ steps.package_version.outputs.tag }}.zip` below and upload it **DIRECTLY** to the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole).
+            **Two ways to download:**
             
-            ⚠️ **DO NOT unzip the file** - Chrome Web Store expects the ZIP file as-is.
+            1. **From this Release (RECOMMENDED)**: 
+               - Download `json-spark-${{ steps.package_version.outputs.tag }}.zip` from the Assets section below
+               - This is the file ready to upload to Chrome Web Store
+            
+            2. **From Workflow Artifacts**:
+               - Download `json-spark-extension-${{ steps.package_version.outputs.tag }}.zip`
+               - Extract it ONCE to get `json-spark-${{ steps.package_version.outputs.tag }}.zip` (the real package)
+               - Use that inner ZIP file for Chrome Web Store
+            
+            ### 📤 Upload to Chrome Web Store
+            
+            1. Go to [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
+            2. Click "New Item"
+            3. Upload `json-spark-${{ steps.package_version.outputs.tag }}.zip` **WITHOUT unzipping it**
+            4. ✅ Chrome will extract and validate the manifest automatically
+            
+            ⚠️ **IMPORTANT**: Upload the ZIP file as-is. Chrome Web Store handles the extraction.
             
             ### ✨ What's Included
             
@@ -107,12 +123,20 @@ jobs:
             - ✅ Popup and options pages
             - ✅ Viewer with all features
             
-            ### 📋 Checklist for Chrome Web Store
+            ### � Verify Before Upload
             
-            1. Go to [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
-            2. Click "New Item"
-            3. Upload `json-spark-${{ steps.package_version.outputs.tag }}.zip` (do not unzip it)
-            4. Add screenshots (1280x800 or 640x400)
+            You can verify the ZIP structure locally:
+            ```bash
+            # Extract to a temp folder to check (don't upload the extracted files!)
+            unzip -l json-spark-${{ steps.package_version.outputs.tag }}.zip | grep manifest.json
+            # Should show: manifest.json (in the root)
+            ```
+            
+            ### 📋 Submission Steps
+            
+            1. Download `json-spark-${{ steps.package_version.outputs.tag }}.zip` from Assets below
+            2. Upload ZIP to Chrome Web Store (do not extract first)
+            3. Add screenshots (1280x800 or 640x400)
             5. Add promotional images if needed
             6. Fill in store listing details
             7. Submit for review
