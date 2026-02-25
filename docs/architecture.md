@@ -2,7 +2,7 @@
 
 ## 1. Visión General
 
-JSON Studio es una **extensión de Chrome Manifest V3** que detecta respuestas JSON en pestañas del navegador y las renderiza con un visor interactivo basado en React. La arquitectura sigue un patrón **modular por capas** con un store centralizado (Zustand) como sistema nervioso de la aplicación.
+JSON Spark es una **extensión de Chrome Manifest V3** que detecta respuestas JSON en pestañas del navegador y las renderiza con un visor interactivo basado en React. La arquitectura sigue un patrón **modular por capas** con un store centralizado (Zustand) como sistema nervioso de la aplicación.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
@@ -19,20 +19,23 @@ JSON Studio es una **extensión de Chrome Manifest V3** que detecta respuestas J
 │                 ┌────────────▼────────────┐                          │
 │                 │     React Viewer App     │                          │
 │                 │  ┌──────────────────┐   │                          │
-│                 │  │   Zustand Store   │   │  ← 808 líneas           │
-│                 │  │   (~40 props,     │   │     estado centralizado  │
-│                 │  │    ~50 acciones)  │   │                          │
+│                 │  │  Zustand Store    │   │  ← 6 slices (~960 LOC)  │
+│                 │  │  (6 slices +      │   │    estado centralizado   │
+│                 │  │   middlewares)    │   │                          │
 │                 │  └────────┬─────────┘   │                          │
 │                 │  ┌────────┴─────────┐   │                          │
 │                 │  │   Core Modules    │   │  ← parser, formatter,   │
-│                 │  │                   │   │    highlighter, converter│
+│                 │  │  + Web Worker     │   │    highlighter, converter│
 │                 │  └──────────────────┘   │                          │
 │                 │  ┌──────────────────┐   │                          │
-│                 │  │   15 Components   │   │  ← React + CSS Modules  │
+│                 │  │   17 Components   │   │  ← React + CSS Modules  │
 │                 │  └──────────────────┘   │                          │
 │                 │  ┌──────────────────┐   │                          │
-│                 │  │    3 Hooks        │   │  ← loader, shortcuts,   │
-│                 │  │                   │   │    theme                 │
+│                 │  │    5 Hooks        │   │  ← loader, shortcuts,   │
+│                 │  │                   │   │    theme, i18n           │
+│                 │  └──────────────────┘   │                          │
+│                 │  ┌──────────────────┐   │                          │
+│                 │  │   i18n System     │   │  ← EN/ES/PT, 188 keys   │
 │                 │  └──────────────────┘   │                          │
 │                 └────────────────────────┘                          │
 └──────────────────────────────────────────────────────────────────────┘
@@ -55,57 +58,66 @@ Los cuatro puntos de entrada del Manifest V3:
 
 Módulos agnósticos de framework usados por todas las capas:
 
-| Módulo         | Exports principales                                                                                                                                       |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `types.ts`     | `ViewMode` (7 modos), `Theme`, `MessageType` (enum), `ExtensionMessage`, `DetectionResult`, `Settings`, `DEFAULT_SETTINGS`                                |
-| `constants.ts` | `APP_NAME`, `WORKER_THRESHOLD` (1MB), `DEFAULT_INDENT` (2), `MAX_VISIBLE_NODES` (500), `JSON_CONTENT_TYPES` (11 MIME types), `JSONP_PATTERN`, `SHORTCUTS` |
-| `dom.ts`       | `createElement()`, `querySelector()`, `copyToClipboard()`, `escapeHtml()`                                                                                 |
-| `messaging.ts` | `sendMessage<T>()`, `sendMessageToTab()`, `onMessage()` — wrappers tipados sobre `chrome.runtime`                                                         |
+| Módulo         | Exports principales                                                                                                                                                           |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `types.ts`     | `ViewMode` (7 modos), `Theme`, `MessageType` (enum), `ExtensionMessage`, `DetectionResult`, `Settings`, `DEFAULT_SETTINGS`                                                    |
+| `constants.ts` | `APP_NAME`, `WORKER_THRESHOLD` (1MB), `LARGE_FILE_THRESHOLD` (1MB), `HEAVY_VIEW_THRESHOLD` (200KB), `TABLE_PAGE_SIZE` (100), `NODE_HEIGHT` (24), `RAW_LINE_HEIGHT` (21), etc. |
+| `dom.ts`       | `createElement()`, `querySelector()`, `copyToClipboard()`, `escapeHtml()`                                                                                                     |
+| `messaging.ts` | `sendMessage<T>()`, `sendMessageToTab()`, `onMessage()` — wrappers tipados sobre `chrome.runtime`                                                                             |
+| `i18n/`        | Sistema de internacionalización: `types.ts` (188 keys), `en.ts`, `es.ts`, `pt.ts`, `index.ts` (locale management con `useSyncExternalStore`)                                  |
 
 ### 2.3 Capa Core (`src/viewer/core/`)
 
 Módulos de lógica pura sin dependencias de React, completamente testeados:
 
-| Módulo            | Líneas | Responsabilidad                              | Exports clave                                                           |
-| ----------------- | ------ | -------------------------------------------- | ----------------------------------------------------------------------- |
-| `parser.ts`       | 226    | Parsea JSON en array plano de `FlatNode[]`   | `parseJSON(raw, options?)` → `ParseResult`                              |
-| `parser.types.ts` | ~60    | Tipos del parser                             | `FlatNode`, `ParseError`, `ParseResult`, `JsonNodeType`                 |
-| `formatter.ts`    | ~180   | Formateo y utilidades                        | `prettyPrint()`, `minify()`, `formatSize()`, `sortJsonByKeys()`         |
-| `highlighter.ts`  | ~120   | Syntax highlighting vía regex                | `highlightJson()`, `wrapUrlsInString()`                                 |
-| `clipboard.ts`    | 124    | Reconstrucción de valores desde nodos planos | `getNodeValue()`, `getFormattedNodeValue()`, `copyToClipboard()`        |
-| `converter.ts`    | 469    | Conversiones JSON ↔ YAML/CSV                 | `jsonToYaml()`, `jsonToCsv()`, `jsonToTypeScript()`, `yamlToJson()`     |
-| `converters.ts`   | 367    | Conversiones JSON → TypeScript/XML           | `jsonToTypeScript()`, `jsonToXml()`, `convertJson()`, `CONVERT_FORMATS` |
+| Módulo                   | Líneas | Responsabilidad                                | Exports clave                                                                                          |
+| ------------------------ | ------ | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `parser.ts`              | 225    | Parsea JSON en array plano de `FlatNode[]`     | `parseJSON(raw, options?)` → `ParseResult`                                                             |
+| `parser.types.ts`        | ~60    | Tipos del parser                               | `FlatNode`, `ParseError`, `ParseResult`, `JsonNodeType`                                                |
+| `parser.worker.ts`       | 54     | Web Worker para parsing off-main-thread (≥1MB) | Recibe `WorkerRequest`, envía `WorkerResponse`                                                         |
+| `parser.worker.types.ts` | 30     | Tipos del Worker                               | `WorkerRequest`, `WorkerResponse`                                                                      |
+| `formatter.ts`           | ~180   | Formateo y utilidades                          | `prettyPrint()`, `minify()`, `formatSize()`, `sortJsonByKeys()`                                        |
+| `highlighter.ts`         | ~120   | Syntax highlighting vía regex                  | `highlightJson()`, `wrapUrlsInString()`                                                                |
+| `clipboard.ts`           | 124    | Reconstrucción de valores desde nodos planos   | `getNodeValue()`, `getFormattedNodeValue()`, `copyToClipboard()`                                       |
+| `converters.ts`          | 734    | Conversiones JSON → otros formatos             | `jsonToYaml()`, `jsonToCsv()`, `jsonToTypeScript()`, `jsonToXml()`, `convertJson()`, `CONVERT_FORMATS` |
 
 ### 2.4 Capa de Estado (`src/viewer/store/`)
 
-Store Zustand centralizado con middlewares `devtools` + `subscribeWithSelector`.
+Store Zustand centralizado con middlewares `devtools` + `subscribeWithSelector`, refactorizado en **6 slices** independientes:
 
-**Categorías de estado (~40 propiedades):**
+| Slice           | Archivo           | Líneas | Responsabilidad                                                                   |
+| --------------- | ----------------- | ------ | --------------------------------------------------------------------------------- |
+| `JsonSlice`     | `json-slice.ts`   | 117    | rawJson, nodes[], parseError, isValid, viewMode, theme, metadata                  |
+| `TreeSlice`     | `tree-slice.ts`   | 146    | expandedNodes, selectedNode, focusNode, expandAll/collapseAll, selectVisibleNodes |
+| `SearchSlice`   | `search-slice.ts` | 87     | searchQuery, searchMatches, currentMatchIndex, navigation                         |
+| `EditorSlice`   | `editor-slice.ts` | 213    | editContent, undo/redo stacks, save, indent/wrap/font settings, prettify/minify   |
+| `SavedSlice`    | `saved-slice.ts`  | 138    | savedJsons (localStorage), CRUD, max 10 docs / 500KB each                         |
+| `UiSlice`       | `ui-slice.ts`     | 129    | showLineNumbers, modals (unsaved/sizeWarning/shortcuts), reset                    |
+| **Composición** | `index.ts`        | 111    | Combina slices con `create()` + middlewares                                       |
+| **Tipos**       | `store.types.ts`  | 18     | `StoreState` = intersección de todos los slices                                   |
 
 ```
 ┌─────────────────────────────────────────────────────┐
 │                   Zustand Store                      │
+│            (6 slices + devtools +                    │
+│             subscribeWithSelector)                   │
 │                                                      │
 │  ┌─────────────┐  ┌──────────┐  ┌────────────────┐ │
-│  │  JSON Data   │  │  View    │  │     Tree       │ │
-│  │  rawJson     │  │  viewMode│  │  expandedNodes │ │
-│  │  nodes[]     │  │  showLine│  │  selectedNode  │ │
-│  │  metadata    │  │  Numbers │  │  focusNode     │ │
-│  │  parseError  │  │          │  │  sortDirection │ │
+│  │  JsonSlice   │  │ TreeSlice│  │  SearchSlice   │ │
+│  │  rawJson     │  │  expanded│  │  searchQuery   │ │
+│  │  nodes[]     │  │  Nodes   │  │  matches[]     │ │
+│  │  parseError  │  │  selected│  │  matchIndex    │ │
+│  │  viewMode    │  │  Node    │  │                │ │
+│  │  isLargeFile │  │  focus   │  │                │ │
 │  └─────────────┘  └──────────┘  └────────────────┘ │
 │                                                      │
 │  ┌─────────────┐  ┌──────────┐  ┌────────────────┐ │
-│  │   Search    │  │  Editor  │  │   Bookmarks    │ │
-│  │  searchTerm │  │  editCont│  │  bookmarks[]   │ │
-│  │  matches[]  │  │  undoStk │  │                │ │
-│  │  matchIndex │  │  redoStk │  │                │ │
-│  └─────────────┘  └──────────┘  └────────────────┘ │
-│                                                      │
-│  ┌─────────────┐  ┌──────────┐  ┌────────────────┐ │
-│  │    Diff     │  │  Saved   │  │    Modals      │ │
-│  │  original   │  │  JSONs[] │  │  unsavedModal  │ │
-│  │  modified   │  │  (local  │  │  pendingView   │ │
-│  │             │  │  storage)│  │  shortcutsHelp │ │
+│  │ EditorSlice │  │SavedSlice│  │    UiSlice     │ │
+│  │  editContent│  │  saved   │  │  showLineNums  │ │
+│  │  undoStack  │  │  JSONs[] │  │  modals:       │ │
+│  │  redoStack  │  │  (local  │  │   unsaved      │ │
+│  │  indent/wrap│  │  storage)│  │   sizeWarning  │ │
+│  │  fontSize   │  │          │  │   shortcuts    │ │
 │  └─────────────┘  └──────────┘  └────────────────┘ │
 └─────────────────────────────────────────────────────┘
 ```
@@ -122,15 +134,16 @@ Store Zustand centralizado con middlewares `devtools` + `subscribeWithSelector`.
 
 ### 2.5 Capa de Hooks (`src/viewer/hooks/`)
 
-| Hook                   | Responsabilidad                                                                                      |
-| ---------------------- | ---------------------------------------------------------------------------------------------------- |
-| `useJsonLoader`        | Carga JSON desde URL params (`?url=`, `?data=`), sessionStorage, o datos demo como fallback          |
-| `useKeyboardShortcuts` | Handler global de `keydown` — `⌥1-7` cambio de vista, `⌥E/C` expandir/colapsar, `⌘Z/⌘⇧Z` undo/redo   |
-| `useTheme`             | Aplica tema (dark/light/system) a `document.documentElement.dataset.theme`, persiste en localStorage |
+| Hook                   | Responsabilidad                                                                                                                                              |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `useJsonLoader`        | Carga JSON desde URL params (`?url=`, `?data=`), sessionStorage, o datos demo. Usa Web Worker para archivos ≥1MB.                                            |
+| `useKeyboardShortcuts` | Handler global de `keydown` — `⌥1-7` cambio de vista, `⌥E/C` expandir/colapsar, `⌘Z/⌘⇧Z` undo/redo                                                           |
+| `useTheme`             | Aplica tema (dark/light/system) a `document.documentElement.dataset.theme`, persiste en localStorage                                                         |
+| `useI18n`              | Hook de internacionalización. Retorna `{ t, locale, setLocale }`. Usa `useSyncExternalStore` para reactividad. Detecta idioma del navegador automáticamente. |
 
 ### 2.6 Capa de Componentes (`src/viewer/components/`)
 
-15 componentes React con CSS Modules. Ver [components.md](./components.md) para detalle completo.
+15 componentes React con CSS Modules + 2 componentes de performance (LargeFileTreeView, LargeContentWarningModal). Ver [components.md](./components.md) para detalle completo.
 
 ## 3. Estructura Flat Node (Modelo de Datos del Árbol)
 
@@ -223,13 +236,21 @@ components/
 
 ## 7. Testing
 
-| Suite       | Archivo                          | Tests   | Cobertura                                        |
-| ----------- | -------------------------------- | ------- | ------------------------------------------------ |
-| Parser      | `tests/unit/parser.test.ts`      | 31      | Parseo, FlatNode, JSONPath, maxDepth, edge cases |
-| Formatter   | `tests/unit/formatter.test.ts`   | 34      | prettyPrint, minify, formatSize, sortJsonByKeys  |
-| Highlighter | `tests/unit/highlighter.test.ts` | 28      | Tokens, URLs, XSS, getTypeClass                  |
-| Converter   | `tests/unit/converter.test.ts`   | 30      | YAML, CSV, TypeScript, yamlToJson                |
-| **Total**   | **4 archivos**                   | **123** | Solo core logic; sin tests de componentes/E2E    |
+| Suite          | Archivo                                    | Tests   | Cobertura                                             |
+| -------------- | ------------------------------------------ | ------- | ----------------------------------------------------- |
+| Parser         | `tests/unit/parser.test.ts`                | 31      | Parseo, FlatNode, JSONPath, maxDepth, edge cases      |
+| Formatter      | `tests/unit/formatter.test.ts`             | 34      | prettyPrint, minify, formatSize, sortJsonByKeys       |
+| Highlighter    | `tests/unit/highlighter.test.ts`           | 28      | Tokens, URLs, XSS, getTypeClass                       |
+| Converter      | `tests/unit/converter.test.ts`             | 36      | YAML, CSV, TypeScript, XML, yamlToJson                |
+| Breadcrumb     | `tests/components/Breadcrumb.test.tsx`     | 7       | Rendering, navigation, root display                   |
+| ContextMenu    | `tests/components/ContextMenu.test.tsx`    | 10      | Copy options, expand/collapse, filter                 |
+| StatusBar      | `tests/components/StatusBar.test.tsx`      | 9       | Metadata display, theme toggle, i18n                  |
+| SearchBar      | `tests/components/SearchBar.test.tsx`      | 8       | Input, navigation, match count                        |
+| TreeViewHeader | `tests/components/TreeViewHeader.test.tsx` | 9       | Level controls, expand/collapse, focus indicator      |
+| ConvertView    | `tests/components/ConvertView.test.tsx`    | 7       | Format tabs, output, copy/download                    |
+| Toolbar        | `tests/components/Toolbar.test.tsx`        | 15      | Tab rendering, contextual actions, large file mode    |
+| Modal          | `tests/components/Modal.test.tsx`          | 17      | UnsavedChanges, SaveJson, ShortcutsHelp, LargeContent |
+| **Total**      | **12 archivos**                            | **211** | Core logic + componentes React                        |
 
 ## 8. Seguridad
 

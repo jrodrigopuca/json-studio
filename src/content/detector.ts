@@ -7,8 +7,15 @@
  * @module detector
  */
 
-import { JSONP_PATTERN } from "../shared/constants.js";
-import type { ContentTypeClass } from "../shared/types.js";
+/**
+ * JSONP callback pattern — inlined here to avoid static imports.
+ * Content scripts in Chrome MV3 are classic scripts (not ES modules),
+ * so top-level `import` statements are not allowed.
+ */
+const JSONP_PATTERN = /^[\w$.]+\s*\(\s*([\s\S]*?)\s*\);?\s*$/;
+
+/** Content-type classification (mirrors shared/types.ts). */
+type ContentTypeClass = "application/json" | "text/json" | "file" | "unknown";
 
 /**
  * Main detection logic. Runs immediately on script load.
@@ -170,17 +177,34 @@ async function activateViewer(
 	rawJson: string,
 	contentType: ContentTypeClass,
 ): Promise<void> {
-	// Dynamically import the React viewer (lazy loaded)
-	const { initViewer } = await import("../viewer/init.js");
-
 	// Replace page content
 	document.title = `JSON Spark — ${document.title || window.location.pathname}`;
 
-	// Clear the body and create the viewer container
+	// Clear head (keep meta) and body
+	document.head.innerHTML =
+		'<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">';
+	document.body.innerHTML = "";
+
+	// Inject viewer CSS (extracted by Vite into a single predictable file)
+	const cssLink = document.createElement("link");
+	cssLink.rel = "stylesheet";
+	cssLink.href = chrome.runtime.getURL("assets/style.css");
+	document.head.appendChild(cssLink);
+
+	// Create the viewer container
 	const container = document.createElement("div");
 	container.id = "root";
-	document.body.innerHTML = "";
+	// Flag to prevent main.tsx auto-mount — initViewer() handles rendering
+	container.dataset.extensionInit = "true";
 	document.body.appendChild(container);
+
+	// Dynamically import the React viewer from the extension bundle.
+	// Using chrome.runtime.getURL() because content scripts resolve
+	// relative paths against the web page, not the extension.
+	// initViewer is exposed on window (Vite strips ES exports from HTML entries).
+	const viewerUrl = chrome.runtime.getURL("viewer/init.js");
+	await import(/* @vite-ignore */ viewerUrl);
+	const initViewer = (window as unknown as { initViewer: Function }).initViewer;
 
 	// Initialize the React viewer
 	initViewer({

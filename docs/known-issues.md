@@ -2,7 +2,7 @@
 
 Inventario de bugs confirmados, code smells, deuda técnica y funcionalidades pendientes de implementar.
 
-> **Última actualización**: Sesión actual — se resolvieron BUG-001, BUG-002, SMELL-001, SMELL-002, SMELL-003, DEBT-002, y parcialmente FEAT-005.
+> **Última actualización**: Sesión actual — se resolvieron BUG-001, BUG-002, SMELL-001, SMELL-002, SMELL-003, DEBT-002, FEAT-001, FEAT-002, FEAT-004, FEAT-005. Mejoras de rendimiento (virtual scrolling, Web Worker, paginación, large file mode). EditView mejorado (parse error → edit, cursor indicator, scroll sync).
 
 ---
 
@@ -40,7 +40,7 @@ Inventario de bugs confirmados, code smells, deuda técnica y funcionalidades pe
 
 | Campo          | Detalle                                                                                                                                                                                                                                                                                                                                          |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Resolución** | Sistema i18n completo implementado con soporte EN/ES/PT. 171 claves de traducción en `src/shared/i18n/`. Hook `useI18n()` integrado en 15 componentes. Selector de idioma en StatusBar (cicla EN→ES→PT). Sistema usa `useSyncExternalStore` para reactividad, `localStorage` para persistencia, y detección automática del idioma del navegador. |
+| **Resolución** | Sistema i18n completo implementado con soporte EN/ES/PT. 188 claves de traducción en `src/shared/i18n/`. Hook `useI18n()` integrado en 15 componentes. Selector de idioma en StatusBar (cicla EN→ES→PT). Sistema usa `useSyncExternalStore` para reactividad, `localStorage` para persistencia, y detección automática del idioma del navegador. |
 
 ### SMELL-004: Documentación de plan desactualizada
 
@@ -57,31 +57,25 @@ Inventario de bugs confirmados, code smells, deuda técnica y funcionalidades pe
 
 Estas funcionalidades están documentadas en los planes (`ROADMAP.md`, `FASE-REACT.md`, `PLAN.md`) pero no existen en el código actual:
 
-### FEAT-001: Virtual Scrolling
+### ~~FEAT-001: Virtual Scrolling~~ ✅ RESUELTO
 
-| Campo          | Detalle                                                                                                                            |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| **Prioridad**  | Alta                                                                                                                               |
-| **Estado**     | Constante `MAX_VISIBLE_NODES = 500` definida en `constants.ts` pero no se usa como virtualizador                                   |
-| **Impacto**    | JSONs con miles de nodos expandidos causan degradación de performance ya que TreeView renderiza todos los nodos visibles en el DOM |
-| **Referencia** | `planes/ROADMAP.md` — Sprint 3                                                                                                     |
+| Campo          | Detalle                                                                                                                                                                                                                                                                   |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Resolución** | Virtual scrolling implementado en TreeView (`NODE_HEIGHT=24px`) y RawView (`RAW_LINE_HEIGHT=21px`). Usa `ResizeObserver` + `onScroll` para calcular rango visible con buffer de 10 elementos. Para archivos ≥1MB se usa `LargeFileTreeView` dedicado con UI simplificada. |
 
-### FEAT-002: Web Worker para Parsing
+### ~~FEAT-002: Web Worker para Parsing~~ ✅ RESUELTO
 
-| Campo          | Detalle                                                                                                   |
-| -------------- | --------------------------------------------------------------------------------------------------------- |
-| **Prioridad**  | Alta                                                                                                      |
-| **Estado**     | Constante `WORKER_THRESHOLD = 1_000_000` (1MB) definida en `constants.ts` pero no existe código de Worker |
-| **Impacto**    | Parsear JSONs mayores a 1MB bloquea el hilo principal, congelando la UI                                   |
-| **Referencia** | `planes/PLAN.md` — Fase 2                                                                                 |
+| Campo          | Detalle                                                                                                                                                                                                    |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Resolución** | `parser.worker.ts` (54 líneas) implementado con types (`parser.worker.types.ts`, 30 líneas). Archivos ≥1MB (`WORKER_THRESHOLD`) se parsean en web worker off-main-thread. El UI muestra loading indicator. |
 
 ### FEAT-003: Tests E2E con Playwright
 
-| Campo         | Detalle                                                                                                       |
-| ------------- | ------------------------------------------------------------------------------------------------------------- |
-| **Prioridad** | Media                                                                                                         |
-| **Estado**    | Mencionado en plan, no existe configuración ni tests                                                          |
-| **Impacto**   | Solo hay tests unitarios para core logic (123 tests). Sin cobertura de componentes React ni flujos de usuario |
+| Campo         | Detalle                                                                                                             |
+| ------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **Prioridad** | Media                                                                                                               |
+| **Estado**    | Mencionado en plan, no existe configuración ni tests                                                                |
+| **Impacto**   | Hay 211 tests (129 unit + 82 component) pero no hay cobertura E2E de flujos completos de usuario con navegador real |
 
 ### ~~FEAT-004: Tests de Componentes React~~ ✅ RESUELTO
 
@@ -166,12 +160,12 @@ Estas funcionalidades están documentadas en los planes (`ROADMAP.md`, `FASE-REA
 | Severidad | Tipo             | Count                                        | Resueltos |
 | --------- | ---------------- | -------------------------------------------- | --------- |
 | **Alta**  | Code smell       | 1 (módulos duplicados)                       | ✅ 1      |
-| **Alta**  | Feature faltante | 2 (virtual scroll, web worker)               | 0         |
+| **Alta**  | Feature faltante | 2 (virtual scroll, web worker)               | ✅ 2      |
 | **Media** | Bug              | 1 (XML tag)                                  | ✅ 1      |
 | **Media** | Code smell       | 2 (store monolítico, strings mixtos)         | ✅ 2      |
-| **Media** | Feature faltante | 3 (E2E tests, component tests, más formatos) | ✅ 1      |
+| **Media** | Feature faltante | 3 (E2E tests, component tests, más formatos) | ✅ 2      |
 | **Baja**  | Bug              | 1 (versión popup)                            | ✅ 1      |
 | **Baja**  | Code smell       | 1 (plan desactualizado)                      | 0         |
 | **Baja**  | Feature faltante | 4 (previews, jq, iconos, build script)       | 0         |
 | **Baja**  | Deuda técnica    | 4 (options, converter orphaned, JSONP, CI)   | ✅ 1      |
-| **Total** | —                | **19**                                       | **✅ 7**  |
+| **Total** | —                | **19**                                       | **✅ 10** |

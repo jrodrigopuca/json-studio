@@ -94,6 +94,10 @@ src/
 └── shared/           # Shared types
 ```
 
+## Privacy
+
+Your privacy is our priority. JSON Spark processes all data locally in your browser and never transmits any information to external servers. See our [Privacy Policy](PRIVACY.md) for details.
+
 ## License
 
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.

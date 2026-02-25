@@ -1,6 +1,6 @@
 # Catálogo de Componentes
 
-Referencia detallada de los 15 componentes React del visor, sus responsabilidades, dependencias y relaciones.
+Referencia detallada de los 17 componentes React del visor, sus responsabilidades, dependencias y relaciones.
 
 ---
 
@@ -14,20 +14,22 @@ App (root)
 │       ├── Breadcrumb       ← Solo en modo tree
 │       ├── SearchBar        ← Búsqueda con debounce
 │       ├── <main>
-│       │   ├── TreeView     ← mode: tree
+│       │   ├── TreeView         ← mode: tree (virtual scrolling)
 │       │   │   ├── TreeViewHeader
-│       │   │   ├── TreeNode (×N)
+│       │   │   ├── TreeNode (×N, windowed)
 │       │   │   └── ContextMenu (on right-click)
-│       │   ├── RawView      ← mode: raw
-│       │   ├── EditView     ← mode: edit
+│       │   ├── LargeFileTreeView ← mode: tree (archivos ≥1MB)
+│       │   ├── RawView          ← mode: raw (virtual scrolling)
+│       │   ├── EditView         ← mode: edit
 │       │   │   └── EditorToolbar
-│       │   ├── TableView    ← mode: table
-│       │   ├── DiffView     ← mode: diff
-│       │   ├── SavedView    ← mode: saved
-│       │   └── ConvertView  ← mode: convert
-│       ├── StatusBar        ← Metadata + toggle de tema
+│       │   ├── TableView        ← mode: table (paginación 100/pág)
+│       │   ├── DiffView         ← mode: diff
+│       │   ├── SavedView        ← mode: saved
+│       │   └── ConvertView      ← mode: convert
+│       ├── StatusBar            ← Metadata + toggle de tema
 │       ├── UnsavedChangesModal
-│       └── ShortcutsHelpModal
+│       ├── ShortcutsHelpModal
+│       └── LargeContentWarningModal ← Aviso para Edit/Diff >200KB
 ```
 
 ---
@@ -36,25 +38,25 @@ App (root)
 
 ### App
 
-| Propiedad                 | Valor                                                                                                                                                     |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Archivo**               | `src/viewer/App.tsx` (149 líneas)                                                                                                                         |
-| **CSS**                   | `App.module.css`                                                                                                                                          |
-| **Responsabilidad**       | Componente raíz. Envuelve todo en `ToastProvider`, gestiona qué vista mostrar según `viewMode`, maneja el flujo de cambios no guardados al salir de Edit. |
-| **State consumido**       | `viewMode`, `isValid`, `parseError`, `isParsing`, `pendingViewMode`, `showShortcutsHelp`                                                                  |
-| **Hooks**                 | `useJsonLoader()`, `useKeyboardShortcuts()`, `useTheme()`                                                                                                 |
-| **Renders condicionales** | Loading spinner → Parse error → Vista según `viewMode`                                                                                                    |
+| Propiedad                 | Valor                                                                                                                                                                               |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Archivo**               | `src/viewer/App.tsx` (~182 líneas)                                                                                                                                                  |
+| **CSS**                   | `App.module.css`                                                                                                                                                                    |
+| **Responsabilidad**       | Componente raíz. Envuelve todo en `ToastProvider`, gestiona qué vista mostrar según `viewMode`, maneja cambios no guardados, flujo de parse error → EditView, y large file routing. |
+| **State consumido**       | `viewMode`, `isValid`, `parseError`, `isParsing`, `pendingViewMode`, `showShortcutsHelp`, `isLargeFile`                                                                             |
+| **Hooks**                 | `useJsonLoader()`, `useKeyboardShortcuts()`, `useTheme()`, `useI18n()`                                                                                                              |
+| **Renders condicionales** | Loading spinner → Parse error (con botón "Edit to fix") → Vista según `viewMode` (TreeView/LargeFileTreeView según `isLargeFile`)                                                   |
 
 ### Toolbar
 
-| Propiedad                   | Valor                                                                                                                                                                                 |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Archivo**                 | `src/viewer/components/Toolbar/Toolbar.tsx` (~400 líneas)                                                                                                                             |
-| **CSS**                     | `Toolbar.module.css`                                                                                                                                                                  |
-| **Responsabilidad**         | Barra de herramientas principal con tabs para 7 modos de vista y botones contextuales por vista.                                                                                      |
-| **Subcomponentes internos** | `CopyButton` (copy raw JSON), `DownloadButton` (JSON/format), `SaveFavoriteButton` + `SaveJsonModal`                                                                                  |
-| **Acciones por vista**      | Tree: expand/collapse/sort, Raw: prettify/minify, Edit: save/undo/redo, Diff: swap panels, Saved: —, Convert: copy/download                                                           |
-| **State consumido**         | `viewMode`, `rawJson`, `sortDirection`, `hasUnsavedChanges`, `setViewMode`, `expandAll`, `collapseAll`, `toggleSortedByKeys`, `prettify`, `minify`, `saveEditContent`, `undo`, `redo` |
+| Propiedad                   | Valor                                                                                                                                                                                                              |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Archivo**                 | `src/viewer/components/Toolbar/Toolbar.tsx` (~307 líneas)                                                                                                                                                          |
+| **CSS**                     | `Toolbar.module.css`                                                                                                                                                                                               |
+| **Responsabilidad**         | Barra de herramientas principal con tabs para 7 modos de vista y botones contextuales por vista. Deshabilita tabs no-edit cuando hay `parseError`.                                                                 |
+| **Subcomponentes internos** | `CopyButton` (copy raw JSON), `DownloadButton` (JSON/format), `SaveFavoriteButton` + `SaveJsonModal`                                                                                                               |
+| **Acciones por vista**      | Tree: expand/collapse/sort, Raw: prettify/minify, Edit: save/undo/redo, Diff: swap panels, Saved: —, Convert: copy/download                                                                                        |
+| **State consumido**         | `viewMode`, `rawJson`, `sortDirection`, `hasUnsavedChanges`, `parseError`, `isLargeFile`, `setViewMode`, `expandAll`, `collapseAll`, `toggleSortedByKeys`, `prettify`, `minify`, `saveEditContent`, `undo`, `redo` |
 
 ### StatusBar
 
@@ -118,13 +120,14 @@ App (root)
 
 ### RawView
 
-| Propiedad           | Valor                                                                                                                                  |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| **Archivo**         | `src/viewer/components/RawView/RawView.tsx` (~150 líneas)                                                                              |
-| **CSS**             | `RawView.module.css`                                                                                                                   |
-| **Responsabilidad** | Vista de JSON con syntax highlighting y numeración de líneas.                                                                          |
-| **Características** | Highlighting vía `highlightJson()`, numeración de líneas opcional, resaltado de matches de búsqueda, scroll automático al match actual |
-| **State**           | `rawJson`, `showLineNumbers`, `searchMatches`, `currentMatchIndex`                                                                     |
+| Propiedad             | Valor                                                                                                                                                               |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Archivo**           | `src/viewer/components/RawView/RawView.tsx` (~153 líneas)                                                                                                           |
+| **CSS**               | `RawView.module.css`                                                                                                                                                |
+| **Responsabilidad**   | Vista de JSON con syntax highlighting, numeración de líneas y **virtual scrolling**.                                                                                |
+| **Virtual scrolling** | `RAW_LINE_HEIGHT=21px`, calcula rango visible + buffer de 10 líneas, spacers para scroll nativo, `position: absolute` por línea                                     |
+| **Características**   | Highlighting vía `highlightJson()`, numeración de líneas opcional, resaltado de matches de búsqueda, scroll automático al match actual. Skip prettyPrint para ≥1MB. |
+| **State**             | `rawJson`, `showLineNumbers`, `searchMatches`, `currentMatchIndex`, `isLargeFile`                                                                                   |
 
 ### EditView
 
@@ -186,7 +189,7 @@ App (root)
 | **Archivo**          | `src/viewer/components/ConvertView/ConvertView.tsx` (~200 líneas) |
 | **CSS**              | `ConvertView.module.css`                                          |
 | **Responsabilidad**  | Convierte JSON a otros formatos con preview lado a lado.          |
-| **Formatos**         | TypeScript interfaces, XML                                        |
+| **Formatos**         | YAML, CSV, TypeScript interfaces, XML                             |
 | **Acciones**         | Copiar resultado, descargar como archivo                          |
 | **Dependencia core** | `converters.ts` → `convertJson()`, `CONVERT_FORMATS`              |
 | **State**            | `rawJson`                                                         |
@@ -208,13 +211,13 @@ App (root)
 
 ### Modal
 
-| Propiedad           | Valor                                                                                                                   |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| **Archivo**         | `src/viewer/components/Modal/Modal.tsx` (~200 líneas)                                                                   |
-| **CSS**             | `Modal.module.css`                                                                                                      |
-| **Responsabilidad** | Modal genérico portal-based + variantes especializadas.                                                                 |
-| **Variantes**       | `UnsavedChangesModal` (save/discard/cancel), `SaveJsonModal` (nombre + guardar), `ShortcutsHelpModal` (tabla de atajos) |
-| **Características** | Click en overlay cierra, `Escape` cierra, focus trap, portal a `document.body`                                          |
+| Propiedad           | Valor                                                                                                                                                                             |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Archivo**         | `src/viewer/components/Modal/Modal.tsx` (~200 líneas)                                                                                                                             |
+| **CSS**             | `Modal.module.css`                                                                                                                                                                |
+| **Responsabilidad** | Modal genérico portal-based + variantes especializadas.                                                                                                                           |
+| **Variantes**       | `UnsavedChangesModal` (save/discard/cancel), `SaveJsonModal` (nombre + guardar), `ShortcutsHelpModal` (tabla de atajos), `LargeContentWarningModal` (aviso para Edit/Diff >200KB) |
+| **Características** | Click en overlay cierra, `Escape` cierra, focus trap, portal a `document.body`                                                                                                    |
 
 ### ContextMenu
 
@@ -239,6 +242,29 @@ App (root)
 
 ---
 
+## Componentes de Performance
+
+### LargeFileTreeView
+
+| Propiedad           | Valor                                                                                                   |
+| ------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Archivo**         | `src/viewer/components/LargeFileTreeView/LargeFileTreeView.tsx`                                         |
+| **CSS**             | `LargeFileTreeView.module.css`                                                                          |
+| **Responsabilidad** | TreeView simplificado para archivos ≥1MB. Virtual scrolling con render limitado a viewport.             |
+| **Diferencias**     | Sin bracket matching, sin syntax highlighting pesado, nodos calculados de forma lazy, UI más espartana. |
+| **Activación**      | `App.tsx` renderiza este componente en lugar de `TreeView` cuando `isLargeFile === true`                |
+
+### LargeContentWarningModal
+
+| Propiedad           | Valor                                                                                                          |
+| ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **Archivo**         | `src/viewer/components/Modal/Modal.tsx` (dentro del mismo archivo)                                             |
+| **Responsabilidad** | Modal de advertencia cuando el usuario intenta abrir Edit o Diff con archivos >200KB (`HEAVY_VIEW_THRESHOLD`). |
+| **Acciones**        | "Continue anyway" (procede a la vista) o "Cancel" (permanece en vista actual)                                  |
+| **i18n**            | Todos los textos traducidos (EN/ES/PT)                                                                         |
+
+---
+
 ## Barrel Exports
 
 Todos los componentes se re-exportan desde `src/viewer/components/index.ts`, lo que permite imports limpios en `App.tsx`:
@@ -260,6 +286,7 @@ import {
 	ConvertView,
 	UnsavedChangesModal,
 	ShortcutsHelpModal,
+	LargeContentWarningModal,
 } from "./components";
 ```
 

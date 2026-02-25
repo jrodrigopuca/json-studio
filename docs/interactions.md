@@ -44,7 +44,8 @@ El flujo comienza cuando el usuario navega a una URL que devuelve JSON:
 7. **`activateViewer()`** hace `import()` dinámico de `viewer/init.tsx`
 8. **`initViewer()`** crea un React root en el container de la página, monta `<App />`
 9. **`useJsonLoader`** hook extrae el JSON (de URL params, sessionStorage, o raw) y llama `store.parseAndSet()`
-10. **`parseJSON()`** aplana el JSON en `FlatNode[]` → el store actualiza `nodes`, `metadata`, `rawJson`
+10. **`parseAndSet()`** detecta si el archivo es ≥1MB (`WORKER_THRESHOLD`) → usa Web Worker | si no, parsea en main thread
+11. **`parseJSON()`** aplana el JSON en `FlatNode[]` → el store actualiza `nodes`, `metadata`, `rawJson`, `isLargeFile`
 
 ---
 
@@ -166,9 +167,41 @@ User clicks tab      Store               UnsavedChangesModal
      │                 │        └────────────────┘
 ```
 
+### Flujo de parse error → Edit Mode:
+
+```
+useJsonLoader              Store                   App / EditView
+     │                       │                            │
+     │  parseAndSet(raw)      │                            │
+     │─────────────────────▶│                            │
+     │                       │  JSON.parse fails           │
+     │                       │  → setParseError({          │
+     │                       │     error, rawJson           │
+     │                       │   })                        │
+     │                       │───────────────────────────▶│
+     │                       │                     App shows error
+     │                       │                     + "Edit to fix" btn
+     │                       │                            │
+     │         User clicks "Edit to fix"                   │
+     │                       │  viewMode = 'edit'          │
+     │                       │  editContent = rawJson      │
+     │                       │───────────────────────────▶│
+     │                       │               EditView shows parse
+     │                       │               error banner + textarea
+     │                       │               Toolbar disables non-edit tabs
+     │                       │                            │
+     │         User fixes JSON + ⌘S                        │
+     │                       │  saveEditContent()          │
+     │                       │  → re-parse succeeds        │
+     │                       │  → parseError = null         │
+     │                       │  → all tabs re-enabled       │
+```
+
 ---
 
 ## 5. Flujo de TreeView (Expandir/Colapsar/Seleccionar)
+
+TreeView usa **virtual scrolling** para renderizar solo los nodos visibles:
 
 ```
 TreeNode (click)          Store                    TreeView (re-render)
@@ -348,32 +381,91 @@ document (keydown)          useKeyboardShortcuts          Store
 
 ---
 
-## 11. Mapa de Dependencias entre Módulos
+## 11. Flujo de Web Worker (Archivos Grandes)
+
+```
+useJsonLoader              parser.worker.ts           Store
+     │                          │                       │
+     │  raw.length >= 1MB       │                       │
+     │  → new Worker()          │                       │
+     │  → postMessage({         │                       │
+     │      type: 'parse',      │                       │
+     │      raw, options        │                       │
+     │    })                    │                       │
+     │──────────────────────▶│                       │
+     │                          │  parseJSON(raw)        │
+     │                          │  → FlatNode[]          │
+     │                          │                       │
+     │  onmessage({             │                       │
+     │    type: 'result',       │                       │
+     │    nodes, metadata       │                       │
+     │  })                      │                       │
+     │◄──────────────────────│                       │
+     │                          │                       │
+     │  setNodes(nodes)         │                       │
+     │  setMetadata(metadata)   │                       │
+     │  isLargeFile = true      │                       │
+     │──────────────────────────────────────────▶│
+     │                          │    TreeView → LargeFileTreeView
+     │                          │    RawView skips prettyPrint
+     │                          │    Edit/Diff show size warning
+```
+
+---
+
+## 12. Flujo de i18n
+
+```
+useI18n()                i18n/index.ts             Component
+     │                       │                         │
+     │  useSyncExternalStore  │                         │
+     │────────────────────▶│                         │
+     │                       │  subscribe to locale    │
+     │                       │  changes                │
+     │                       │                         │
+     │  { t, locale,         │                         │
+     │    setLocale }         │                         │
+     │◄────────────────────│                         │
+     │                       │                         │
+     │  t('toolbar.tree')     │                         │
+     │────────────────────▶│  lookup in              │
+     │                       │  translations[locale]   │
+     │  "Tree" (en)           │                         │
+     │  "Árbol" (es)          │                         │
+     │◄────────────────────│                         │
+     │                       │                         │
+     │  setLocale('es')       │                         │
+     │────────────────────▶│  localStorage.set()    │
+     │                       │  notify subscribers     │
+     │                       │───────────────────────▶│
+     │                       │                  all components
+     │                       │                  re-render with
+     │                       │                  new translations
+```
+
+---
+
+## 13. Mapa de Dependencias entre Módulos
 
 ```
 shared/types ◄──────────── TODOS los módulos
 shared/constants ◄──────── store, components, detector
 shared/dom ◄────────────── popup, options, detector
 shared/messaging ◄──────── service-worker, detector, popup
+shared/i18n ◄───────────── useI18n hook, 15 components
 
-core/parser ◄──────────── store, useJsonLoader
+core/parser ◄──────────── store, useJsonLoader, parser.worker
 core/parser.types ◄────── parser, store, TreeView, ContextMenu
+core/parser.worker ◄───── useJsonLoader (archivos ≥1MB)
 core/formatter ◄───────── store, RawView, EditView, DiffView
 core/highlighter ◄──────── RawView, DiffView, EditView
 core/clipboard ◄────────── TreeView, ContextMenu
 core/converters ◄───────── ConvertView, Toolbar (download)
-core/converter ◄────────── tests (posiblemente orphaned en producción)
 
-store ◄─────────────────── App, TODOS los components, hooks
+store (6 slices) ◄───────── App, TODOS los components, hooks
 hooks ◄─────────────────── App.tsx únicamente
 
 components/Icon ◄───────── Toolbar, StatusBar, TreeViewHeader,
                             ContextMenu, SearchBar, SavedView,
                             ConvertView, EditorToolbar
 ```
-
-### Nota sobre `converter.ts` vs `converters.ts`:
-
-- **`converters.ts`** es el módulo activo en producción — importado por `ConvertView` y `Toolbar`
-- **`converter.ts`** contiene `jsonToYaml`, `jsonToCsv`, `yamlToJson` — solo referenciado por tests
-- Existe duplicación de `jsonToTypeScript` con implementaciones distintas en ambos archivos

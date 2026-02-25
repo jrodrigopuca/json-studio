@@ -1,11 +1,14 @@
 {
-  "name": "json-studio",
+  "name": "json-spark",
   "version": "2.0.0",
-  "description": "Chrome Extension - JSON Viewer",
+  "description": "Chrome Extension - JSON Spark",
   "type": "module",
+  "author": "",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:ext": "tsc -b && node scripts/build-ext.js",
+    "package": "bash scripts/package-extension.sh",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"
@@ -19,7 +22,6 @@
     "viewer",
     "chrome-extension"
   ],
-  "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/jrodrigopuca/json-studio/issues"
@@ -40,6 +42,7 @@
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.4.0",
     "jsdom": "^28.1.0",
+    "sharp": "^0.34.5",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vitest": "^4.0.18"

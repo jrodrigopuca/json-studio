@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!--
+      Build-only HTML entry for the extension viewer.
+      Vite 7 requires an HTML entry with top-level component usage to
+      properly extract CSS Modules. This file references main.tsx (which
+      renders <App /> at the top level) instead of init.tsx directly.
+      This HTML file is NOT included in the extension output.
+    -->
+  </head>
+  <body>
+    <script type="module" src="./main.tsx"></script>
+  </body>
+</html>
