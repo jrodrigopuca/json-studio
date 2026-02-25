@@ -46,13 +46,20 @@ jobs:
       - name: Build extension
         run: npm run build:ext
       
-      - name: Verify icons exist
+      - name: Verify required files
         run: |
           echo "Checking for required PNG icons..."
           ls -lh dist/icons/icon-16.png
           ls -lh dist/icons/icon-32.png
           ls -lh dist/icons/icon-48.png
           ls -lh dist/icons/icon-128.png
+          echo ""
+          echo "Checking for required HTML files..."
+          ls -lh dist/viewer/index.html
+          ls -lh dist/options/options.html
+          echo ""
+          echo "Checking manifest.json..."
+          ls -lh dist/manifest.json
       
       - name: Package extension
         run: |
@@ -118,10 +125,11 @@ jobs:
             
             - ✅ All PNG icons (16x16, 32x32, 48x48, 128x128)
             - ✅ Manifest v3 with all required permissions
-            - ✅ Background service worker
+            - ✅ Background service worker (handles icon clicks)
             - ✅ Content script for JSON detection
-            - ✅ Popup and options pages
-            - ✅ Viewer with all features
+            - ✅ Full-page viewer (opens on icon click)
+            - ✅ Options page for settings
+            - ✅ All features: Tree view, Table view, Search, Convert, Diff
             
             ### � Verify Before Upload
             
