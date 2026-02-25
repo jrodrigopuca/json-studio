@@ -44,28 +44,57 @@ chrome.action.onClicked.addListener(async (tab) => {
 				const body = document.body;
 				if (!body) return null;
 
-				// Check for <pre> element (Chrome renders JSON as <body><pre>JSON</pre></body>)
-				const pre = body.querySelector("pre");
-				if (pre && body.childNodes.length === 1) {
-					const text = pre.textContent?.trim();
-					if (!text) return null;
+				let text: string | null = null;
 
-					// Quick validation: must start with { or [
-					const firstChar = text[0];
-					if (firstChar === "{" || firstChar === "[") {
-						try {
-							JSON.parse(text); // Validate it's valid JSON
-							return {
-								json: text,
-								url: window.location.href,
-							};
-						} catch {
-							return null;
-						}
+				// Method 1: Check for <pre> element (Chrome renders JSON as <body><pre>JSON</pre></body>)
+				const pre = body.querySelector("pre");
+				if (pre) {
+					text = pre.textContent?.trim();
+				}
+
+				// Method 2: If no pre, check body directly (some browsers)
+				if (!text && body.children.length <= 1) {
+					text = body.textContent?.trim();
+				}
+
+				// Method 3: Check if entire document is just text (view-source or raw response)
+				if (!text) {
+					const htmlContent = document.documentElement.textContent?.trim();
+					// Only accept if it looks like raw JSON (not HTML)
+					if (
+						htmlContent &&
+						!htmlContent.includes("<html") &&
+						!htmlContent.includes("<!DOCTYPE")
+					) {
+						text = htmlContent;
 					}
 				}
 
-				return null;
+				// Method 4: Try to get from document text (for Chrome's JSON viewer)
+				if (!text) {
+					// Sometimes Chrome wraps JSON in a viewer - try getting raw source
+					const rawText = document.body.innerText || document.body.textContent;
+					if (rawText) {
+						text = rawText.trim();
+					}
+				}
+
+				if (!text) return null;
+
+				// Quick validation: must start with { or [
+				const firstChar = text[0];
+				if (firstChar !== "{" && firstChar !== "[") return null;
+
+				// Validate it's valid JSON
+				try {
+					JSON.parse(text);
+					return {
+						json: text,
+						url: window.location.href,
+					};
+				} catch {
+					return null;
+				}
 			},
 		});
 
@@ -84,6 +113,15 @@ chrome.action.onClicked.addListener(async (tab) => {
 
 			const viewerUrl = chrome.runtime.getURL(
 				`viewer/index.html?temp=${tempKey}`,
+			);
+			chrome.tabs.create({ url: viewerUrl });
+		} else if (
+			tab.url &&
+			(tab.url.endsWith(".json") || tab.url.match(/\.json[?#]/))
+		) {
+			// URL looks like a JSON file - pass URL to viewer to fetch
+			const viewerUrl = chrome.runtime.getURL(
+				`viewer/index.html?url=${encodeURIComponent(tab.url)}`,
 			);
 			chrome.tabs.create({ url: viewerUrl });
 		} else {
