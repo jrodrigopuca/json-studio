@@ -115,11 +115,13 @@ Any changes to this privacy policy will be:
 ## Executive Summary
 
 ✅ **We DO:**
+
 - Process all data locally in your browser
 - Store preferences on your device
 - Protect your privacy by design
 
 ❌ **We DO NOT:**
+
 - Send data to servers
 - Collect personal information
 - Track your activity
@@ -129,6 +131,7 @@ Any changes to this privacy policy will be:
 **Your privacy is absolute. Your data is yours and remains on your device.**
 
 ---
+
 ---
 
 # Política de Privacidad - JSON Spark ⚡
@@ -248,11 +251,13 @@ Cualquier cambio a esta política de privacidad será:
 ## Resumen Ejecutivo
 
 ✅ **SÍ hacemos:**
+
 - Procesar todos los datos localmente en su navegador
 - Almacenar preferencias en su dispositivo
 - Proteger su privacidad por diseño
 
 ❌ **NO hacemos:**
+
 - Enviar datos a servidores
 - Recopilar información personal
 - Rastrear su actividad

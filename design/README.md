@@ -7,6 +7,7 @@ Este directorio contiene los archivos fuente editables para el diseño de la ext
 Contiene los archivos SVG fuente de los iconos de la extensión. Estos archivos son **solo para edición y referencia**, no se incluyen en el paquete final de la extensión.
 
 ### Archivos:
+
 - `icon-16.svg` - Icono 16x16 (fuente editable)
 - `icon-32.svg` - Icono 32x32 (fuente editable)
 - `icon-48.svg` - Icono 48x48 (fuente editable)

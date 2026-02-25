@@ -2,13 +2,7 @@ import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-	renameSync,
-	mkdirSync,
-	rmSync,
-	existsSync,
-	unlinkSync,
-} from "node:fs";
+import { renameSync, mkdirSync, rmSync, existsSync, unlinkSync } from "node:fs";
 import type { OutputAsset, OutputBundle } from "rollup";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
@@ -189,20 +183,14 @@ export default defineConfig({
 					"src/background/service-worker.ts",
 				),
 				// Content script (self-contained — no top-level imports)
-				"content/detector": resolve(
-					__dirname,
-					"src/content/detector.ts",
-				),
+				"content/detector": resolve(__dirname, "src/content/detector.ts"),
 				// Viewer React app — HTML entry to preserve CSS Module extraction.
 				// The HTML is discarded after build; only init.js matters.
 				"viewer/init": resolve(__dirname, "src/viewer/init.html"),
 				// Popup page (HTML entry)
 				"popup/popup": resolve(__dirname, "src/popup/popup.html"),
 				// Options page (HTML entry)
-				"options/options": resolve(
-					__dirname,
-					"src/options/options.html",
-				),
+				"options/options": resolve(__dirname, "src/options/options.html"),
 			},
 			output: {
 				entryFileNames: "[name].js",
