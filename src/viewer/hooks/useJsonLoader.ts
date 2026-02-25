@@ -26,18 +26,37 @@ function parseOnMainThread(
 	setJson: ReturnType<typeof useStore.getState>["setJson"],
 	setParseError: ReturnType<typeof useStore.getState>["setParseError"],
 ) {
+	console.log("🟢 parseOnMainThread called:", {
+		jsonLength: rawJson.length,
+		rawSize,
+		url,
+	});
+
 	const result = parseJSON(rawJson);
+	console.log("🟢 parseJSON result:", {
+		ok: result.ok,
+		nodesCount: result.ok ? result.nodes.length : 0,
+		error: result.ok ? null : result.error.message,
+	});
 
 	if (result.ok) {
 		const formatted =
 			rawSize >= LARGE_FILE_THRESHOLD ? rawJson : prettyPrint(rawJson);
+		console.log("🟢 Calling setJson with:", {
+			formattedLength: formatted.length,
+			nodesLength: result.nodes.length,
+			totalKeys: result.totalKeys,
+			maxDepth: result.maxDepth,
+		});
 		setJson(formatted, result.nodes, {
 			fileSize: rawSize,
 			totalKeys: result.totalKeys,
 			maxDepth: result.maxDepth,
 			url,
 		});
+		console.log("🟢 setJson completed successfully");
 	} else {
+		console.error("🟢 Parse error:", result.error);
 		setParseError(result.error, rawJson);
 	}
 }
@@ -107,12 +126,15 @@ export function useJsonLoader() {
 	useEffect(() => {
 		// Skip if store already has data (loaded by initViewer)
 		if (hasData) {
+			console.log("🟢 Skipping load - already has data");
 			return;
 		}
 
+		console.log("🟢 useJsonLoader starting...");
 		let workerCleanup: (() => void) | null = null;
 
 		const loadJson = async () => {
+			console.log("🟢 loadJson function started");
 			setIsParsing(true);
 
 			try {
@@ -183,14 +205,15 @@ export function useJsonLoader() {
 					const response = await fetch(jsonUrl);
 					rawJson = await response.text();
 					url = jsonUrl;
-				} else if (jsonData) {
+				} else if (!rawJson && jsonData) {
 					// Inline data (base64 or raw)
 					try {
 						rawJson = atob(jsonData);
 					} catch {
 						rawJson = decodeURIComponent(jsonData);
 					}
-				} else {
+				} else if (!rawJson) {
+					// Only use fallback if we haven't loaded anything yet
 					// Check for Chrome extension message
 					const stored = sessionStorage.getItem("json-studio-data");
 					if (stored) {
@@ -199,7 +222,7 @@ export function useJsonLoader() {
 						url = data.url || "";
 						sessionStorage.removeItem("json-studio-data");
 					} else {
-						// Demo data
+						// Demo data - only if nothing else loaded
 						rawJson = JSON.stringify(
 							{
 								message: "Welcome to JSON Spark!",
@@ -219,6 +242,12 @@ export function useJsonLoader() {
 				}
 
 				const rawSize = new Blob([rawJson]).size;
+				console.log("🟢 About to parse JSON:", {
+					rawSize,
+					urlSource: url,
+					threshold: WORKER_THRESHOLD,
+					willUseWorker: rawSize >= WORKER_THRESHOLD,
+				});
 
 				if (rawSize >= WORKER_THRESHOLD) {
 					// Large file → off-main-thread parsing
@@ -231,9 +260,11 @@ export function useJsonLoader() {
 					);
 				} else {
 					// Small file → parse synchronously on main thread
+					console.log("🟢 Parsing on main thread...");
 					parseOnMainThread(rawJson, rawSize, url, setJson, setParseError);
 				}
 			} catch (error) {
+				console.error("🟢 Error in loadJson:", error);
 				setParseError({
 					message:
 						error instanceof Error ? error.message : "Failed to load JSON",
