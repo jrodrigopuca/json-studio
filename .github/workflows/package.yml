@@ -57,10 +57,13 @@ jobs:
       - name: Package extension
         run: |
           cd dist
-          zip -r ../json-spark-${{ steps.package_version.outputs.tag }}.zip . -x "*.DS_Store" -x "*.svg"
+          zip -r -q ../json-spark-${{ steps.package_version.outputs.tag }}.zip . -x "*.DS_Store" -x "*.svg" -x "*.map"
           cd ..
           echo "✅ Package created"
           ls -lh json-spark-${{ steps.package_version.outputs.tag }}.zip
+          echo ""
+          echo "📋 Verifying ZIP contents..."
+          unzip -l json-spark-${{ steps.package_version.outputs.tag }}.zip | grep manifest.json || echo "⚠️  WARNING: manifest.json not found in ZIP!"
       
       - name: Generate package info
         run: |
@@ -89,9 +92,11 @@ jobs:
           body: |
             ## JSON Spark Extension Release
             
-            ### 📦 Installation
+            ### 📦 Installation Instructions
             
-            Download `json-spark-${{ steps.package_version.outputs.tag }}.zip` and upload it to [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole).
+            **IMPORTANT**: Download `json-spark-${{ steps.package_version.outputs.tag }}.zip` below and upload it **DIRECTLY** to the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole).
+            
+            ⚠️ **DO NOT unzip the file** - Chrome Web Store expects the ZIP file as-is.
             
             ### ✨ What's Included
             
@@ -104,11 +109,13 @@ jobs:
             
             ### 📋 Checklist for Chrome Web Store
             
-            - [ ] Upload the ZIP file
-            - [ ] Add screenshots (1280x800 or 640x400)
-            - [ ] Add promotional images if needed
-            - [ ] Fill in store listing details
-            - [ ] Submit for review
+            1. Go to [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
+            2. Click "New Item"
+            3. Upload `json-spark-${{ steps.package_version.outputs.tag }}.zip` (do not unzip it)
+            4. Add screenshots (1280x800 or 640x400)
+            5. Add promotional images if needed
+            6. Fill in store listing details
+            7. Submit for review
             
             ---
             
