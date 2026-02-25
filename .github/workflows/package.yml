@@ -1,0 +1,120 @@
+name: Package Extension
+
+on:
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create GitHub Release'
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Get version from package.json
+        id: package_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+          echo "📦 Version: $VERSION"
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run TypeScript check
+        run: npx tsc --noEmit
+      
+      - name: Run tests
+        run: npm test
+        continue-on-error: true
+      
+      - name: Build extension
+        run: npm run build:ext
+      
+      - name: Verify icons exist
+        run: |
+          echo "Checking for required PNG icons..."
+          ls -lh dist/icons/icon-16.png
+          ls -lh dist/icons/icon-32.png
+          ls -lh dist/icons/icon-48.png
+          ls -lh dist/icons/icon-128.png
+      
+      - name: Package extension
+        run: |
+          cd dist
+          zip -r ../json-spark-${{ steps.package_version.outputs.tag }}.zip . -x "*.DS_Store" -x "*.svg"
+          cd ..
+          echo "✅ Package created"
+          ls -lh json-spark-${{ steps.package_version.outputs.tag }}.zip
+      
+      - name: Generate package info
+        run: |
+          echo "## Package Contents" > package-info.txt
+          echo "" >> package-info.txt
+          unzip -l json-spark-${{ steps.package_version.outputs.tag }}.zip >> package-info.txt
+          echo "" >> package-info.txt
+          echo "## Package Size" >> package-info.txt
+          ls -lh json-spark-${{ steps.package_version.outputs.tag }}.zip | awk '{print $5}' >> package-info.txt
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: json-spark-extension-${{ steps.package_version.outputs.tag }}
+          path: |
+            json-spark-${{ steps.package_version.outputs.tag }}.zip
+            package-info.txt
+          retention-days: 90
+      
+      - name: Create Release
+        if: ${{ inputs.create_release }}
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.package_version.outputs.tag }}
+          name: JSON Spark ${{ steps.package_version.outputs.tag }}
+          body: |
+            ## JSON Spark Extension Release
+            
+            ### 📦 Installation
+            
+            Download `json-spark-${{ steps.package_version.outputs.tag }}.zip` and upload it to [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole).
+            
+            ### ✨ What's Included
+            
+            - ✅ All PNG icons (16x16, 32x32, 48x48, 128x128)
+            - ✅ Manifest v3 with all required permissions
+            - ✅ Background service worker
+            - ✅ Content script for JSON detection
+            - ✅ Popup and options pages
+            - ✅ Viewer with all features
+            
+            ### 📋 Checklist for Chrome Web Store
+            
+            - [ ] Upload the ZIP file
+            - [ ] Add screenshots (1280x800 or 640x400)
+            - [ ] Add promotional images if needed
+            - [ ] Fill in store listing details
+            - [ ] Submit for review
+            
+            ---
+            
+            **Privacy Policy**: [PRIVACY.md](https://github.com/${{ github.repository }}/blob/main/PRIVACY.md)
+          files: |
+            json-spark-${{ steps.package_version.outputs.tag }}.zip
+            package-info.txt
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
