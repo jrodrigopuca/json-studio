@@ -131,8 +131,22 @@ export function useJsonLoader() {
 						const result = await chrome.storage.session.get(tempKey);
 						const storedValue = result[tempKey];
 						if (storedValue && typeof storedValue === "string") {
-							rawJson = storedValue;
-							url = "extension://popup";
+							try {
+								// Try parsing as JSON object with {content, url}
+								const parsed = JSON.parse(storedValue);
+								if (parsed.content) {
+									rawJson = parsed.content;
+									url = parsed.url || "extension://from-page";
+								} else {
+									// Fallback: raw JSON string
+									rawJson = storedValue;
+									url = "extension://from-page";
+								}
+							} catch {
+								// Not structured, treat as raw JSON
+								rawJson = storedValue;
+								url = "extension://from-page";
+							}
 							// Clear from storage
 							chrome.storage.session.remove(tempKey);
 						}

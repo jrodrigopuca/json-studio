@@ -25,10 +25,78 @@ chrome.runtime.onInstalled.addListener(() => {
 
 /**
  * Handle extension icon clicks — open viewer in new tab.
+ * If the current page has JSON, pass it to the viewer.
  */
-chrome.action.onClicked.addListener(() => {
-	const viewerUrl = chrome.runtime.getURL("viewer/index.html");
-	chrome.tabs.create({ url: viewerUrl });
+chrome.action.onClicked.addListener(async (tab) => {
+	if (!tab.id) {
+		// No active tab, just open empty viewer
+		const viewerUrl = chrome.runtime.getURL("viewer/index.html");
+		chrome.tabs.create({ url: viewerUrl });
+		return;
+	}
+
+	try {
+		// Try to extract JSON from the current page
+		const results = await chrome.scripting.executeScript({
+			target: { tabId: tab.id },
+			func: () => {
+				// Extract raw text from page (same logic as detector.ts)
+				const body = document.body;
+				if (!body) return null;
+
+				// Check for <pre> element (Chrome renders JSON as <body><pre>JSON</pre></body>)
+				const pre = body.querySelector("pre");
+				if (pre && body.childNodes.length === 1) {
+					const text = pre.textContent?.trim();
+					if (!text) return null;
+
+					// Quick validation: must start with { or [
+					const firstChar = text[0];
+					if (firstChar === "{" || firstChar === "[") {
+						try {
+							JSON.parse(text); // Validate it's valid JSON
+							return {
+								json: text,
+								url: window.location.href,
+							};
+						} catch {
+							return null;
+						}
+					}
+				}
+
+				return null;
+			},
+		});
+
+		const jsonData = results?.[0]?.result;
+
+		if (jsonData?.json) {
+			// Found JSON! Store it in session and open viewer
+			const tempKey = `json-spark-temp-${Date.now()}`;
+
+			await chrome.storage.session.set({
+				[tempKey]: JSON.stringify({
+					content: jsonData.json,
+					url: jsonData.url,
+				}),
+			});
+
+			const viewerUrl = chrome.runtime.getURL(
+				`viewer/index.html?temp=${tempKey}`,
+			);
+			chrome.tabs.create({ url: viewerUrl });
+		} else {
+			// No JSON found, open empty viewer
+			const viewerUrl = chrome.runtime.getURL("viewer/index.html");
+			chrome.tabs.create({ url: viewerUrl });
+		}
+	} catch (error) {
+		// Error extracting JSON (maybe no permission), open empty viewer
+		console.error("Failed to extract JSON:", error);
+		const viewerUrl = chrome.runtime.getURL("viewer/index.html");
+		chrome.tabs.create({ url: viewerUrl });
+	}
 });
 
 /**
@@ -91,20 +159,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	}
 
 	return false;
-});
-
-/**
- * Handle extension icon click when no popup is configured.
- */
-chrome.action.onClicked.addListener(async (tab) => {
-	if (!tab.id) return;
-
-	// Try to activate the viewer on the current tab
-	try {
-		await chrome.tabs.sendMessage(tab.id, { type: "ACTIVATE_VIEWER" });
-	} catch {
-		// Content script not loaded on this page
-	}
 });
 
 /**
