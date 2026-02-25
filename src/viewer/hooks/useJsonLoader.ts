@@ -11,6 +11,7 @@ import { useStore } from "../store";
 import { parseJSON } from "../core/parser";
 import { prettyPrint } from "../core/formatter";
 import { LARGE_FILE_THRESHOLD, WORKER_THRESHOLD } from "@shared/constants";
+import { debug } from "@shared/logger";
 import type {
 	WorkerRequest,
 	WorkerResponse,
@@ -26,14 +27,14 @@ function parseOnMainThread(
 	setJson: ReturnType<typeof useStore.getState>["setJson"],
 	setParseError: ReturnType<typeof useStore.getState>["setParseError"],
 ) {
-	console.log("🟢 parseOnMainThread called:", {
+	debug.log("🟢 parseOnMainThread called:", {
 		jsonLength: rawJson.length,
 		rawSize,
 		url,
 	});
 
 	const result = parseJSON(rawJson);
-	console.log("🟢 parseJSON result:", {
+	debug.log("🟢 parseJSON result:", {
 		ok: result.ok,
 		nodesCount: result.ok ? result.nodes.length : 0,
 		error: result.ok ? null : result.error.message,
@@ -42,7 +43,7 @@ function parseOnMainThread(
 	if (result.ok) {
 		const formatted =
 			rawSize >= LARGE_FILE_THRESHOLD ? rawJson : prettyPrint(rawJson);
-		console.log("🟢 Calling setJson with:", {
+		debug.log("🟢 Calling setJson with:", {
 			formattedLength: formatted.length,
 			nodesLength: result.nodes.length,
 			totalKeys: result.totalKeys,
@@ -54,9 +55,9 @@ function parseOnMainThread(
 			maxDepth: result.maxDepth,
 			url,
 		});
-		console.log("🟢 setJson completed successfully");
+		debug.log("🟢 setJson completed successfully");
 	} else {
-		console.error("🟢 Parse error:", result.error);
+		debug.error("🟢 Parse error:", result.error);
 		setParseError(result.error, rawJson);
 	}
 }
@@ -126,15 +127,15 @@ export function useJsonLoader() {
 	useEffect(() => {
 		// Skip if store already has data (loaded by initViewer)
 		if (hasData) {
-			console.log("🟢 Skipping load - already has data");
+			debug.log("🟢 Skipping load - already has data");
 			return;
 		}
 
-		console.log("🟢 useJsonLoader starting...");
+		debug.log("🟢 useJsonLoader starting...");
 		let workerCleanup: (() => void) | null = null;
 
 		const loadJson = async () => {
-			console.log("🟢 loadJson function started");
+			debug.log("🟢 loadJson function started");
 			setIsParsing(true);
 
 			try {
@@ -149,11 +150,11 @@ export function useJsonLoader() {
 
 				// Check for temp storage from popup first
 				if (tempKey && typeof chrome !== "undefined" && chrome.storage) {
-					console.log("🟢 Attempting to load from storage:", tempKey);
+					debug.log("🟢 Attempting to load from storage:", tempKey);
 					try {
 						const result = await chrome.storage.session.get(tempKey);
 						const storedValue = result[tempKey] as string | undefined;
-						console.log("🟢 Storage result:", {
+						debug.log("🟢 Storage result:", {
 							key: tempKey,
 							hasValue: !!storedValue,
 							valueType: typeof storedValue,
@@ -164,7 +165,7 @@ export function useJsonLoader() {
 							try {
 								// Try parsing as JSON object with {content, url}
 								const parsed = JSON.parse(storedValue);
-								console.log("🟢 Parsed storage data:", {
+								debug.log("🟢 Parsed storage data:", {
 									hasContent: !!parsed.content,
 									url: parsed.url,
 									contentLength: parsed.content?.length,
@@ -178,7 +179,7 @@ export function useJsonLoader() {
 									url = "extension://from-page";
 								}
 							} catch (parseError) {
-								console.log(
+								debug.log(
 									"🟢 Failed to parse as structured data, using raw:",
 									parseError,
 								);
@@ -188,15 +189,15 @@ export function useJsonLoader() {
 							}
 							// Clear from storage
 							chrome.storage.session.remove(tempKey);
-							console.log(
+							debug.log(
 								"🟢 Successfully loaded JSON from storage, length:",
 								rawJson.length,
 							);
 						} else {
-							console.warn("🟢 No stored value found for key:", tempKey);
+							debug.warn("🟢 No stored value found for key:", tempKey);
 						}
 					} catch (error) {
-						console.error("Failed to load from storage:", error);
+						debug.error("Failed to load from storage:", error);
 					}
 				}
 
@@ -242,7 +243,7 @@ export function useJsonLoader() {
 				}
 
 				const rawSize = new Blob([rawJson]).size;
-				console.log("🟢 About to parse JSON:", {
+				debug.log("🟢 About to parse JSON:", {
 					rawSize,
 					urlSource: url,
 					threshold: WORKER_THRESHOLD,
@@ -260,11 +261,11 @@ export function useJsonLoader() {
 					);
 				} else {
 					// Small file → parse synchronously on main thread
-					console.log("🟢 Parsing on main thread...");
+					debug.log("🟢 Parsing on main thread...");
 					parseOnMainThread(rawJson, rawSize, url, setJson, setParseError);
 				}
 			} catch (error) {
-				console.error("🟢 Error in loadJson:", error);
+				debug.error("🟢 Error in loadJson:", error);
 				setParseError({
 					message:
 						error instanceof Error ? error.message : "Failed to load JSON",

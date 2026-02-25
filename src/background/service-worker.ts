@@ -11,6 +11,7 @@
  */
 
 import { JSON_CONTENT_TYPES } from "../shared/constants.js";
+import { debug } from "../shared/logger.js";
 
 /**
  * Create context menu items on install.
@@ -109,7 +110,7 @@ chrome.action.onClicked.addListener(async (tab) => {
 				url: jsonData.url,
 			});
 
-			console.log("🔵 Storing JSON in session:", {
+			debug.log("🔵 Storing JSON in session:", {
 				key: tempKey,
 				urlOrigin: jsonData.url,
 				jsonLength: jsonData.json.length,
@@ -123,7 +124,7 @@ chrome.action.onClicked.addListener(async (tab) => {
 			// Verify it was stored
 			const verify = await chrome.storage.session.get(tempKey);
 			const verifyData = verify[tempKey] as string | undefined;
-			console.log("🔵 Verified storage:", {
+			debug.log("🔵 Verified storage:", {
 				key: tempKey,
 				hasData: !!verifyData,
 				dataLength: verifyData?.length,
@@ -132,7 +133,7 @@ chrome.action.onClicked.addListener(async (tab) => {
 			const viewerUrl = chrome.runtime.getURL(
 				`viewer/index.html?temp=${tempKey}`,
 			);
-			console.log("🔵 Opening viewer:", viewerUrl);
+			debug.log("🔵 Opening viewer:", viewerUrl);
 			chrome.tabs.create({ url: viewerUrl });
 		} else if (
 			tab.url &&
